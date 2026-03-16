@@ -86,12 +86,97 @@
             padding: 20px;
         }
 
+        .pixel-border.orange { border-color: var(--primary-orange); box-shadow: 0 -4px 0 -4px var(--primary-orange), 0 4px 0 -4px var(--primary-orange), -4px 0 0 -4px var(--primary-orange), 4px 0 0 -4px var(--primary-orange), 0 -8px 0 -4px #000, 0 8px 0 -4px #000, -8px 0 0 -4px #000, 8px 0 0 -4px #000, 0 -12px 0 -8px var(--primary-orange), 0 12px 0 -8px var(--primary-orange), -12px 0 0 -8px var(--primary-orange), 12px 0 0 -8px var(--primary-orange); }
+        .pixel-border.cyan { border-color: var(--primary-cyan); box-shadow: 0 -4px 0 -4px var(--primary-cyan), 0 4px 0 -4px var(--primary-cyan), -4px 0 0 -4px var(--primary-cyan), 4px 0 0 -4px var(--primary-cyan), 0 -8px 0 -4px #000, 0 8px 0 -4px #000, -8px 0 0 -4px #000, 8px 0 0 -4px #000, 0 -12px 0 -8px var(--primary-cyan), 0 12px 0 -8px var(--primary-cyan), -12px 0 0 -8px var(--primary-cyan), 12px 0 0 -8px var(--primary-cyan); }
+        .pixel-border.purple { border-color: var(--primary-purple); box-shadow: 0 -4px 0 -4px var(--primary-purple), 0 4px 0 -4px var(--primary-purple), -4px 0 0 -4px var(--primary-purple), 4px 0 0 -4px var(--primary-purple), 0 -8px 0 -4px #000, 0 8px 0 -4px #000, -8px 0 0 -4px #000, 8px 0 0 -4px #000, 0 -12px 0 -8px var(--primary-purple), 0 12px 0 -8px var(--primary-purple), -12px 0 0 -8px var(--primary-purple), 12px 0 0 -8px var(--primary-purple); }
+
         /* Hero Section */
         #hero h1 { font-size: 3rem; color: var(--primary-orange); text-shadow: 4px 4px var(--primary-purple); }
         #hero h2 { font-size: 1.2rem; color: var(--primary-cyan); margin-bottom: 20px; }
         #hero .subtitle { font-size: 0.8rem; color: #aaa; margin-top: 10px; max-width: 80%; text-align: center; line-height: 1.8; }
         #hero .description { margin-top: 40px; font-size: 0.8rem; opacity: 0.8; text-align: center; }
         .glitched { animation: glitch 1s infinite; }
+
+        /* Pain Section */
+        #pain .section-title { margin-bottom: 40px; }
+        #pain .pain-points { display: flex; flex-direction: column; gap: 40px; align-items: center; margin-bottom: 60px; }
+        .pain-point { font-size: 1.5rem; color: #fff; text-align: center; border-left: 4px solid var(--primary-orange); padding-left: 20px; }
+        .transition-text { font-size: 1rem; color: var(--primary-cyan); text-align: center; margin-bottom: 60px; max-width: 800px; }
+        .persona-cards { display: flex; gap: 20px; width: 100%; max-width: 1000px; }
+        .persona-card { flex: 1; text-align: center; padding: 25px; border-color: #333; transition: transform 0.3s; }
+        .persona-card:hover { transform: translateY(-10px); border-color: var(--primary-purple); }
+        .persona-card .icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .persona-card h4 { font-size: 0.8rem; color: var(--primary-orange); margin-bottom: 15px; }
+        .persona-card p { font-size: 0.6rem; opacity: 0.7; line-height: 1.6; }
+
+        /* Capabilities Section */
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
+        .tab-btn { background: #222; color: #888; border: 2px solid #333; padding: 10px 15px; font-family: var(--font-pixel); font-size: 0.5rem; cursor: pointer; transition: all 0.3s; }
+        .tab-btn.active { background: var(--primary-cyan); color: #000; border-color: #fff; }
+        .tab-content { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 200px; }
+        .cap-item { background: var(--card-bg); border: 1px solid #333; padding: 15px; font-size: 0.6rem; display: flex; align-items: center; gap: 10px; }
+        .cap-item::before { content: "▶"; color: var(--primary-orange); font-size: 0.4rem; }
+        .cap-footer { margin-top: 40px; font-size: 0.45rem; color: #666; text-align: center; }
+
+        /* Trust Section */
+        .trust-flow { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; margin-bottom: 50px; }
+        .trust-step { text-align: center; flex: 1; }
+        .trust-step .icon { font-size: 1.5rem; margin-bottom: 10px; }
+        .trust-step h5 { font-size: 0.6rem; color: var(--primary-cyan); margin-bottom: 5px; }
+        .trust-arrow { color: #444; font-size: 1rem; }
+        
+        .trust-details { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
+        .trust-expand { border: 2px solid #333; }
+        .expand-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--primary-orange); }
+        .expand-content { padding: 15px; border-top: 1px solid #333; font-size: 0.55rem; line-height: 1.8; color: #aaa; display: none; }
+        .expand-content.active { display: block; }
+        
+        .case-diff { background: #111; border: 2px solid #333; padding: 20px; }
+        .diff-header { font-size: 0.6rem; margin-bottom: 15px; color: var(--primary-purple); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .diff-box { display: flex; flex-direction: column; gap: 15px; }
+        .diff-line { display: flex; gap: 10px; }
+        .diff-line.minus { color: #ff4d4d; }
+        .diff-line.plus { color: #00f5d4; }
+        .diff-tag { font-size: 0.4rem; padding: 2px 4px; border: 1px solid currentColor; height: fit-content; }
+        .diff-msg { font-size: 0.55rem; }
+
+        /* Brain Update */
+        .brain-memory { margin-top: 30px; border-top: 2px dashed #444; padding-top: 30px; text-align: center; width: 100%; max-width: 600px; }
+        .brain-memory h4 { color: var(--primary-orange); font-size: 0.8rem; margin-bottom: 15px; }
+        .brain-memory p { font-size: 0.55rem; color: #888; line-height: 1.8; }
+
+        /* Start Section */
+        #start {
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 100%);
+            box-shadow: inset 0 0 100px rgba(0, 245, 212, 0.05);
+        }
+        #start .start-steps { display: flex; gap: 30px; margin-bottom: 60px; width: 100%; max-width: 900px; }
+        .start-step { flex: 1; text-align: center; }
+        .start-step .num { font-size: 1.5rem; color: var(--primary-orange); margin-bottom: 20px; display: block; }
+        .start-step h4 { font-size: 0.7rem; color: #fff; margin-bottom: 10px; }
+        .start-step p { font-size: 0.5rem; color: #888; }
+        .cta-container { text-align: center; }
+        .cta-subtext { font-size: 0.45rem; color: #555; margin-top: 20px; }
+        
+        /* Pixel Modal */
+        #pixel-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            width: 300px;
+            text-align: center;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+        }
         @keyframes glitch {
             0% { transform: translate(0); }
             20% { transform: translate(-2px, 2px); }
@@ -251,7 +336,60 @@
             </div>
         </section>
 
-        <!-- Section 2: Team Overview -->
+        <!-- Section 2: Pain & Target Audience -->
+        <section id="pain" class="section">
+            <div class="container">
+                <h2 class="pixel-text section-title">你是不是也有这些困扰？</h2>
+                <div class="pain-points">
+                    <div class="pain-point">「方案改了八遍，还是不对？」</div>
+                    <div class="pain-point">「查资料找半天，不知该信谁？」</div>
+                    <div class="pain-point">「一件事要跑四五个工具？」</div>
+                    <div class="pain-point">「文件发出去才发现有错？」</div>
+                </div>
+                <div class="transition-text">
+                    说中了三条，这支队伍就是为你准备的。
+                </div>
+                <div class="persona-cards">
+                    <div class="persona-card pixel-border orange">
+                        <div class="icon">🗡️</div>
+                        <h4>独立工作者</h4>
+                        <p><strong>你是一个人撑起多条业务线的人。</strong><br>写方案、找资料、做汇报，全靠自己——时间永远不够用，每件事都只能做到"差不多"。</p>
+                    </div>
+                    <div class="persona-card pixel-border cyan">
+                        <div class="icon">⚔️</div>
+                        <h4>小团队负责人</h4>
+                        <p><strong>你是那个每个决策都不敢出错的人。</strong><br>人少事多，资源有限，稍有差池整个项目就偏轨——你需要的不是更多工具，而是一支靠谱的队伍。</p>
+                    </div>
+                    <div class="persona-card pixel-border purple">
+                        <div class="icon">📜</div>
+                        <h4>内容与知识工作者</h4>
+                        <p><strong>你是每天要生产高质量文字的人。</strong><br>写报告、做分析、出内容，脑子里有想法，但输出速度和质量从来不同步——你需要有人和你一起想、帮你写好。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Capabilities -->
+        <section id="capabilities" class="section">
+            <div class="container">
+                <h2 class="pixel-text section-title">鬼杀队能做什么？</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="writing">📝 写作与内容</button>
+                    <button class="tab-btn" data-tab="research">🔍 调研与分析</button>
+                    <button class="tab-btn" data-tab="tech">💻 技术与代码</button>
+                    <button class="tab-btn" data-tab="strategy">📊 决策与战略</button>
+                    <button class="tab-btn" data-tab="daily">🗓️ 日常管理</button>
+                </div>
+                <div id="capability-content" class="tab-content">
+                    <!-- Injected by JS -->
+                </div>
+                <div class="cap-footer">
+                    以上每个任务，都由专属柱处理，经义勇审核后交付。
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Team Overview -->
         <section id="team" class="section">
             <div class="container">
                 <h2 class="pixel-text section-title">团队全貌</h2>
@@ -302,6 +440,10 @@
                         <p>深度思考柱：Extended Thinking，攻克复杂逻辑与代码</p>
                         <ul class="pillar-list"></ul>
                     </div>
+                </div>
+                <div class="brain-memory">
+                    <h4>📚 天音从不忘事</h4>
+                    <p>鬼杀队配备记忆系统——主公说过的每一件事、每个决策、每个项目背景，天音都记得住。下次交代任务，不用重头解释。</p>
                 </div>
             </div>
         </section>
@@ -395,6 +537,107 @@
                 </div>
             </div>
         </section>
+
+        <!-- Section 8: Why Trust Us -->
+        <section id="trust" class="section">
+            <div class="container">
+                <h2 class="pixel-text section-title">不只是聪明——我们有人把关。</h2>
+                <h3 class="pixel-text" style="font-size: 0.8rem; color: var(--primary-cyan); text-align: center; margin-bottom: 40px;">发出去之前，内部先过一遍。这不是承诺，是流程。</h3>
+                <div class="trust-flow">
+                    <div class="trust-step">
+                        <div class="icon">⚔️</div>
+                        <h5>第一步：柱来接单</h5>
+                        <p style="font-size: 0.45rem; color: #888;">专人负责</p>
+                    </div>
+                    <div class="trust-arrow">➡</div>
+                    <div class="trust-step">
+                        <div class="icon">📝</div>
+                        <h5>第二步：内部初稿</h5>
+                        <p style="font-size: 0.45rem; color: #888;">认真起草</p>
+                    </div>
+                    <div class="trust-arrow">➡</div>
+                    <div class="trust-step">
+                        <div class="icon">💧</div>
+                        <h5>第三步：义勇把关</h5>
+                        <p style="font-size: 0.45rem; color: #888;">过眼审查</p>
+                    </div>
+                    <div class="trust-arrow">➡</div>
+                    <div class="trust-step">
+                        <div class="icon">🌸</div>
+                        <h5>第四步：天音交付</h5>
+                        <p style="font-size: 0.45rem; color: #888;">确认发出</p>
+                    </div>
+                </div>
+
+                <div class="trust-details">
+                    <div class="trust-expand pixel-border">
+                        <div class="expand-header" onclick="toggleExpand(this)">
+                            <span>🔍 义勇的审核标准（3条，白话版）</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expand-content">
+                            • <strong>逻辑走得通吗？</strong> — 结论和依据对得上，没有自相矛盾的地方。<br>
+                            • <strong>说的事是真的吗？</strong> — 关键信息可以查到来源，不是凭空编出来的。<br>
+                            • <strong>有没有漏掉重要的？</strong> — 该说的都说了，没有因为方便而跳过关键部分。
+                        </div>
+                    </div>
+
+                    <div class="case-diff pixel-border">
+                        <div class="diff-header">🚨 纠错案例：炭治郎的方案 vs 义勇的审核</div>
+                        <div class="diff-box">
+                            <div class="diff-line minus">
+                                <div class="diff-tag">修正前</div>
+                                <div class="diff-msg">“其中一家公司的数据引用了一年前的旧资料...” (炭治郎初稿)</div>
+                            </div>
+                            <div class="diff-line plus">
+                                <div class="diff-tag">修正后</div>
+                                <div class="diff-msg">“已经重新核对，更新为最新资料，结论也随之调整。” (义勇审核并修正)</div>
+                            </div>
+                            <p style="font-size: 0.45rem; color: #666; margin-top: 10px;">
+                                * 天音把修正后的版本送到主公手上："这份报告义勇发现了一处数据过时，已经重新核对。"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: How to Start -->
+        <section id="start" class="section">
+            <div class="container">
+                <h2 class="pixel-text section-title" style="margin-bottom: 60px;">告诉我你在烦什么，剩下的交给我们。</h2>
+                <div class="start-steps">
+                    <div class="start-step">
+                        <span class="num">01</span>
+                        <h4>说出你的难题</h4>
+                        <p>不需要说清楚所有细节，也不需要知道该让谁来做——把你现在面对的问题告诉天音就行。</p>
+                    </div>
+                    <div class="start-step">
+                        <span class="num">02</span>
+                        <h4>天音来安排</h4>
+                        <p>天音会判断该派谁出动，整个团队在后台运作，你不需要盯着过程。</p>
+                    </div>
+                    <div class="start-step">
+                        <span class="num">03</span>
+                        <h4>坐等成果到手</h4>
+                        <p>任务完成后天音会主动告诉你，成果直接送到你眼前，清楚说明做了什么。</p>
+                    </div>
+                </div>
+                <div class="cta-container">
+                    <button class="pixel-btn" onclick="showAmaneModal()">去找天音说说</button>
+                    <div class="cta-subtext">第一次发消息说清楚你想解决什么就够了，不用写需求文档。<br>通常在 30 分钟内回复，复杂任务会先告诉你大概需要多久。<br>如果你的问题我们做不了，我们也会直接告诉你。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal -->
+        <div id="modal-container" class="hidden">
+            <div class="modal-overlay" onclick="closeAmaneModal()"></div>
+            <div id="pixel-modal" class="pixel-border">
+                <p style="font-size: 0.7rem; margin-bottom: 20px; color: var(--primary-cyan);">天音在此，请告诉我你的任务</p>
+                <a href="https://t.me/Alexso_bot" target="_blank" class="pixel-btn" style="text-decoration: none; display: inline-block;">去 Telegram 找她</a>
+            </div>
+        </div>
     </div>
     <script>
         const pillars = [
@@ -481,6 +724,71 @@
                 <p><strong>特点:</strong> ${p.traits}</p>
             `;
             panel.classList.remove('hidden');
+        }
+
+        // Capabilities Tab Logic
+        const capData = {
+            writing: [
+                "帮你写邮件和回复",
+                "帮你做提案和PPT",
+                "帮你写推文和文案",
+                "帮你改稿润色表达",
+                "帮你把想法变成文章"
+            ],
+            research: [
+                "帮你查行业最新动态",
+                "帮你整理竞品信息",
+                "帮你读懂一份报告",
+                "帮你梳理多方观点",
+                "帮你找到关键数据"
+            ],
+            tech: [
+                "帮你写自动化脚本",
+                "帮你搭建工具和功能",
+                "帮你查出程序里的错",
+                "帮你部署上线跑起来",
+                "帮你把重复操作自动化"
+            ],
+            strategy: [
+                "帮你拆解复杂问题",
+                "帮你列出利弊对比",
+                "帮你搭框架理思路",
+                "帮你评估方案风险",
+                "帮你找到被忽略的角度"
+            ],
+            daily: [
+                "帮你整理会议记录",
+                "帮你归纳信息要点",
+                "帮你安排任务优先级",
+                "帮你起草各类通知",
+                "帮你处理繁琐文书"
+            ]
+        };
+
+        const capContent = document.getElementById('capability-content');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+
+        function updateCaps(tab) {
+            capContent.innerHTML = capData[tab].map(item => `
+                <div class="cap-item">${item}</div>
+            `).join('');
+            tabBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+        }
+
+        tabBtns.forEach(btn => {
+            btn.onclick = () => updateCaps(btn.dataset.tab);
+        });
+
+        // Initialize first tab
+        updateCaps('writing');
+
+        function toggleExpand(header) {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span:last-child');
+            content.classList.toggle('active');
+            arrow.innerText = content.classList.contains('active') ? '▲' : '▼';
         }
 
         document.querySelector('.close-btn').onclick = () => {
@@ -610,6 +918,14 @@
             }
         }, { threshold: 0.5 });
         observer.observe(document.getElementById('case'));
+
+        function showAmaneModal() {
+            document.getElementById('modal-container').classList.remove('hidden');
+        }
+
+        function closeAmaneModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+        }
 
     </script>
 </body>
