@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kimetsu · Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#0d0d0d;color:#e0e0e0;font-family:'Inter',sans-serif}
+body{display:flex;flex-direction:column}
+
+/* ── Header ── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;border-bottom:1px solid #181828;flex-shrink:0;
+}
+.logo{font-family:'Press Start 2P',monospace;font-size:9px;color:#7C6AF7;letter-spacing:1px}
+.tabs{display:flex;gap:6px}
+.tab{
+  padding:6px 14px;border-radius:6px;border:1px solid #252540;
+  background:transparent;color:#666;font-family:'Inter',sans-serif;
+  font-size:12px;cursor:pointer;transition:all .2s;
+}
+.tab:hover{border-color:#7C6AF7;color:#9d8fff}
+.tab.active{background:#7C6AF7;border-color:#7C6AF7;color:#fff}
+
+/* ── Layout ── */
+.main{display:flex;flex:1;overflow:hidden;min-height:0}
+.canvas-wrap{flex:2;position:relative;overflow:hidden;min-width:0}
+canvas{display:block;width:100%;height:100%}
+
+/* ── Right Panel ── */
+.panel{
+  flex:1;min-width:240px;max-width:340px;
+  border-left:1px solid #181828;
+  display:flex;flex-direction:column;
+  overflow:hidden;position:relative;
+}
+.panel-inner{
+  flex:1;overflow-y:auto;padding:20px 18px;
+  scrollbar-width:thin;scrollbar-color:#252540 transparent;
+}
+.panel-inner::-webkit-scrollbar{width:4px}
+.panel-inner::-webkit-scrollbar-track{background:transparent}
+.panel-inner::-webkit-scrollbar-thumb{background:#252540;border-radius:2px}
+
+/* Step panel */
+.step-panel{}
+.panel-title{
+  font-family:'Press Start 2P',monospace;font-size:7px;
+  color:#7C6AF7;letter-spacing:1px;margin-bottom:18px;
+}
+.step-list{list-style:none}
+.step-item{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:8px 0;border-bottom:1px solid #111;
+}
+.step-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#222;margin-top:4px;flex-shrink:0;
+  transition:all .4s;
+}
+.step-dot.active{background:#7C6AF7;box-shadow:0 0 8px #7C6AF7}
+.step-dot.done{background:#C8A96E}
+.step-body{}
+.step-label{font-size:12px;color:#bbb;line-height:1.4;transition:color .3s}
+.step-label.active{color:#fff;font-weight:500}
+.step-desc{font-size:11px;color:#555;margin-top:2px;transition:color .3s}
+.step-desc.active{color:#888}
+
+/* Member panel */
+.member-panel{display:none}
+.member-panel.show{display:block;animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.back-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  background:none;border:none;color:#555;font-size:11px;
+  cursor:pointer;padding:0;font-family:'Inter',sans-serif;
+  margin-bottom:18px;transition:color .2s;
+}
+.back-btn:hover{color:#7C6AF7}
+.m-avatar{
+  width:56px;height:56px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin-bottom:14px;
+  box-shadow:0 0 24px rgba(124,106,247,.25);
+}
+.m-name{
+  font-family:'Press Start 2P',monospace;font-size:8px;
+  color:#fff;margin-bottom:4px;line-height:1.6;
+}
+.m-role{font-size:12px;color:#C8A96E;margin-bottom:12px}
+.m-model-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;
+  background:rgba(124,106,247,.12);
+  border:1px solid rgba(124,106,247,.25);
+  font-size:10px;color:#9d8fff;margin-bottom:18px;
+}
+.info-block{margin-bottom:14px}
+.info-lbl{
+  font-size:9px;color:#444;text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:5px;
+}
+.info-val{font-size:12px;color:#ccc;line-height:1.65}
+.trigger-tag{
+  display:inline-block;padding:4px 10px;border-radius:4px;
+  background:rgba(200,169,110,.1);
+  border:1px solid rgba(200,169,110,.25);
+  font-size:11px;color:#C8A96E;margin-top:3px;
+}
+.example-box{
+  background:#111;border:1px solid #1e1e2e;border-radius:8px;
+  padding:10px 12px;font-size:11px;color:#777;
+  line-height:1.65;font-style:italic;
+}
+
+/* Progress bar */
+.prog-bar-wrap{
+  margin:14px 0 0;padding:10px 14px;
+  background:rgba(124,106,247,.08);
+  border:1px solid rgba(124,106,247,.18);
+  border-radius:8px;display:none;
+}
+.prog-bar-wrap.show{display:block}
+.prog-label{font-size:11px;color:#7C6AF7;margin-bottom:6px}
+.prog-track{height:3px;background:#1a1a2e;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#7C6AF7,#C8A96E);border-radius:3px;transition:width .6s ease}
+
+/* Canvas tooltip */
+.node-tooltip{
+  position:absolute;pointer-events:none;opacity:0;
+  background:rgba(10,10,20,.9);border:1px solid #3a3a5c;
+  border-radius:6px;padding:5px 10px;font-size:11px;color:#bbb;
+  white-space:nowrap;transition:opacity .15s;transform:translate(-50%,-110%);
+}
+
+@media(max-width:700px){
+  .panel{min-width:180px}
+  .canvas-wrap{flex:1.5}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">KIMETSU WORKFLOW</div>
+  <div class="tabs">
+    <button class="tab" data-mode="normal">普通任务</button>
+    <button class="tab active" data-mode="complex">复杂任务</button>
+    <button class="tab" data-mode="new_project">新项目</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="flowCanvas"></canvas>
+    <div class="node-tooltip" id="tooltip"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner" id="panelInner">
+
+      <!-- Step view -->
+      <div class="step-panel" id="stepPanel">
+        <div class="panel-title" id="modeLabel">WORKFLOW</div>
+        <ul class="step-list" id="stepList"></ul>
+        <div class="prog-bar-wrap" id="progWrap">
+          <div class="prog-label" id="progLabel">执行中...</div>
+          <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Member view -->
+      <div class="member-panel" id="memberPanel">
+        <button class="back-btn" id="backBtn">← 返回流程</button>
+        <div class="m-avatar" id="mAvatar"></div>
+        <div class="m-name" id="mName"></div>
+        <div class="m-role" id="mRole"></div>
+        <div class="m-model-tag">⚡ <span id="mModel"></span></div>
+        <div class="info-block">
+          <div class="info-lbl">职责</div>
+          <div class="info-val" id="mDuty"></div>
+        </div>
+        <div class="info-block">
+          <div class="info-lbl">触发条件</div>
+          <div class="trigger-tag" id="mTrigger"></div>
+        </div>
+        <div class="info-block">
+          <div class="info-lbl">示例</div>
+          <div class="example-box" id="mExample"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════
+
+const MEMBERS = {
+  START:    { name:'用户指令',     emoji:'💬', role:'指令入口',     model:'—',                       duty:'接收主公发出的所有指令和请求', trigger:'主公说任何话', example:'主公的每一句话，都从这里开始' },
+  TIANYIN:  { name:'天音',         emoji:'👑', role:'团队总管',     model:'Claude Sonnet 4.5',       duty:'接收指令、判断类型、分派各柱、汇总交付', trigger:'所有任务都先经过天音', example:'主公说任何话 → 天音第一个收到', color:'#7C6AF7' },
+  JUDGE:    { name:'任务判断',     emoji:'⚖️', role:'分流节点',     model:'—',                       duty:'根据任务复杂度自动判断路径：普通/复杂/新项目', trigger:'每个任务必经节点', example:'「写封邮件」→ 普通 /「做个系统」→ 复杂' },
+  KASUMI:   { name:'霞柱·无一郎', emoji:'🌸', role:'需求分析师',   model:'Claude Opus 4.6 Thinking', duty:'将模糊想法提炼成清晰需求，深度调研', trigger:'「帮我查/调研/了解一下...」', example:'帮我调研竞品 → 霞柱出动', color:'#e8b4d8' },
+  SHINOBU:  { name:'忍·Shinobu',  emoji:'🦋', role:'项目协调员',   model:'Claude Sonnet 4.5',       duty:'复杂任务拆解、多柱协调、进度追踪', trigger:'任务含 3+ 子任务', example:'做一个网站 → 忍负责拆解规划', color:'#9bd4c8' },
+  YORUICHI: { name:'缘一·Yoruichi',emoji:'⚡', role:'战略顾问',     model:'Claude Opus 4.6 Thinking', duty:'新项目头脑风暴、架构设计、Spec 文档', trigger:'新项目/重大决策', example:'新建一个产品 → 缘一先做头脑风暴', color:'#ffd700' },
+  RENGOKU:  { name:'煉獄',         emoji:'🔥', role:'内容策划官',   model:'Claude Sonnet 4.5',       duty:'写作、文案、邮件、PPT、提案', trigger:'「写/做PPT/写邮件...」', example:'写给投资人的邮件 → 煉獄执笔', color:'#ff6b35' },
+  TANJIRO:  { name:'炭治郎',       emoji:'💧', role:'后端工程师',   model:'Codex GPT-5',             duty:'后端代码、API、数据库、系统架构', trigger:'涉及后端代码的任务', example:'做一个 API → 炭治郎实现', color:'#4a9eff' },
+  MITSURI:  { name:'甘露寺',       emoji:'🌺', role:'前端工程师',   model:'Codex GPT-5',             duty:'HTML/CSS/JS、UI 设计、动画、视觉', trigger:'所有前端界面任务', example:'做一个网页 → 甘露寺负责', color:'#ff9eb5' },
+  IGURO:    { name:'伊黑',         emoji:'🐍', role:'数据科学家',   model:'Claude Opus 4.6 Thinking', duty:'数据分析、金融量化、报表解读', trigger:'发来数据/表格/数字', example:'分析这份财报 → 伊黑出动', color:'#b8a9ff' },
+  SANEMI:   { name:'実弥',         emoji:'💨', role:'自动化专家',   model:'Codex GPT-5',             duty:'浏览器操控、爬虫、自动化脚本', trigger:'「自动/批量/定时/爬取...」', example:'每天自动发报告 → 実弥搭建', color:'#7fffd4' },
+  GIYU:     { name:'义勇',         emoji:'🌊', role:'首席质检员',   model:'Claude Opus 4.6 Thinking', duty:'所有输出的最终审核，发布前把关', trigger:'任何对外发布前', example:'网站上线前 → 义勇审核', color:'#4ecdc4' },
+  DELIVER:  { name:'天音·交付',    emoji:'📦', role:'交付节点',     model:'Claude Sonnet 4.5',       duty:'汇总所有成员输出，整理成最终交付物', trigger:'质检通过后', example:'所有工作完成 → 天音整理交付给主公', color:'#7C6AF7' },
+  DONE:     { name:'主公验收',     emoji:'✅', role:'终点',         model:'—',                       duty:'主公验收最终成果', trigger:'交付完成', example:'「好的！」「完美！」→ 任务完成' },
+};
+
+// ── 虚拟坐标系（内部计算用）──
+const VW = 1000, VH = 920;
+
+// shape: 'pill'|'rect'|'diamond'|'exec'
+const NODE_DEFS = {
+  START:   {vx:500,vy:52, vw:148,vh:36, label:'用户指令',      shape:'pill'},
+  TIANYIN: {vx:500,vy:148,vw:165,vh:46, label:'天音·总管',     shape:'rect',  glow:'#7C6AF7'},
+  JUDGE:   {vx:500,vy:258,vw:96, vh:96, label:'任务判断',      shape:'diamond'},
+  KASUMI:  {vx:222,vy:374,vw:148,vh:38, label:'霞柱·调研',     shape:'rect'},
+  SHINOBU: {vx:500,vy:374,vw:148,vh:38, label:'忍·拆解',       shape:'rect'},
+  YORUICHI:{vx:778,vy:374,vw:158,vh:38, label:'缘一·头脑风暴', shape:'rect',  dashed:true},
+  RENGOKU: {vx:200,vy:494,vw:128,vh:46, l1:'煉獄',l2:'写作',   shape:'exec'},
+  TANJIRO: {vx:350,vy:494,vw:128,vh:46, l1:'炭治郎',l2:'后端', shape:'exec'},
+  MITSURI: {vx:500,vy:494,vw:128,vh:46, l1:'甘露寺',l2:'前端', shape:'exec'},
+  IGURO:   {vx:650,vy:494,vw:128,vh:46, l1:'伊黑',l2:'数据',   shape:'exec'},
+  SANEMI:  {vx:800,vy:494,vw:128,vh:46, l1:'実弥',l2:'自动化', shape:'exec'},
+  GIYU:    {vx:500,vy:598,vw:148,vh:38, label:'义勇·质检',     shape:'rect',  greenBorder:true},
+  DELIVER: {vx:500,vy:692,vw:165,vh:38, label:'天音·交付',     shape:'rect'},
+  DONE:    {vx:500,vy:788,vw:148,vh:38, label:'主公验收',      shape:'pill',  gold:true},
+};
+
+// All background connections to draw dimly
+const ALL_CONNS = [
+  ['START','TIANYIN'],['TIANYIN','JUDGE'],
+  ['JUDGE','KASUMI'],['JUDGE','SHINOBU'],['JUDGE','YORUICHI'],
+  ['KASUMI','RENGOKU'],['KASUMI','TANJIRO'],['KASUMI','MITSURI'],['KASUMI','IGURO'],['KASUMI','SANEMI'],
+  ['SHINOBU','RENGOKU'],['SHINOBU','TANJIRO'],['SHINOBU','MITSURI'],['SHINOBU','IGURO'],['SHINOBU','SANEMI'],
+  ['YORUICHI','RENGOKU'],['YORUICHI','TANJIRO'],['YORUICHI','MITSURI'],['YORUICHI','IGURO'],['YORUICHI','SANEMI'],
+  ['RENGOKU','GIYU'],['TANJIRO','GIYU'],['MITSURI','GIYU'],['IGURO','GIYU'],['SANEMI','GIYU'],
+  ['GIYU','DELIVER'],['DELIVER','DONE'],
+];
+
+// Task mode step definitions
+const TASK_MODES = {
+  normal: {
+    label:'普通任务',
+    judgeText:'普通任务',
+    steps:[
+      {act:['START'],                     label:'接收指令',  desc:'主公发出指令'},
+      {act:['TIANYIN'],  ptcl:[['START','TIANYIN']],                    label:'天音接收',  desc:'天音总管收到并分析任务'},
+      {act:['JUDGE'],    ptcl:[['TIANYIN','JUDGE']],                    label:'任务判断',  desc:'判断为「普通任务」'},
+      {act:['RENGOKU'],  ptcl:[['JUDGE','RENGOKU']], judge:'普通任务',  label:'单柱执行',  desc:'煉獄直接处理'},
+      {act:['GIYU'],     ptcl:[['RENGOKU','GIYU']],                     label:'义勇质检',  desc:'义勇进行最终审核'},
+      {act:['DELIVER'],  ptcl:[['GIYU','DELIVER']],                     label:'准备交付',  desc:'天音整理输出成果'},
+      {act:['DONE'],     ptcl:[['DELIVER','DONE']],                     label:'主公验收',  desc:'成果交付主公'},
+    ],
+  },
+  complex: {
+    label:'复杂任务',
+    judgeText:'复杂任务',
+    steps:[
+      {act:['START'],                     label:'接收指令',  desc:'主公发出复杂指令'},
+      {act:['TIANYIN'],  ptcl:[['START','TIANYIN']],                    label:'天音接收',  desc:'天音分析任务规模'},
+      {act:['JUDGE'],    ptcl:[['TIANYIN','JUDGE']],                    label:'任务判断',  desc:'判断为「复杂任务」'},
+      {act:['SHINOBU'],  ptcl:[['JUDGE','SHINOBU']], judge:'复杂任务',  label:'忍拆解规划',desc:'忍将任务拆解为子任务'},
+      {act:['RENGOKU','TANJIRO','MITSURI','IGURO','SANEMI'],
+        ptcl:[['SHINOBU','RENGOKU'],['SHINOBU','TANJIRO'],['SHINOBU','MITSURI'],['SHINOBU','IGURO'],['SHINOBU','SANEMI']],
+        progress:true, label:'五柱并行',  desc:'各专家同步执行各自任务'},
+      {act:['GIYU'],     ptcl:[['RENGOKU','GIYU'],['TANJIRO','GIYU'],['MITSURI','GIYU'],['IGURO','GIYU'],['SANEMI','GIYU']],
+        label:'汇聚质检',  desc:'义勇审核所有输出'},
+      {act:['DELIVER'],  ptcl:[['GIYU','DELIVER']],                     label:'天音汇总',  desc:'天音整理所有成果'},
+      {act:['DONE'],     ptcl:[['DELIVER','DONE']],                     label:'主公验收',  desc:'完整成果交付主公'},
+    ],
+  },
+  new_project: {
+    label:'新项目',
+    judgeText:'新项目',
+    steps:[
+      {act:['START'],                     label:'接收指令',  desc:'主公提出新项目想法'},
+      {act:['TIANYIN'],  ptcl:[['START','TIANYIN']],                    label:'天音接收',  desc:'识别为新项目模式'},
+      {act:['JUDGE'],    ptcl:[['TIANYIN','JUDGE']],                    label:'任务判断',  desc:'判断为「新项目」'},
+      {act:['YORUICHI'], ptcl:[['JUDGE','YORUICHI']], judge:'新项目',   label:'缘一战略',  desc:'缘一进行头脑风暴与架构设计'},
+      {act:['RENGOKU','TANJIRO','MITSURI','IGURO','SANEMI'],
+        ptcl:[['YORUICHI','RENGOKU'],['YORUICHI','TANJIRO'],['YORUICHI','MITSURI'],['YORUICHI','IGURO'],['YORUICHI','SANEMI']],
+        progress:true, label:'全员出动',  desc:'按架构文档并行建设'},
+      {act:['GIYU'],     ptcl:[['RENGOKU','GIYU'],['TANJIRO','GIYU'],['MITSURI','GIYU'],['IGURO','GIYU'],['SANEMI','GIYU']],
+        label:'全面质检',  desc:'义勇全面审核新项目'},
+      {act:['DELIVER'],  ptcl:[['GIYU','DELIVER']],                     label:'项目交付',  desc:'天音整理完整项目'},
+      {act:['DONE'],     ptcl:[['DELIVER','DONE']],                     label:'主公验收',  desc:'新项目正式交付'},
+    ],
+  },
+};
+
+// ════════════════════════════════════════════════════
+// CANVAS SETUP
+// ════════════════════════════════════════════════════
+
+const canvas = document.getElementById('flowCanvas');
+const ctx = canvas.getContext('2d');
+const wrap  = document.getElementById('canvasWrap');
+
+let cw = 0, ch = 0, dpr = 1; // display dimensions
+let scale = 1;               // virtual→display scale
+let nodeRects = {};          // computed node rects in display coords
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  cw  = wrap.clientWidth;
+  ch  = wrap.clientHeight;
+  canvas.width  = cw * dpr;
+  canvas.height = ch * dpr;
+  canvas.style.width  = cw + 'px';
+  canvas.style.height = ch + 'px';
+  ctx.scale(dpr, dpr);
+  // Compute scale to fit virtual canvas into display
+  scale = Math.min(cw / VW, ch / VH);
+  computeNodeRects();
+}
+
+function vx(x) { return (x - VW/2) * scale + cw/2; }
+function vy(y) { return y * scale + (ch - VH * scale) / 2; }
+function vs(v) { return v * scale; }
+
+function computeNodeRects() {
+  nodeRects = {};
+  for (const [id, d] of Object.entries(NODE_DEFS)) {
+    nodeRects[id] = {
+      x: vx(d.vx), y: vy(d.vy),
+      w: vs(d.vw), h: vs(d.vh),
+    };
+  }
+}
+
+// ════════════════════════════════════════════════════
+// DRAWING HELPERS
+// ════════════════════════════════════════════════════
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.arcTo(x+w, y, x+w, y+r, r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+  ctx.lineTo(x+r, y+h);
+  ctx.arcTo(x, y+h, x, y+h-r, r);
+  ctx.lineTo(x, y+r);
+  ctx.arcTo(x, y, x+r, y, r);
+  ctx.closePath();
+}
+
+function diamond(x, y, w, h) {
+  ctx.beginPath();
+  ctx.moveTo(x, y - h/2);
+  ctx.lineTo(x + w/2, y);
+  ctx.lineTo(x, y + h/2);
+  ctx.lineTo(x - w/2, y);
+  ctx.closePath();
+}
+
+// Get connection anchor points (bottom of 'from', top of 'to')
+function getAnchors(fromId, toId) {
+  const f = nodeRects[fromId], t = nodeRects[toId];
+  const fd = NODE_DEFS[fromId], td = NODE_DEFS[toId];
+  let fy, ty;
+  if (fd.shape === 'diamond') fy = f.y + f.h/2;
+  else fy = f.y + f.h/2;
+  if (td.shape === 'diamond') ty = t.y - t.h/2;
+  else ty = t.y - t.h/2;
+  return { fx: f.x, fy, tx: t.x, ty };
+}
+
+function drawBezier(fx, fy, tx, ty, color, alpha, lineW, dashed) {
+  const cy = (fy + ty) / 2;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineW;
+  if (dashed) ctx.setLineDash([vs(4), vs(5)]);
+  else ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(fx, fy);
+  ctx.bezierCurveTo(fx, cy, tx, cy, tx, ty);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Cubic bezier point
+function cbez(p0x,p0y, p1x,p1y, p2x,p2y, p3x,p3y, t) {
+  const u=1-t, uu=u*u, uuu=uu*u, tt=t*t, ttt=tt*t;
+  return {
+    x: uuu*p0x + 3*uu*t*p1x + 3*u*tt*p2x + ttt*p3x,
+    y: uuu*p0y + 3*uu*t*p1y + 3*u*tt*p2y + ttt*p3y,
+  };
+}
+
+function getParticlePt(fromId, toId, t) {
+  const {fx,fy,tx,ty} = getAnchors(fromId, toId);
+  const cy = (fy + ty) / 2;
+  return cbez(fx,fy, fx,cy, tx,cy, tx,ty, t);
+}
+
+// ════════════════════════════════════════════════════
+// NODE DRAWING
+// ════════════════════════════════════════════════════
+
+function getNodeColor(id) {
+  const m = MEMBERS[id];
+  return m && m.color ? m.color : '#7C6AF7';
+}
+
+// state: 'idle' | 'active' | 'done' | 'highlight'
+function drawNode(id, state, judgeLabel) {
+  const d = NODE_DEFS[id];
+  const r = nodeRects[id];
+  if (!r) return;
+  const x = r.x, y = r.y, w = r.w, h = r.h;
+  const memberColor = getNodeColor(id);
+
+  let fillColor  = '#0f0f1a';
+  let borderColor = '#252540';
+  let textColor  = '#555';
+  let glowColor  = null;
+  let borderW    = 1;
+  let glowSize   = 0;
+
+  if (state === 'active') {
+    fillColor   = '#13132a';
+    borderColor = memberColor;
+    textColor   = '#fff';
+    glowColor   = memberColor;
+    glowSize    = vs(12);
+    borderW     = 1.5;
+  } else if (state === 'done') {
+    fillColor   = '#111120';
+    borderColor = memberColor + '88';
+    textColor   = '#aaa';
+    borderW     = 1;
+  } else if (state === 'highlight') {
+    fillColor   = '#16162e';
+    borderColor = memberColor;
+    textColor   = '#e0e0e0';
+    glowColor   = memberColor;
+    glowSize    = vs(6);
+    borderW     = 1.5;
+  }
+
+  if (d.greenBorder) {
+    borderColor = state === 'idle' ? '#1a3a2a' : '#4ecdc4';
+    if (state === 'active') glowColor = '#4ecdc4';
+  }
+  if (d.gold && state === 'active') {
+    borderColor = '#C8A96E';
+    glowColor   = '#C8A96E';
+  }
+  if (id === 'START' && state === 'active') {
+    borderColor = '#C8A96E';
+    glowColor   = '#C8A96E';
+  }
+
+  ctx.save();
+
+  // Glow
+  if (glowColor && glowSize > 0) {
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur  = glowSize;
+  }
+
+  // Shape path
+  if (d.shape === 'pill') {
+    roundRect(x - w/2, y - h/2, w, h, h/2);
+  } else if (d.shape === 'diamond') {
+    diamond(x, y, w, h);
+  } else {
+    roundRect(x - w/2, y - h/2, w, h, vs(7));
+  }
+
+  // Fill
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+
+  // Border (dashed for YORUICHI)
+  ctx.strokeStyle = borderColor;
+  ctx.lineWidth   = borderW * scale;
+  if (d.dashed) {
+    ctx.setLineDash([vs(5), vs(4)]);
+  } else {
+    ctx.setLineDash([]);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
+
+  // TIANYIN pulse ring
+  if (id === 'TIANYIN' && state === 'active') {
+    ctx.save();
+    ctx.strokeStyle = memberColor + '44';
+    ctx.lineWidth   = vs(1.5);
+    ctx.shadowColor = memberColor;
+    ctx.shadowBlur  = vs(16);
+    roundRect(x - w/2 - vs(6), y - h/2 - vs(6), w + vs(12), h + vs(12), vs(12));
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Text
+  ctx.fillStyle = textColor;
+
+  if (d.shape === 'diamond') {
+    // Center label
+    ctx.font = `${vs(11)}px 'Inter', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d.label, x, y - vs(2));
+    if (judgeLabel) {
+      ctx.font = `500 ${vs(9.5)}px 'Inter', sans-serif`;
+      ctx.fillStyle = state === 'active' ? '#C8A96E' : '#555';
+      ctx.fillText(judgeLabel, x, y + vs(10));
+    }
+  } else if (d.shape === 'exec') {
+    ctx.font = `500 ${vs(12)}px 'Inter', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d.l1, x, y - vs(5));
+    ctx.font = `${vs(9.5)}px 'Inter', sans-serif`;
+    ctx.fillStyle = state === 'active' ? '#C8A96E' : (state === 'idle' ? '#3a3a55' : '#888');
+    ctx.fillText(d.l2, x, y + vs(7));
+  } else {
+    ctx.font = `${vs(12)}px 'Inter', sans-serif`;
+    if (id === 'TIANYIN' || id === 'DELIVER') ctx.font = `500 ${vs(12.5)}px 'Inter', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d.label, x, y);
+  }
+
+  ctx.restore();
+}
+
+// ════════════════════════════════════════════════════
+// PARTICLES
+// ════════════════════════════════════════════════════
+
+let particles = [];
+
+class Particle {
+  constructor(fromId, toId, delay=0) {
+    this.from = fromId;
+    this.to   = toId;
+    this.t    = 0;
+    this.delay = delay;
+    this.speed = 0.7 + Math.random() * 0.3; // t/sec
+    this.done  = false;
+    this.color = getNodeColor(toId);
+    this.size  = vs(2.2) + Math.random() * vs(1);
+    this.trail = [];
+  }
+  update(dt) {
+    if (this.delay > 0) { this.delay -= dt; return; }
+    this.t = Math.min(1, this.t + this.speed * dt);
+    const pt = getParticlePt(this.from, this.to, this.t);
+    this.trail.unshift({x: pt.x, y: pt.y});
+    if (this.trail.length > 10) this.trail.pop();
+    if (this.t >= 1) this.done = true;
+  }
+  draw() {
+    if (this.delay > 0) return;
+    const pt = getParticlePt(this.from, this.to, this.t);
+    // Trail
+    for (let i = 0; i < this.trail.length; i++) {
+      const alpha = (1 - i / this.trail.length) * 0.35;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = this.color;
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur  = vs(4);
+      const r = this.size * (1 - i / this.trail.length) * 0.7;
+      ctx.beginPath();
+      ctx.arc(this.trail[i].x, this.trail[i].y, r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+    // Head
+    ctx.save();
+    ctx.fillStyle = '#fff';
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur  = vs(8);
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, this.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function spawnParticles(pairs, stagger=0) {
+  for (let i = 0; i < pairs.length; i++) {
+    const [f, t] = pairs[i];
+    // Multiple particles per path
+    for (let k = 0; k < 3; k++) {
+      particles.push(new Particle(f, t, i * stagger + k * 0.18));
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════
+// ANIMATION STATE
+// ════════════════════════════════════════════════════
+
+let currentMode   = 'complex';
+let currentStep   = -1;
+let stepTimer     = 0;
+let stepDuration  = 1.8; // seconds
+let activeNodes   = new Set();
+let doneNodes     = new Set();
+let judgeLabel    = '';
+let showProgress  = false;
+let progressVal   = 0;
+let progressPhase = 0; // for 30%→60%→90% sequence
+let heldDone      = false; // holding final "all lit" state
+let holdTimer     = 0;
+let resetTimer    = 0;
+let isResetting   = false;
+let memberView    = false;
+
+let lastTs = null;
+
+function startMode(mode) {
+  currentMode   = mode;
+  currentStep   = -1;
+  activeNodes   = new Set();
+  doneNodes     = new Set();
+  judgeLabel    = '';
+  showProgress  = false;
+  progressVal   = 0;
+  progressPhase = 0;
+  heldDone      = false;
+  holdTimer     = 0;
+  resetTimer    = 0;
+  isResetting   = false;
+  particles     = [];
+  stepTimer     = 0;
+  buildStepList();
+  advanceStep();
+}
+
+function advanceStep() {
+  const steps = TASK_MODES[currentMode].steps;
+  // Move previous active to done
+  for (const n of activeNodes) doneNodes.add(n);
+  activeNodes.clear();
+
+  currentStep++;
+  if (currentStep >= steps.length) {
+    // All done — hold then reset
+    heldDone  = true;
+    holdTimer = 2.2;
+    return;
+  }
+
+  const step = steps[currentStep];
+  for (const n of step.act) activeNodes.add(n);
+  if (step.judge) judgeLabel = step.judge;
+  if (step.ptcl) spawnParticles(step.ptcl, 0.08);
+  if (step.progress) { showProgress = true; progressPhase = 0; progressVal = 0; }
+  stepTimer = stepDuration + (step.progress ? 1.5 : 0);
+  updateStepList();
+  updateProgressUI();
+}
+
+function resetAnim() {
+  isResetting = true;
+  resetTimer  = 0.6;
+}
+
+// ════════════════════════════════════════════════════
+// RENDER LOOP
+// ════════════════════════════════════════════════════
+
+function getNodeState(id) {
+  if (isResetting) return 'idle';
+  if (activeNodes.has(id)) return 'active';
+  if (doneNodes.has(id))   return (heldDone ? 'active' : 'done');
+  return 'idle';
+}
+
+function render(ts) {
+  if (!lastTs) lastTs = ts;
+  const dt = Math.min((ts - lastTs) / 1000, 0.1);
+  lastTs = ts;
+
+  ctx.clearRect(0, 0, cw, ch);
+
+  // ── Background connections ──
+  for (const [f, t] of ALL_CONNS) {
+    const {fx,fy,tx,ty} = getAnchors(f,t);
+    const isActive = (activeNodes.has(f) || doneNodes.has(f)) &&
+                     (activeNodes.has(t) || doneNodes.has(t));
+    const isDashed = NODE_DEFS[t] && NODE_DEFS[t].dashed;
+    if (isActive && !isResetting) {
+      drawBezier(fx,fy,tx,ty, getNodeColor(t), 0.45, scale * 1.2, isDashed);
+    } else {
+      drawBezier(fx,fy,tx,ty, '#ffffff', isResetting ? 0.03 : 0.05, scale * 0.8, isDashed);
+    }
+  }
+
+  // ── Particles ──
+  particles.forEach(p => p.update(dt));
+  particles = particles.filter(p => !p.done);
+  particles.forEach(p => p.draw());
+
+  // ── Nodes ──
+  const jl = (activeNodes.has('JUDGE') || doneNodes.has('JUDGE')) ? judgeLabel : '';
+  for (const id of Object.keys(NODE_DEFS)) {
+    drawNode(id, getNodeState(id), id === 'JUDGE' ? jl : null);
+  }
+
+  // ── Timer logic ──
+  if (isResetting) {
+    resetTimer -= dt;
+    if (resetTimer <= 0) {
+      isResetting   = false;
+      activeNodes   = new Set();
+      doneNodes     = new Set();
+      judgeLabel    = '';
+      showProgress  = false;
+      progressVal   = 0;
+      heldDone      = false;
+      particles     = [];
+      currentStep   = -1;
+      stepTimer     = 0;
+      buildStepList();
+      setTimeout(() => advanceStep(), 400);
+    }
+  } else if (heldDone) {
+    holdTimer -= dt;
+    if (holdTimer <= 0) resetAnim();
+  } else {
+    stepTimer -= dt;
+    if (stepTimer <= 0) advanceStep();
+
+    // Progress bar animation during "parallel" step
+    if (showProgress) {
+      const phases = [30, 60, 90, 100];
+      const pTarget = phases[Math.min(progressPhase, phases.length-1)];
+      if (progressVal < pTarget) {
+        progressVal = Math.min(pTarget, progressVal + dt * 28);
+      } else if (progressPhase < 3) {
+        progressPhase++;
+      }
+      document.getElementById('progFill').style.width = progressVal + '%';
+      document.getElementById('progLabel').textContent = `执行中... ${Math.round(progressVal)}%`;
+      document.getElementById('progWrap').classList.add('show');
+    } else {
+      document.getElementById('progWrap').classList.remove('show');
+    }
+  }
+
+  requestAnimationFrame(render);
+}
+
+// ════════════════════════════════════════════════════
+// RIGHT PANEL
+// ════════════════════════════════════════════════════
+
+function buildStepList() {
+  const steps = TASK_MODES[currentMode].steps;
+  const list  = document.getElementById('stepList');
+  document.getElementById('modeLabel').textContent = TASK_MODES[currentMode].label.toUpperCase();
+  list.innerHTML = steps.map((s, i) => `
+    <li class="step-item" id="step-${i}">
+      <div class="step-dot" id="sdot-${i}"></div>
+      <div class="step-body">
+        <div class="step-label" id="slbl-${i}">${s.label}</div>
+        <div class="step-desc" id="sdsc-${i}">${s.desc}</div>
+      </div>
+    </li>
+  `).join('');
+}
+
+function updateStepList() {
+  const steps = TASK_MODES[currentMode].steps;
+  for (let i = 0; i < steps.length; i++) {
+    const dot = document.getElementById(`sdot-${i}`);
+    const lbl = document.getElementById(`slbl-${i}`);
+    const dsc = document.getElementById(`sdsc-${i}`);
+    if (!dot) continue;
+    dot.className = 'step-dot' + (i === currentStep ? ' active' : (i < currentStep ? ' done' : ''));
+    lbl.className = 'step-label' + (i === currentStep ? ' active' : '');
+    dsc.className = 'step-desc'  + (i === currentStep ? ' active' : '');
+  }
+}
+
+function updateProgressUI() {}
+
+function showMember(id) {
+  const m = MEMBERS[id];
+  if (!m) return;
+  memberView = true;
+  document.getElementById('stepPanel').style.display   = 'none';
+  document.getElementById('memberPanel').style.display = 'block';
+  document.getElementById('memberPanel').className     = 'member-panel show';
+
+  const color = m.color || '#7C6AF7';
+  document.getElementById('mAvatar').style.background = `linear-gradient(135deg, ${color}55, ${color}22)`;
+  document.getElementById('mAvatar').textContent = m.emoji;
+  document.getElementById('mName').textContent   = m.name;
+  document.getElementById('mRole').textContent   = m.role;
+  document.getElementById('mModel').textContent  = m.model;
+  document.getElementById('mDuty').textContent   = m.duty;
+  document.getElementById('mTrigger').textContent= m.trigger;
+  document.getElementById('mExample').textContent= m.example;
+}
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  memberView = false;
+  document.getElementById('stepPanel').style.display   = '';
+  document.getElementById('memberPanel').style.display = 'none';
+  document.getElementById('memberPanel').className     = 'member-panel';
+});
+
+// ════════════════════════════════════════════════════
+// CLICK DETECTION
+// ════════════════════════════════════════════════════
+
+function getCanvasXY(e) {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+}
+
+function hitTest(px, py) {
+  for (const [id, d] of Object.entries(NODE_DEFS)) {
+    const r = nodeRects[id];
+    if (!r) continue;
+    if (d.shape === 'diamond') {
+      const dx = Math.abs(px - r.x), dy = Math.abs(py - r.y);
+      if (dx / (r.w/2) + dy / (r.h/2) <= 1) return id;
+    } else {
+      if (px >= r.x - r.w/2 && px <= r.x + r.w/2 &&
+          py >= r.y - r.h/2 && py <= r.y + r.h/2) return id;
+    }
+  }
+  return null;
+}
+
+canvas.addEventListener('click', e => {
+  const {x, y} = getCanvasXY(e);
+  const hit = hitTest(x, y);
+  if (hit) showMember(hit);
+});
+
+// Hover tooltip
+const tooltip = document.getElementById('tooltip');
+canvas.addEventListener('mousemove', e => {
+  const {x, y} = getCanvasXY(e);
+  const hit = hitTest(x, y);
+  if (hit) {
+    canvas.style.cursor = 'pointer';
+    const m = MEMBERS[hit];
+    tooltip.textContent = m ? m.name + ' · 点击查看' : hit;
+    tooltip.style.left  = x + 'px';
+    tooltip.style.top   = y + 'px';
+    tooltip.style.opacity = '1';
+  } else {
+    canvas.style.cursor = 'default';
+    tooltip.style.opacity = '0';
+  }
+});
+canvas.addEventListener('mouseleave', () => {
+  tooltip.style.opacity = '0';
+  canvas.style.cursor   = 'default';
+});
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const {x, y} = getCanvasXY(e);
+  const hit = hitTest(x, y);
+  if (hit) showMember(hit);
+}, {passive:false});
+
+// ════════════════════════════════════════════════════
+// TASK MODE TABS
+// ════════════════════════════════════════════════════
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Exit member view if open
+    if (memberView) {
+      memberView = false;
+      document.getElementById('stepPanel').style.display   = '';
+      document.getElementById('memberPanel').style.display = 'none';
+    }
+    startMode(btn.dataset.mode);
+  });
+});
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+
+resize();
+window.addEventListener('resize', () => { resize(); });
+buildStepList();
+setTimeout(() => advanceStep(), 600);
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
