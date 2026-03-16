@@ -3,35 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>天音 AI 总部 - 你的专属 AI 团队</title>
+  <title>HiveMind — 你的专属 AI 团队</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* ─── CSS 变量 ─────────────────────────────── */
+    /* ─── CSS 变量 ─────────────────────────────────── */
     :root {
-      --bg:          #F9F6F1;
-      --bg-grad:     linear-gradient(135deg, #F9F6F1 0%, #E8E2D9 100%);
-      --card:        #FFFFFF;
-      --brand:       #D97757;
-      --brand-hover: #C4633F;
-      --text:        #1D1D1D;
-      --muted:       #6B6B6B;
-      --border:      #EAEAEA;
-      --nav-h:       68px;
-      --max-w:       1120px;
-      --pad-x:       80px;
-      --pad-x-sm:    24px;
-      --r:           12px;
-      --section-gap: 120px;
-      --transition:  0.35s cubic-bezier(.4,0,.2,1);
+      --bg:        #0A0A0F;
+      --surface:   #12121A;
+      --border:    #1E1E2E;
+      --border-2:  #2A2A40;
+      --brand:     #7C6AF7;
+      --brand-dim: rgba(124,106,247,.15);
+      --brand-glow:rgba(124,106,247,.35);
+      --gold:      #C8A96E;
+      --text:      #F0EEF8;
+      --muted:     #8B8BA0;
+      --nav-h:     64px;
+      --max-w:     1120px;
+      --r:         12px;
+      --r-lg:      20px;
+      --transition: .35s cubic-bezier(.4,0,.2,1);
     }
 
-    /* ─── Reset & Base ─────────────────────────── */
+    /* ─── Reset ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      background: var(--bg-grad);
+      background: var(--bg);
       color: var(--text);
       font-family: 'Inter', sans-serif;
       font-size: 16px;
@@ -40,1108 +40,762 @@
       -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; text-decoration: none; }
-    img { display: block; max-width: 100%; }
 
-    /* ─── 通用工具 ─────────────────────────────── */
-    .container {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-x);
-    }
-    .section {
-      padding: var(--section-gap) 0;
-    }
-    .section-label {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--brand);
-      margin-bottom: 16px;
+    /* ─── 通用 ────────────────────────────────────────── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 48px; }
+    .section { padding: 120px 0; }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: var(--brand); letter-spacing: .12em; text-transform: uppercase;
+      background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3);
+      padding: 4px 12px; border-radius: 100px; margin-bottom: 20px;
     }
     .section-title {
-      font-family: 'Instrument Serif', serif;
-      font-size: 40px;
-      line-height: 1.2;
-      color: var(--text);
-      margin-bottom: 16px;
+      font-family: 'Sora', sans-serif; font-size: clamp(32px,5vw,52px);
+      font-weight: 700; line-height: 1.15; margin-bottom: 16px;
     }
-    .section-sub {
-      font-size: 18px;
-      color: var(--muted);
-      max-width: 560px;
-      line-height: 1.65;
-    }
-    .card {
-      background: var(--card);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      border: none;
-      font-family: 'Inter', sans-serif;
-    }
-    .btn-primary {
-      background: var(--brand);
-      color: #fff;
-    }
-    .btn-primary:hover { background: var(--brand-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(217,119,87,.3); }
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1.5px solid var(--border);
-    }
-    .btn-outline:hover { border-color: var(--text); }
+    .section-sub { color: var(--muted); font-size: 18px; max-width: 560px; }
 
-    /* ─── 入场动画 ─────────────────────────────── */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity .6s ease, transform .6s ease;
+    /* 入场动画 */
+    .fade-in {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .65s ease, transform .65s ease;
     }
-    .fade-up.visible {
-      opacity: 1;
-      transform: none;
-    }
-    .fade-up:nth-child(2) { transition-delay: .1s; }
-    .fade-up:nth-child(3) { transition-delay: .2s; }
-    .fade-up:nth-child(4) { transition-delay: .3s; }
-    .fade-up:nth-child(5) { transition-delay: .4s; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
 
-    /* ═══════════════════════════════════════════ */
-    /* NAV                                         */
-    /* ═══════════════════════════════════════════ */
-    .nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+    /* ─── 导航 ────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
       height: var(--nav-h);
+      background: rgba(10,10,15,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
     }
-    .nav .container {
-      display: flex;
-      align-items: center;
-      height: 100%;
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 48px;
+      height: 100%; display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo {
-      font-family: 'Instrument Serif', serif;
-      font-size: 20px;
-      font-weight: 400;
-      color: var(--text);
-      margin-right: auto;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .logo {
+      font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px; color: var(--text);
     }
-    .nav-logo span { color: var(--brand); }
-    .nav-links {
-      display: flex;
-      gap: 36px;
-      list-style: none;
+    .logo-hex {
+      width: 32px; height: 32px; background: var(--brand);
+      clip-path: polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #fff;
     }
+    .nav-links { display: flex; gap: 32px; }
     .nav-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
+      font-size: 14px; color: var(--muted);
       transition: color var(--transition);
-      position: relative;
     }
-    .nav-links a::after {
-      content: '';
-      position: absolute;
-      bottom: -3px; left: 0; right: 0;
-      height: 2px;
-      background: var(--brand);
-      border-radius: 2px;
-      transform: scaleX(0);
-      transition: transform var(--transition);
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--brand); color: #fff; padding: 8px 20px;
+      border-radius: 8px; font-size: 14px; font-weight: 600;
+      transition: box-shadow var(--transition), transform var(--transition);
     }
-    .nav-links a:hover, .nav-links a.active { color: var(--text); }
-    .nav-links a.active::after { transform: scaleX(1); }
-    .nav-cta { margin-left: 32px; padding: 10px 20px; font-size: 14px; }
-    .nav-hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: 4px;
+    .nav-cta:hover {
+      box-shadow: 0 0 24px var(--brand-glow);
+      transform: translateY(-1px);
     }
-    .nav-hamburger span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 2px;
-      transition: var(--transition);
-    }
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: var(--nav-h);
-      left: 0; right: 0;
-      background: #fff;
-      border-bottom: 1px solid var(--border);
-      padding: 20px var(--pad-x-sm);
-      z-index: 99;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--muted);
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .mobile-menu a:last-child { border-bottom: none; }
 
-    /* ═══════════════════════════════════════════ */
-    /* HERO                                        */
-    /* ═══════════════════════════════════════════ */
+    /* ─── HERO ───────────────────────────────────────── */
     #hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding-top: calc(var(--nav-h) + 40px);
-      padding-bottom: 80px;
-      position: relative;
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center;
+      padding-top: var(--nav-h);
       overflow: hidden;
     }
-    #hero::before {
-      content: '';
-      position: absolute;
-      top: -200px; right: -200px;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(217,119,87,.12) 0%, transparent 70%);
-      pointer-events: none;
+    #hero-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
     }
-    .hero-inner {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: var(--max-w); margin: 0 auto; padding: 0 48px;
     }
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(217,119,87,.1);
-      color: var(--brand);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 100px;
-      margin-bottom: 28px;
-      border: 1px solid rgba(217,119,87,.2);
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      padding: 6px 14px; border-radius: 100px;
+      font-size: 13px; color: var(--muted); margin-bottom: 32px;
     }
+    .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse-dot 2s ease infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
     .hero-title {
-      font-family: 'Instrument Serif', serif;
-      font-size: 64px;
-      line-height: 1.1;
-      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(52px,8vw,88px);
+      font-weight: 800; line-height: 1.05;
+      background: linear-gradient(135deg, #F0EEF8 0%, #7C6AF7 60%, #C8A96E 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 24px;
-    }
-    .hero-title em {
-      font-style: italic;
-      color: var(--brand);
     }
     .hero-sub {
-      font-size: 20px;
-      color: var(--muted);
-      line-height: 1.65;
-      margin-bottom: 40px;
-      max-width: 480px;
+      font-size: clamp(18px,2.5vw,22px); color: var(--text);
+      font-weight: 500; max-width: 600px; margin-bottom: 16px;
     }
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
+    .hero-desc { color: var(--muted); font-size: 16px; max-width: 520px; margin-bottom: 40px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #7C6AF7, #9B8AFF);
+      color: #fff; padding: 14px 28px; border-radius: 10px;
+      font-size: 15px; font-weight: 600;
+      box-shadow: 0 0 32px rgba(124,106,247,.4);
+      transition: box-shadow var(--transition), transform var(--transition);
     }
-    .hero-visual {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
+    .btn-primary:hover {
+      box-shadow: 0 0 56px rgba(124,106,247,.6);
+      transform: translateY(-2px);
     }
-    .avatar-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 72px);
-      grid-template-rows: repeat(3, 72px);
-      gap: 12px;
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border-2); color: var(--muted);
+      padding: 14px 28px; border-radius: 10px; font-size: 15px;
+      transition: border-color var(--transition), color var(--transition);
     }
-    .avatar-item {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: var(--card);
-      border: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06);
-      transition: transform .3s ease, box-shadow .3s ease;
-      animation: floatIn .6s ease both;
-    }
-    .avatar-item:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,.1); }
-    .avatar-item.center {
-      background: var(--brand);
-      border-color: var(--brand);
-      font-size: 32px;
-      box-shadow: 0 8px 28px rgba(217,119,87,.35);
-    }
-    @keyframes floatIn {
-      from { opacity: 0; transform: scale(.7) translateY(16px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    .avatar-item:nth-child(1) { animation-delay: .05s; }
-    .avatar-item:nth-child(2) { animation-delay: .1s; }
-    .avatar-item:nth-child(3) { animation-delay: .15s; }
-    .avatar-item:nth-child(4) { animation-delay: .2s; }
-    .avatar-item:nth-child(5) { animation-delay: .25s; }
-    .avatar-item:nth-child(6) { animation-delay: .3s; }
-    .avatar-item:nth-child(7) { animation-delay: .35s; }
-    .avatar-item:nth-child(8) { animation-delay: .4s; }
-    .avatar-item:nth-child(9) { animation-delay: .45s; }
-    .hero-badge {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 10px 18px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06);
-    }
-    .hero-badge .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 0 3px rgba(34,197,94,.2);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
-      50%       { box-shadow: 0 0 0 6px rgba(34,197,94,.1); }
-    }
+    .btn-ghost:hover { border-color: var(--brand); color: var(--text); }
 
-    /* ═══════════════════════════════════════════ */
-    /* PAIN                                        */
-    /* ═══════════════════════════════════════════ */
-    #pain { background: var(--card); }
-    .pain-header { text-align: center; margin-bottom: 60px; }
-    .pain-header .section-sub { margin: 0 auto; }
-    .pain-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+    /* ─── 痛点 ────────────────────────────────────────── */
+    #pain { background: var(--surface); }
+    .pain-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 56px;
     }
     .pain-card {
-      background: var(--bg);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      padding: 36px 28px;
-      transition: transform var(--transition), box-shadow var(--transition);
+      border: 1px solid var(--border); border-radius: var(--r);
+      padding: 32px; position: relative; overflow: hidden;
     }
-    .pain-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 40px rgba(0,0,0,.08);
+    .pain-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--brand);
     }
-    .pain-icon {
-      font-size: 36px;
-      margin-bottom: 20px;
-      line-height: 1;
-    }
-    .pain-card h3 {
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: var(--text);
-    }
-    .pain-card p { color: var(--muted); font-size: 15px; }
+    .pain-icon { font-size: 28px; margin-bottom: 16px; }
+    .pain-card h3 { font-family: 'Sora',sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .pain-card p { color: var(--muted); font-size: 15px; line-height: 1.7; }
 
-    /* ═══════════════════════════════════════════ */
-    /* SOLUTION                                    */
-    /* ═══════════════════════════════════════════ */
-    #solution .section-header { text-align: center; margin-bottom: 64px; }
-    .solution-compare {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 0;
-      align-items: stretch;
+    /* ─── 对比 ────────────────────────────────────────── */
+    #solution {}
+    .compare-wrap {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 56px;
     }
     .compare-col {
-      background: var(--card);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      padding: 40px 36px;
+      border: 1px solid var(--border); border-radius: var(--r-lg); padding: 36px;
     }
-    .compare-col.col-right {
-      border-color: var(--brand);
-      box-shadow: 0 0 0 2px var(--brand), 0 20px 60px rgba(217,119,87,.15);
+    .compare-col.is-hive {
+      border-color: var(--brand); background: var(--brand-dim);
+      box-shadow: 0 0 40px rgba(124,106,247,.12);
     }
-    .compare-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 24px;
-    }
-    .compare-badge.bad { background: #f3f4f6; color: var(--muted); }
-    .compare-badge.good { background: rgba(217,119,87,.12); color: var(--brand); }
     .compare-col h3 {
-      font-family: 'Instrument Serif', serif;
-      font-size: 24px;
-      margin-bottom: 24px;
+      font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 700;
+      margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
     }
-    .compare-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+    .compare-col.is-hive h3 { color: var(--brand); }
+    .compare-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .compare-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: var(--muted); }
+    .compare-col.is-hive .compare-list li { color: var(--text); }
+    .cmp-icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+    .cmp-x { color: #ef4444; font-size: 18px; }
+    .cmp-check { color: var(--brand); font-size: 18px; }
+
+    /* ─── 工作流 ───────────────────────────────────────── */
+    #workflow { background: var(--surface); }
+    .workflow-stages {
+      display: flex; gap: 0; align-items: center;
+      margin: 56px 0 40px; overflow: hidden;
     }
-    .compare-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      font-size: 15px;
-      line-height: 1.5;
+    .wf-stage {
+      flex: 1; display: flex; flex-direction: column; align-items: center; position: relative;
     }
-    .compare-list li .icon {
-      flex-shrink: 0;
-      font-size: 16px;
-      margin-top: 2px;
+    .wf-stage:not(:last-child)::after {
+      content: ''; position: absolute; top: 20px; right: 0;
+      left: 50%; height: 2px; background: var(--border);
+      z-index: 0;
     }
-    .compare-divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 24px;
+    .wf-node {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; position: relative; z-index: 1;
+      transition: border-color .3s, background .3s, box-shadow .3s;
     }
-    .vs-badge {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: var(--bg);
-      border: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
+    .wf-node.active {
+      border-color: var(--brand); background: var(--brand-dim);
+      box-shadow: 0 0 16px var(--brand-glow);
+    }
+    .wf-label { margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center; font-weight: 500; }
+    .wf-connector {
+      height: 2px; flex: 1; background: var(--border); position: relative; overflow: hidden;
+    }
+    .wf-connector-fill {
+      height: 100%; background: var(--brand); width: 0%;
+      transition: width .6s ease;
     }
 
-    /* ═══════════════════════════════════════════ */
-    /* TEAM                                        */
-    /* ═══════════════════════════════════════════ */
-    #team { background: var(--card); }
-    #team .section-header { text-align: center; margin-bottom: 64px; }
+    /* 任务包 */
+    .wf-track {
+      position: relative; height: 60px; margin: 0 0 48px;
+    }
+    .wf-packet {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: var(--brand); color: #fff;
+      padding: 6px 14px; border-radius: 100px;
+      font-size: 12px; font-weight: 600;
+      box-shadow: 0 0 20px var(--brand-glow);
+      white-space: nowrap;
+      transition: left 1s cubic-bezier(.4,0,.2,1);
+    }
+    .wf-phases {
+      display: grid; grid-template-columns: repeat(5,1fr); gap: 16px;
+    }
+    .wf-phase {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 20px; text-align: center;
+      transition: border-color .3s, background .3s;
+    }
+    .wf-phase.active { border-color: var(--brand); background: var(--brand-dim); }
+    .wf-phase h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .wf-phase p { font-size: 12px; color: var(--muted); }
+
+    /* ─── 团队 ────────────────────────────────────────── */
+    #team {}
     .team-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 56px;
     }
-    /* 3D flip card */
-    .flip-card {
-      height: 200px;
-      perspective: 1000px;
-      cursor: pointer;
+    .team-card-wrap { perspective: 1000px; height: 220px; cursor: pointer; }
+    .team-card {
+      width: 100%; height: 100%;
+      position: relative; transform-style: preserve-3d;
+      transition: transform .6s cubic-bezier(.4,0,.2,1);
     }
-    .flip-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform .55s cubic-bezier(.4,0,.2,1);
+    .team-card-wrap:hover .team-card { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: var(--r); padding: 28px;
+      border: 1px solid var(--border); background: var(--surface);
     }
-    .flip-card:hover .flip-inner { transform: rotateY(180deg); }
-    .flip-front, .flip-back {
-      position: absolute;
-      inset: 0;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: var(--r);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 28px 20px;
-    }
-    .flip-front {
-      background: var(--bg);
-      border: 1px solid var(--border);
-    }
-    .flip-back {
-      background: var(--brand);
-      color: #fff;
+    .card-face.back {
       transform: rotateY(180deg);
-    }
-    .flip-emoji { font-size: 36px; margin-bottom: 12px; }
-    .flip-role {
-      font-weight: 600;
-      font-size: 15px;
-      margin-bottom: 6px;
-    }
-    .flip-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
-    .flip-back .flip-name {
-      font-family: 'Instrument Serif', serif;
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-    .flip-back .flip-personality {
-      font-size: 13px;
-      opacity: .9;
-      line-height: 1.6;
-    }
-
-    /* ═══════════════════════════════════════════ */
-    /* WORKFLOW                                    */
-    /* ═══════════════════════════════════════════ */
-    #workflow .section-header { text-align: center; margin-bottom: 64px; }
-    .workflow-steps {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-      position: relative;
-    }
-    .workflow-step {
-      flex: 1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 32px 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      margin-right: -1px;
-    }
-    .workflow-step:first-child { border-radius: var(--r) 0 0 var(--r); }
-    .workflow-step:last-child { border-radius: 0 var(--r) var(--r) 0; margin-right: 0; }
-    .workflow-step.active-step {
-      background: var(--brand);
+      background: linear-gradient(135deg, #12121A, #1a1a2e);
       border-color: var(--brand);
-      z-index: 1;
-      border-radius: var(--r);
-      color: #fff;
     }
-    .step-num {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: rgba(217,119,87,.12);
-      color: var(--brand);
-      font-size: 13px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-    .active-step .step-num {
-      background: rgba(255,255,255,.2);
-      color: #fff;
-    }
-    .step-icon { font-size: 28px; margin-bottom: 12px; }
-    .step-title {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
-    .step-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
-    .active-step .step-desc { color: rgba(255,255,255,.85); }
-    .workflow-arrow {
-      display: flex;
-      align-items: center;
-      color: var(--brand);
-      font-size: 18px;
-      padding: 0 8px;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 2;
-      /* overlap connector */
-    }
+    .card-emoji { font-size: 32px; margin-bottom: 12px; }
+    .card-role { font-size: 12px; color: var(--brand); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
+    .card-title { font-family: 'Sora',sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .back-name { font-family: 'Sora',sans-serif; font-size: 22px; font-weight: 700; color: var(--brand); margin-bottom: 8px; }
+    .back-persona { font-size: 12px; color: var(--gold); font-style: italic; margin-bottom: 14px; }
+    .back-resp { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .back-resp strong { color: var(--text); }
 
-    /* ═══════════════════════════════════════════ */
-    /* BRAIN                                       */
-    /* ═══════════════════════════════════════════ */
-    #brain { background: var(--card); }
-    #brain .section-header { margin-bottom: 56px; }
-    .brain-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+    /* ─── 大脑与记忆 ─────────────────────────────────── */
+    #brain { background: var(--surface); }
+    .brain-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; margin-top: 56px; }
+    .memory-terminal {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden;
     }
+    .terminal-bar {
+      background: var(--border); padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .t-dot:nth-child(1){background:#ef4444;}
+    .t-dot:nth-child(2){background:#f59e0b;}
+    .t-dot:nth-child(3){background:#22c55e;}
+    .terminal-title { font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--muted); margin-left: 8px; }
+    .terminal-body { padding: 20px; font-family: 'JetBrains Mono',monospace; font-size: 13px; min-height: 280px; }
+    .t-line { margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px; }
+    .t-prompt { color: var(--brand); flex-shrink: 0; }
+    .t-file { color: var(--gold); }
+    .t-comment { color: var(--muted); }
+    .t-ok { color: #22c55e; }
+    .t-text { color: var(--text); }
+    .t-cursor {
+      display: inline-block; width: 8px; height: 14px;
+      background: var(--brand); animation: blink .8s step-end infinite; vertical-align: middle;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .brain-cards { display: flex; flex-direction: column; gap: 16px; }
     .brain-card {
-      background: var(--bg);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      padding: 36px 28px;
-      transition: transform var(--transition), box-shadow var(--transition);
+      border: 1px solid var(--border); border-radius: var(--r); padding: 24px;
+      display: flex; gap: 16px; align-items: flex-start;
     }
-    .brain-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.07); }
-    .brain-card-icon {
-      width: 48px; height: 48px;
-      border-radius: 10px;
-      background: rgba(217,119,87,.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      margin-bottom: 20px;
+    .brain-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;
     }
-    .brain-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
-    .brain-card p { font-size: 15px; color: var(--muted); line-height: 1.65; }
+    .brain-card h4 { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+    .brain-card p { color: var(--muted); font-size: 14px; }
 
-    /* ═══════════════════════════════════════════ */
-    /* GUIDE                                       */
-    /* ═══════════════════════════════════════════ */
-    #guide .section-header { text-align: center; margin-bottom: 64px; }
+    /* ─── 能力展示 ────────────────────────────────────── */
+    #capabilities {}
+    .cap-tabs {
+      display: flex; gap: 4px; margin: 40px 0 32px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 4px; width: fit-content;
+    }
+    .cap-tab {
+      padding: 10px 20px; border-radius: 8px; font-size: 14px;
+      cursor: pointer; color: var(--muted); font-weight: 500;
+      transition: background var(--transition), color var(--transition);
+      border: none; background: transparent;
+    }
+    .cap-tab.active { background: var(--brand); color: #fff; }
+    .cap-content { display: none; }
+    .cap-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .cap-desc h3 { font-family: 'Sora',sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 12px; }
+    .cap-desc p { color: var(--muted); line-height: 1.8; margin-bottom: 24px; }
+    .cap-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .cap-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+    .cap-features li::before { content: '✦'; color: var(--brand); font-size: 10px; flex-shrink: 0; }
+    /* 对话气泡 */
+    .chat-ui {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 24px;
+      display: flex; flex-direction: column; gap: 16px; min-height: 320px;
+    }
+    .chat-msg { display: flex; gap: 10px; max-width: 90%; }
+    .chat-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .chat-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .chat-msg.ai .chat-avatar { background: var(--brand-dim); border: 1px solid rgba(124,106,247,.4); }
+    .chat-msg.user .chat-avatar { background: #1a1a2e; border: 1px solid var(--border-2); }
+    .chat-bubble {
+      padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6;
+    }
+    .chat-msg.ai .chat-bubble { background: var(--bg); border: 1px solid var(--border); border-radius: 4px 12px 12px 12px; }
+    .chat-msg.user .chat-bubble { background: var(--brand); color: #fff; border-radius: 12px 4px 12px 12px; }
+
+    /* ─── 起步指南 ────────────────────────────────────── */
+    #guide { background: var(--surface); }
     .guide-steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-bottom: 64px;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin: 56px 0 48px;
     }
     .guide-step {
-      background: var(--card);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      padding: 36px 28px;
+      border: 1px solid var(--border); border-radius: var(--r); padding: 32px;
       position: relative;
-      overflow: hidden;
     }
-    .guide-step::before {
-      content: attr(data-step);
-      position: absolute;
-      top: -10px; right: 16px;
-      font-family: 'Instrument Serif', serif;
-      font-size: 80px;
-      color: rgba(217,119,87,.07);
-      line-height: 1;
-      pointer-events: none;
+    .step-num {
+      font-family: 'JetBrains Mono',monospace; font-size: 11px;
+      color: var(--brand); font-weight: 600;
+      background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3);
+      padding: 2px 10px; border-radius: 100px; display: inline-block; margin-bottom: 16px;
     }
-    .guide-step-num {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--brand);
-      color: #fff;
-      font-weight: 700;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
+    .guide-step h3 { font-family: 'Sora',sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .guide-step p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .templates-title { font-family: 'Sora',sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 20px; }
+    .template-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+    .template-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 20px; position: relative;
     }
-    .guide-step h3 { font-weight: 600; font-size: 17px; margin-bottom: 10px; }
-    .guide-step p { font-size: 15px; color: var(--muted); }
-
-    /* 指令模板 Tabs */
-    .template-box {
-      background: var(--card);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-    .template-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
-    }
-    .template-tab {
-      flex: 1;
-      padding: 14px 0;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: var(--transition);
-      border: none;
-      background: none;
-      font-family: 'Inter', sans-serif;
-    }
-    .template-tab.active {
-      color: var(--brand);
-      background: var(--card);
-      border-bottom: 2px solid var(--brand);
-    }
-    .template-tab:hover:not(.active) { color: var(--text); }
-    .template-panels { padding: 32px; }
-    .template-panel { display: none; }
-    .template-panel.active { display: block; }
-    .template-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; letter-spacing: .06em; }
+    .template-card h4 { font-size: 13px; color: var(--brand); font-weight: 600; margin-bottom: 8px; }
     .template-code {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 18px 20px;
-      font-size: 15px;
-      color: var(--text);
-      line-height: 1.6;
+      font-family: 'JetBrains Mono',monospace; font-size: 13px; color: var(--text);
+      line-height: 1.7;
     }
-    .template-code em { font-style: normal; color: var(--brand); font-weight: 500; }
+    .copy-btn {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--border); border: none; border-radius: 6px;
+      padding: 4px 10px; font-size: 11px; color: var(--muted);
+      cursor: pointer; transition: background var(--transition), color var(--transition);
+      font-family: 'JetBrains Mono',monospace;
+    }
+    .copy-btn:hover { background: var(--brand); color: #fff; }
+    .copy-btn.copied { background: #22c55e; color: #fff; }
 
-    /* ═══════════════════════════════════════════ */
-    /* TRUST                                       */
-    /* ═══════════════════════════════════════════ */
-    #trust { background: var(--card); }
-    #trust .section-header { text-align: center; margin-bottom: 64px; }
-    .trust-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+    /* ─── 信任 ────────────────────────────────────────── */
+    #trust {}
+    .trust-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 56px;
     }
     .trust-card {
-      background: var(--bg);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      padding: 40px 32px;
+      border: 1px solid var(--border); border-radius: var(--r); padding: 32px;
       text-align: center;
-      transition: transform var(--transition);
+      transition: border-color var(--transition), box-shadow var(--transition);
     }
-    .trust-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.07); }
-    .trust-icon { font-size: 36px; margin-bottom: 20px; }
-    .trust-card h3 { font-weight: 600; font-size: 17px; margin-bottom: 10px; }
-    .trust-card p { font-size: 15px; color: var(--muted); line-height: 1.65; }
+    .trust-card:hover { border-color: var(--brand); box-shadow: 0 0 24px var(--brand-dim); }
+    .trust-icon { font-size: 36px; margin-bottom: 16px; }
+    .trust-card h3 { font-family: 'Sora',sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .trust-card p { color: var(--muted); font-size: 14px; line-height: 1.7; }
 
-    /* ═══════════════════════════════════════════ */
-    /* FAQ                                         */
-    /* ═══════════════════════════════════════════ */
-    #faq .section-header { text-align: center; margin-bottom: 56px; }
-    .faq-list {
-      max-width: 720px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
+    /* ─── FAQ ─────────────────────────────────────────── */
+    #faq { background: var(--surface); }
+    .faq-list { margin-top: 48px; max-width: 760px; }
     .faq-item {
-      border-bottom: 1px solid var(--border);
+      border: 1px solid var(--border); border-radius: var(--r);
+      overflow: hidden; margin-bottom: 12px;
     }
-    .faq-item:first-child { border-top: 1px solid var(--border); }
     .faq-q {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 22px 0;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      background: none;
-      border: none;
-      text-align: left;
-      font-family: 'Inter', sans-serif;
-      transition: color var(--transition);
+      width: 100%; text-align: left; background: transparent; border: none;
+      padding: 20px 24px; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      font-size: 15px; font-weight: 600; color: var(--text);
+      transition: background var(--transition);
     }
-    .faq-q:hover { color: var(--brand); }
-    .faq-arrow {
-      flex-shrink: 0;
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
+    .faq-q:hover { background: rgba(124,106,247,.05); }
+    .faq-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--border); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--brand); font-size: 14px;
       transition: transform var(--transition), background var(--transition);
     }
-    .faq-item.open .faq-arrow {
-      transform: rotate(180deg);
-      background: var(--brand);
-      border-color: var(--brand);
-      color: #fff;
-    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--brand-dim); }
     .faq-a {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height .4s ease, padding .4s ease;
+      max-height: 0; overflow: hidden;
+      transition: max-height .45s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+      opacity: 0;
     }
-    .faq-item.open .faq-a { max-height: 300px; padding-bottom: 20px; }
-    .faq-a p { font-size: 15px; color: var(--muted); line-height: 1.75; }
+    .faq-item.open .faq-a { max-height: 300px; opacity: 1; }
+    .faq-a-inner { padding: 0 24px 20px; color: var(--muted); font-size: 15px; line-height: 1.75; }
 
-    /* ═══════════════════════════════════════════ */
-    /* CTA                                         */
-    /* ═══════════════════════════════════════════ */
+    /* ─── CTA ─────────────────────────────────────────── */
     #start {
-      background: var(--text);
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #0d0d1a 0%, #12121A 100%);
+      text-align: center; padding: 160px 48px;
     }
-    #start::before {
-      content: '';
-      position: absolute;
-      top: -150px; left: 50%;
-      transform: translateX(-50%);
-      width: 700px; height: 400px;
-      background: radial-gradient(ellipse, rgba(217,119,87,.25) 0%, transparent 70%);
+    .cta-glow {
+      position: absolute; width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,106,247,.2) 0%, transparent 70%);
+      left: 50%; top: 50%; transform: translate(-50%,-50%);
       pointer-events: none;
     }
-    .cta-inner {
-      text-align: center;
-      position: relative;
-      z-index: 1;
+    #start h2 {
+      font-family: 'Sora',sans-serif; font-size: clamp(40px,6vw,68px);
+      font-weight: 800; margin-bottom: 20px; position: relative;
     }
-    .cta-inner .section-title {
-      color: #fff;
-      font-size: 52px;
-      margin-bottom: 20px;
-    }
-    .cta-inner .section-sub {
-      color: rgba(255,255,255,.6);
-      margin: 0 auto 40px;
-    }
-    .cta-inner .btn-primary { padding: 18px 40px; font-size: 17px; }
+    #start p { color: var(--muted); font-size: 18px; margin-bottom: 40px; position: relative; }
 
-    /* ═══════════════════════════════════════════ */
-    /* FOOTER                                      */
-    /* ═══════════════════════════════════════════ */
+    /* ─── Footer ──────────────────────────────────────── */
     footer {
-      background: var(--text);
-      border-top: 1px solid rgba(255,255,255,.08);
-      padding: 32px 0;
-    }
-    .footer-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .footer-logo {
-      font-family: 'Instrument Serif', serif;
-      font-size: 18px;
-      color: rgba(255,255,255,.5);
-    }
-    .footer-copy {
-      font-size: 13px;
-      color: rgba(255,255,255,.3);
+      border-top: 1px solid var(--border); padding: 32px 0;
+      text-align: center; color: var(--muted); font-size: 13px;
     }
 
-    /* ═══════════════════════════════════════════ */
-    /* RESPONSIVE                                  */
-    /* ═══════════════════════════════════════════ */
-    @media (max-width: 1024px) {
-      :root { --pad-x: 40px; }
-      .hero-title { font-size: 52px; }
-      .solution-compare { grid-template-columns: 1fr; gap: 20px; }
-      .compare-divider { padding: 8px 0; }
-      .vs-badge { width: 38px; height: 38px; font-size: 12px; }
-    }
-
+    /* ─── 响应式 ───────────────────────────────────────── */
     @media (max-width: 768px) {
-      :root {
-        --pad-x: var(--pad-x-sm);
-        --section-gap: 72px;
-      }
-      .section-title { font-size: 30px; }
-      .nav-links, .nav-cta { display: none; }
-      .nav-hamburger { display: flex; }
-      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
-      .hero-title { font-size: 40px; }
-      .hero-sub { font-size: 17px; }
-      .hero-visual { display: none; }
-      .pain-cards,
-      .brain-grid,
-      .trust-cards,
-      .guide-steps { grid-template-columns: 1fr; }
-      .team-grid { grid-template-columns: repeat(2, 1fr); }
-      .workflow-steps { flex-direction: column; }
-      .workflow-step { border-radius: var(--r) !important; margin-right: 0; margin-bottom: -1px; }
-      .workflow-arrow { transform: rotate(90deg); align-self: center; }
-      .solution-compare { grid-template-columns: 1fr; }
-      .cta-inner .section-title { font-size: 36px; }
-      .footer-inner { flex-direction: column; gap: 8px; text-align: center; }
-    }
-
-    @media (max-width: 480px) {
-      .team-grid { grid-template-columns: 1fr; }
+      .container { padding: 0 20px; }
+      .nav-inner { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero-content { padding: 0 20px; }
+      .pain-grid, .team-grid, .trust-grid, .guide-steps { grid-template-columns: 1fr; }
+      .compare-wrap { grid-template-columns: 1fr; }
+      .brain-inner { grid-template-columns: 1fr; }
+      .cap-content.active { grid-template-columns: 1fr; }
+      .template-grid { grid-template-columns: 1fr; }
+      .wf-phases { grid-template-columns: repeat(2,1fr); }
+      .cap-tabs { flex-wrap: wrap; }
+      #start { padding: 100px 20px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ═══════ NAV ═══════ -->
-<nav class="nav" id="nav">
-  <div class="container">
-    <a href="#hero" class="nav-logo">🌸 <span>天音</span> AI 总部</a>
-    <ul class="nav-links">
-      <li><a href="#team">团队</a></li>
-      <li><a href="#workflow">工作流</a></li>
-      <li><a href="#guide">起步指南</a></li>
-      <li><a href="#faq">FAQ</a></li>
-    </ul>
-    <a href="#start" class="btn btn-primary nav-cta">开始使用</a>
-    <div class="nav-hamburger" id="hamburger" aria-label="菜单">
-      <span></span><span></span><span></span>
+<!-- ─── 导航 ──────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-hex">⬡</div>
+      HiveMind
     </div>
+    <div class="nav-links">
+      <a href="#team">团队</a>
+      <a href="#workflow">工作流</a>
+      <a href="#guide">起步</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#guide" class="nav-cta">5分钟开始</a>
   </div>
 </nav>
 
-<!-- 移动菜单 -->
-<div class="mobile-menu" id="mobileMenu">
-  <a href="#team" onclick="closeMobileMenu()">团队</a>
-  <a href="#workflow" onclick="closeMobileMenu()">工作流</a>
-  <a href="#guide" onclick="closeMobileMenu()">起步指南</a>
-  <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
-  <a href="#start" onclick="closeMobileMenu()" style="color:var(--brand);font-weight:600;">开始使用 →</a>
-</div>
-
-<!-- ═══════ HERO ═══════ -->
+<!-- ─── Hero ──────────────────────────────── -->
 <section id="hero">
-  <div class="container">
-    <div class="hero-inner">
-      <div class="hero-content">
-        <div class="hero-eyebrow fade-up">✦ 9位专属AI，各司其职</div>
-        <h1 class="hero-title fade-up">让 AI <em>真正接手</em>你的工作</h1>
-        <p class="hero-sub fade-up">9位专属AI各司其职，从接收任务到交付成果，全程无需你操心</p>
-        <div class="hero-actions fade-up">
-          <a href="#guide" class="btn btn-primary">5分钟开始 →</a>
-          <a href="#team" class="btn btn-outline">了解更多</a>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <div class="avatar-grid">
-          <div class="avatar-item">🧭</div>
-          <div class="avatar-item">🌫️</div>
-          <div class="avatar-item">🦋</div>
-          <div class="avatar-item">🔥</div>
-          <div class="avatar-item center">🌸</div>
-          <div class="avatar-item">⚔️</div>
-          <div class="avatar-item">🐍</div>
-          <div class="avatar-item">💨</div>
-          <div class="avatar-item">💧</div>
-        </div>
-        <div class="hero-badge">
-          <div class="dot"></div>
-          9 位成员在线，随时待命
-        </div>
-      </div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span></span>
+      9 个 AI 成员 · 实时就绪
+    </div>
+    <h1 class="hero-title">HiveMind</h1>
+    <p class="hero-sub">9个专属AI成员，各司其职<br>帮你完成真正的工作</p>
+    <p class="hero-desc">不是聊天机器人。是一支会执行、会交付、会记住你的AI团队。</p>
+    <div class="hero-actions">
+      <a href="#guide" class="btn-primary">⚡ 5分钟开始</a>
+      <a href="#team" class="btn-ghost">认识团队 →</a>
     </div>
   </div>
 </section>
 
-<!-- ═══════ PAIN ═══════ -->
+<!-- ─── 痛点 ──────────────────────────────── -->
 <section id="pain" class="section">
   <div class="container">
-    <div class="pain-header">
-      <div class="section-label">你现在的处境</div>
-      <h2 class="section-title">一个人，撑起所有业务线</h2>
-      <p class="section-sub">每天的精力大半消耗在这些重复、低效、本可以被自动化的事上</p>
+    <div class="fade-in">
+      <div class="section-tag">// PROBLEM</div>
+      <h2 class="section-title">你一个人，<br>在和所有人赛跑</h2>
+      <p class="section-sub">普通 AI 工具只是更快的打字机。真正的工作需要的是分工协作。</p>
     </div>
-    <div class="pain-cards">
-      <div class="pain-card fade-up">
-        <div class="pain-icon">📧</div>
-        <h3>「邮件写了三遍，还是被说不够专业」</h3>
-        <p>花了大量时间在措辞和格式上，输出质量却始终不稳定，让人焦虑。</p>
+    <div class="pain-grid">
+      <div class="pain-card fade-in">
+        <div class="pain-icon">🧩</div>
+        <h3>任务太散，抓不住重点</h3>
+        <p>调研、写作、执行、跟进……每件事都要你亲自盯着，没有人帮你统筹全局。</p>
       </div>
-      <div class="pain-card fade-up">
-        <div class="pain-icon">🔍</div>
-        <h3>「查资料查了半天，不知道该信哪个」</h3>
-        <p>信息散落各处，真假难辨，最终还要自己判断，耗时耗力没有定论。</p>
+      <div class="pain-card fade-in">
+        <div class="pain-icon">🔁</div>
+        <h3>每次都要从头解释</h3>
+        <p>换一个工具就要重新交代背景。你说过的偏好、踩过的坑，没有任何东西记得住。</p>
       </div>
-      <div class="pain-card fade-up">
-        <div class="pain-icon">💻</div>
-        <h3>「想要个功能，没人帮你实现」</h3>
-        <p>有想法，找不到合适的人执行；外包太贵，自己学又没时间。</p>
+      <div class="pain-card fade-in">
+        <div class="pain-icon">📦</div>
+        <h3>AI 只能建议，不能交付</h3>
+        <p>生成一堆内容，但没有人帮你审核、执行、跟进。最后还是你自己做。</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ SOLUTION ═══════ -->
+<!-- ─── 对比 ──────────────────────────────── -->
 <section id="solution" class="section">
   <div class="container">
-    <div class="section-header" style="text-align:center;margin-bottom:64px;">
-      <div class="section-label">解决方案</div>
-      <h2 class="section-title">不是给你建议，是给你结果</h2>
-      <p class="section-sub" style="margin:0 auto;">普通AI帮你想，鬼杀队帮你<strong>做</strong></p>
+    <div class="fade-in">
+      <div class="section-tag">// SOLUTION</div>
+      <h2 class="section-title">普通AI vs HiveMind</h2>
     </div>
-    <div class="solution-compare fade-up">
+    <div class="compare-wrap fade-in">
       <div class="compare-col">
-        <span class="compare-badge bad">普通 AI</span>
-        <h3>帮你想，但不帮你做</h3>
+        <h3>🤖 普通 AI 助手</h3>
         <ul class="compare-list">
-          <li><span class="icon">❌</span><span>给你建议，你自己去执行</span></li>
-          <li><span class="icon">❌</span><span>没有记忆，每次重新解释背景</span></li>
-          <li><span class="icon">❌</span><span>单一模型，复杂任务力不从心</span></li>
-          <li><span class="icon">❌</span><span>无法浏览网页、操作电脑</span></li>
-          <li><span class="icon">❌</span><span>输出无人审核，质量不稳定</span></li>
+          <li><span class="cmp-x">✗</span> 单线程对话，一次只做一件事</li>
+          <li><span class="cmp-x">✗</span> 没有记忆，每次重新开始</li>
+          <li><span class="cmp-x">✗</span> 只能建议，无法主动执行</li>
+          <li><span class="cmp-x">✗</span> 通用能力，没有专业深度</li>
+          <li><span class="cmp-x">✗</span> 你来驱动，它只是响应</li>
+          <li><span class="cmp-x">✗</span> 输出需要你自己验证</li>
         </ul>
       </div>
-      <div class="compare-divider">
-        <div class="vs-badge">VS</div>
-      </div>
-      <div class="compare-col col-right">
-        <span class="compare-badge good">天音 AI 团队</span>
-        <h3>帮你做，交付完整结果</h3>
+      <div class="compare-col is-hive">
+        <h3>⬡ HiveMind 团队</h3>
         <ul class="compare-list">
-          <li><span class="icon">✅</span><span>任务分派给专属成员，自动执行</span></li>
-          <li><span class="icon">✅</span><span>持久记忆，了解你的偏好与背景</span></li>
-          <li><span class="icon">✅</span><span>9位专才协作，分工处理复杂任务</span></li>
-          <li><span class="icon">✅</span><span>浏览器操控、代码运行，真实产出</span></li>
-          <li><span class="icon">✅</span><span>义勇全程质检，结果有保障</span></li>
+          <li><span class="cmp-check">✓</span> 9个专员并行，各司其职</li>
+          <li><span class="cmp-check">✓</span> 长期记忆，了解你的偏好与历史</li>
+          <li><span class="cmp-check">✓</span> 天音统筹调度，自动派单执行</li>
+          <li><span class="cmp-check">✓</span> 每个成员都有专业定位</li>
+          <li><span class="cmp-check">✓</span> 你只需说目标，团队负责推进</li>
+          <li><span class="cmp-check">✓</span> 内置质检员，结果有人把关</li>
         </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ TEAM ═══════ -->
+<!-- ─── 工作流 ──────────────────────────────── -->
+<section id="workflow" class="section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-tag">// WORKFLOW</div>
+      <h2 class="section-title">你说一句话，<br>发生了什么</h2>
+      <p class="section-sub">一条消息触发完整的团队协作流程，从分析到交付全程自动。</p>
+    </div>
+
+    <!-- 任务包动画区 -->
+    <div class="fade-in" style="margin-top:56px;">
+      <div class="wf-track" id="wf-track">
+        <div class="wf-packet" id="wf-packet">📦 任务</div>
+      </div>
+      <div class="wf-phases" id="wf-phases">
+        <div class="wf-phase" data-phase="0">
+          <h4>💬 用户输入</h4>
+          <p>发送指令给天音</p>
+        </div>
+        <div class="wf-phase" data-phase="1">
+          <h4>🌸 天音分析</h4>
+          <p>拆解需求，制定方案</p>
+        </div>
+        <div class="wf-phase" data-phase="2">
+          <h4>⚔ 派遣执行</h4>
+          <p>分配对应专员</p>
+        </div>
+        <div class="wf-phase" data-phase="3">
+          <h4>⚡ 审核把关</h4>
+          <p>质检员复核输出</p>
+        </div>
+        <div class="wf-phase" data-phase="4">
+          <h4>✅ 交付结果</h4>
+          <p>直接送达你的手上</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 团队 ──────────────────────────────── -->
 <section id="team" class="section">
   <div class="container">
-    <div class="section-header" style="text-align:center;margin-bottom:64px;">
-      <div class="section-label">认识团队</div>
-      <h2 class="section-title">9位专属AI成员</h2>
-      <p class="section-sub" style="margin:0 auto;">每位成员都有独立专长，悬停卡片了解他们的性格</p>
+    <div class="fade-in">
+      <div class="section-tag">// TEAM</div>
+      <h2 class="section-title">认识你的团队</h2>
+      <p class="section-sub">悬停卡片，了解每个成员的专长与性格。</p>
     </div>
     <div class="team-grid">
 
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">🧭</div>
-            <div class="flip-role">战略顾问</div>
-            <div class="flip-desc">负责重大决策与底层架构</div>
+      <!-- 1 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">⬡</div>
+            <div class="card-role">战略顾问</div>
+            <div class="card-title">继国缘一</div>
+            <div class="card-desc">把你的模糊想法转化成可执行的清晰战略，预见风险，锁定机会。</div>
           </div>
-          <div class="flip-back">
-            <div class="flip-name">继国缘一</div>
-            <div class="flip-personality">冷静克制，视野极广。在所有人困惑时，他已看清了三步之后的全局。</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">🌫️</div>
-            <div class="flip-role">需求分析师</div>
-            <div class="flip-desc">将模糊想法提炼成清晰目标</div>
-          </div>
-          <div class="flip-back">
-            <div class="flip-name">霞柱·無一郎</div>
-            <div class="flip-personality">看似漠然，实则洞察力超群。你说一半，他已理解全部。</div>
+          <div class="card-face back">
+            <div class="back-name">继国 缘一</div>
+            <div class="back-persona">「冷静，洞察，每一步都有深意」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>战略规划、路径设计、风险预判。你只需说目标，我来告诉你怎么走。</div>
           </div>
         </div>
       </div>
 
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">🦋</div>
-            <div class="flip-role">项目协调员</div>
-            <div class="flip-desc">任务拆解、进度追踪与体验优化</div>
+      <!-- 2 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">🌫</div>
+            <div class="card-role">需求分析师</div>
+            <div class="card-title">时透 无一郎</div>
+            <div class="card-desc">快速解构复杂需求，提炼核心，排除噪音，用最短时间找到问题的本质。</div>
           </div>
-          <div class="flip-back">
-            <div class="flip-name">蟲柱·忍</div>
-            <div class="flip-personality">温柔高效，让一切有条不紊地推进。没有她，团队的节奏早乱了。</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">🔥</div>
-            <div class="flip-role">内容策划官</div>
-            <div class="flip-desc">高质量文字、邮件与提案产出</div>
-          </div>
-          <div class="flip-back">
-            <div class="flip-name">炎柱·煉獄</div>
-            <div class="flip-personality">热情如火，笔下生花。每一个字都散发着感染力，无人拒绝他的提案。</div>
+          <div class="card-face back">
+            <div class="back-name">时透 无一郎</div>
+            <div class="back-persona">「快，准，一眼看穿问题核心」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>需求拆解、用户画像、信息过滤。你说什么我都能提炼出真正要做的事。</div>
           </div>
         </div>
       </div>
 
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">⚔️</div>
-            <div class="flip-role">后端工程师</div>
-            <div class="flip-desc">代码逻辑实现、开发与调试</div>
+      <!-- 3 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">🦋</div>
+            <div class="card-role">项目协调员</div>
+            <div class="card-title">胡蝶 忍</div>
+            <div class="card-desc">负责团队内部流转，让每个成员在正确的时间做正确的事，没有遗漏。</div>
           </div>
-          <div class="flip-back">
-            <div class="flip-name">炭治郎</div>
-            <div class="flip-personality">执行力最强的那个。无论多复杂的需求，他都会一步一步咬牙实现。</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">🐍</div>
-            <div class="flip-role">数据科学家</div>
-            <div class="flip-desc">深度数据挖掘与金融量化分析</div>
-          </div>
-          <div class="flip-back">
-            <div class="flip-name">蛇柱·伊黑</div>
-            <div class="flip-personality">沉默寡言，极度专注。数字在他眼中都有意义，每个细节都逃不过他的眼睛。</div>
+          <div class="card-face back">
+            <div class="back-name">胡蝶 忍</div>
+            <div class="back-persona">「优雅，精准，每个细节都在掌控中」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>任务调度、进度跟踪、跨成员协作。项目不脱轨，是我的职责。</div>
           </div>
         </div>
       </div>
 
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">💨</div>
-            <div class="flip-role">自动化专家</div>
-            <div class="flip-desc">浏览器操控、环境部署与自动脚本</div>
+      <!-- 4 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">🔥</div>
+            <div class="card-role">内容策划官</div>
+            <div class="card-title">煉獄 杏寿郎</div>
+            <div class="card-desc">用热情和能量驱动创意，从内容框架到爆款文案，全力以赴。</div>
           </div>
-          <div class="flip-back">
-            <div class="flip-name">风柱·実弥</div>
-            <div class="flip-personality">粗粗糙糙，效率惊人。他能在你眨眼间完成你以为要手动做三小时的事。</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">💧</div>
-            <div class="flip-role">首席质检员</div>
-            <div class="flip-desc">所有产出的最终逻辑与安全审核</div>
-          </div>
-          <div class="flip-back">
-            <div class="flip-name">水柱·义勇</div>
-            <div class="flip-personality">话不多，标准极高。没有他点头，什么都不能出门。他是团队最后的防线。</div>
+          <div class="card-face back">
+            <div class="back-name">煉獄 杏寿郎</div>
+            <div class="back-persona">「燃烧，感染，让内容有温度」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>内容策划、文案创作、品牌叙事。每个字都要让人有所感触！</div>
           </div>
         </div>
       </div>
 
-      <div class="flip-card fade-up">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <div class="flip-emoji">🌸</div>
-            <div class="flip-role">团队总管</div>
-            <div class="flip-desc">主控大脑，资源分派与交付</div>
+      <!-- 5 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">⚔</div>
+            <div class="card-role">后端工程师</div>
+            <div class="card-title">竈門 炭治郎</div>
+            <div class="card-desc">稳定可靠的技术执行力，从架构设计到代码实现，认真对待每一行代码。</div>
           </div>
-          <div class="flip-back">
-            <div class="flip-name">天音</div>
-            <div class="flip-personality">你的第一个联系人，也是最后的交付者。她知道该把任务交给谁，也知道你想要什么。</div>
+          <div class="card-face back">
+            <div class="back-name">竈門 炭治郎</div>
+            <div class="back-persona">「认真，善良，绝不放弃任何一个 bug」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>代码开发、API 设计、技术文档。我会全力以赴，请放心交给我。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">📊</div>
+            <div class="card-role">数据科学家</div>
+            <div class="card-title">伊黑 小芭内</div>
+            <div class="card-desc">把数字变成洞察，用数据讲故事，帮你看清趋势背后的真相。</div>
+          </div>
+          <div class="card-face back">
+            <div class="back-name">伊黑 小芭内</div>
+            <div class="back-persona">「缜密，执着，数字不会说谎」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>数据分析、可视化、洞察报告。每一个结论都有数据支撑。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">⚡</div>
+            <div class="card-role">自动化专家</div>
+            <div class="card-title">不死川 実弥</div>
+            <div class="card-desc">消灭一切重复劳动，构建自动化工作流，让你从繁琐中彻底解放。</div>
+          </div>
+          <div class="card-face back">
+            <div class="back-name">不死川 実弥</div>
+            <div class="back-persona">「暴烈，高效，绝不做无用功」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>流程自动化、脚本开发、系统集成。能自动的绝不手动！</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front">
+            <div class="card-emoji">✓</div>
+            <div class="card-role">首席质检员</div>
+            <div class="card-title">冨岡 义勇</div>
+            <div class="card-desc">最后一道防线，所有输出必须经过严格审核，不达标准绝不放行。</div>
+          </div>
+          <div class="card-face back">
+            <div class="back-name">冨岡 义勇</div>
+            <div class="back-persona">「沉默，严格，结果说话」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>质量审核、错误检查、最终把关。通过我的，才能交付给你。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9 -->
+      <div class="team-card-wrap fade-in">
+        <div class="team-card">
+          <div class="card-face front" style="border-color:rgba(124,106,247,.5); background: linear-gradient(135deg,#12121A,#1a1a2e);">
+            <div class="card-emoji">🌸</div>
+            <div class="card-role" style="color:var(--gold)">团队总管</div>
+            <div class="card-title">天音</div>
+            <div class="card-desc">你与整个团队的唯一接口。接收你的指令，统筹调度，确保每件事都被妥善完成。</div>
+          </div>
+          <div class="card-face back" style="border-color:var(--gold)">
+            <div class="back-name" style="color:var(--gold)">天音</div>
+            <div class="back-persona">「温柔，全知，你的首席执行官」</div>
+            <div class="back-resp"><strong>我负责的是：</strong><br>指令接收、团队调度、进度汇报。你只需对我说，我来搞定一切。</div>
           </div>
         </div>
       </div>
@@ -1150,319 +804,667 @@
   </div>
 </section>
 
-<!-- ═══════ WORKFLOW ═══════ -->
-<section id="workflow" class="section" style="background:var(--card);">
-  <div class="container">
-    <div class="section-header" style="text-align:center;margin-bottom:64px;">
-      <div class="section-label">工作流</div>
-      <h2 class="section-title">你说一句话，AI团队完成全程</h2>
-      <p class="section-sub" style="margin:0 auto;">从指令到结果，5个环节全自动运转，你只负责提需求</p>
-    </div>
-    <div class="workflow-steps fade-up">
-      <div class="workflow-step">
-        <div class="step-num">1</div>
-        <div class="step-icon">💬</div>
-        <div class="step-title">主公发指令</div>
-        <div class="step-desc">用自然语言告诉天音你要什么</div>
-      </div>
-      <div class="workflow-arrow">→</div>
-      <div class="workflow-step active-step">
-        <div class="step-num">2</div>
-        <div class="step-icon">🌸</div>
-        <div class="step-title">天音分析派遣</div>
-        <div class="step-desc">理解意图，拆解任务，分配给最合适的成员</div>
-      </div>
-      <div class="workflow-arrow">→</div>
-      <div class="workflow-step">
-        <div class="step-num">3</div>
-        <div class="step-icon">⚡</div>
-        <div class="step-title">专属柱执行</div>
-        <div class="step-desc">各司其职，并行处理，效率最大化</div>
-      </div>
-      <div class="workflow-arrow">→</div>
-      <div class="workflow-step">
-        <div class="step-num">4</div>
-        <div class="step-icon">💧</div>
-        <div class="step-title">义勇质检审核</div>
-        <div class="step-desc">义勇把关所有产出，确保逻辑与质量</div>
-      </div>
-      <div class="workflow-arrow">→</div>
-      <div class="workflow-step">
-        <div class="step-num">5</div>
-        <div class="step-icon">✅</div>
-        <div class="step-title">结果交付</div>
-        <div class="step-desc">天音汇总，直接发到你手上</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ BRAIN ═══════ -->
+<!-- ─── 大脑与记忆 ──────────────────────── -->
 <section id="brain" class="section">
   <div class="container">
-    <div class="section-header" style="margin-bottom:56px;">
-      <div class="section-label">记忆与能力</div>
-      <h2 class="section-title">认识你三年的AI助理</h2>
-      <p class="section-sub">就像一个跟你工作了三年的助理，知道你的偏好、过往项目、工作风格——不需要每次重新解释。</p>
+    <div class="fade-in">
+      <div class="section-tag">// MEMORY</div>
+      <h2 class="section-title">认识你三年的<br>AI 助理</h2>
+      <p class="section-sub">不只是记住你说过什么——而是真正理解你是谁，你想要什么。</p>
     </div>
-    <div class="brain-grid">
-      <div class="brain-card fade-up">
-        <div class="brain-card-icon">🧠</div>
-        <h3>持久记忆系统</h3>
-        <p>天音记住你说过的每一件事：你喜欢什么语气、之前的项目背景、你的工作习惯。下次对话无需重新说明。</p>
+    <div class="brain-inner">
+      <div class="memory-terminal fade-in">
+        <div class="terminal-bar">
+          <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+          <span class="terminal-title">~/hivemind/memory/alex.db</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <!-- JS 动态填充 -->
+        </div>
       </div>
-      <div class="brain-card fade-up">
-        <div class="brain-card-icon">🔌</div>
-        <h3>技能插件体系</h3>
-        <p>就像给手机装App一样，团队的能力可以不断扩展——新增数据源接入、API对接、自动化脚本，按需加载。</p>
-      </div>
-      <div class="brain-card fade-up">
-        <div class="brain-card-icon">🏥</div>
-        <h3>模型分级调度</h3>
-        <p>就像医院有全科医生和专科专家——简单任务用轻量模型，复杂问题调用顶级模型，效率与成本的最优解。</p>
+      <div class="brain-cards fade-in">
+        <div class="brain-card">
+          <div class="brain-icon">🧠</div>
+          <div>
+            <h4>长期记忆</h4>
+            <p>你说过的偏好、做过的决定、踩过的坑——全部持久保存，跨越每一次对话。</p>
+          </div>
+        </div>
+        <div class="brain-card">
+          <div class="brain-icon">⚡</div>
+          <div>
+            <h4>技能库</h4>
+            <p>为你定制的工作流模板、常用指令、专属提示词——用得越多越懂你。</p>
+          </div>
+        </div>
+        <div class="brain-card">
+          <div class="brain-icon">🎯</div>
+          <div>
+            <h4>智能分级</h4>
+            <p>简单任务用轻量模型，复杂推理用高级模型——不浪费，也不妥协质量。</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ GUIDE ═══════ -->
-<section id="guide" class="section" style="background:var(--card);">
+<!-- ─── 能力展示 ──────────────────────────── -->
+<section id="capabilities" class="section">
   <div class="container">
-    <div class="section-header" style="text-align:center;margin-bottom:64px;">
-      <div class="section-label">起步指南</div>
+    <div class="fade-in">
+      <div class="section-tag">// CAPABILITIES</div>
+      <h2 class="section-title">它能帮你做什么</h2>
+    </div>
+    <div class="cap-tabs fade-in" id="cap-tabs">
+      <button class="cap-tab active" data-tab="0">🔍 调研分析</button>
+      <button class="cap-tab" data-tab="1">✍️ 写作文案</button>
+      <button class="cap-tab" data-tab="2">💻 代码开发</button>
+      <button class="cap-tab" data-tab="3">📊 数据分析</button>
+    </div>
+
+    <!-- Tab 0 -->
+    <div class="cap-content active fade-in" data-content="0">
+      <div class="cap-desc">
+        <h3>调研分析</h3>
+        <p>从竞品分析到市场报告，从行业趋势到用户洞察，团队能快速帮你梳理出清晰的信息框架。</p>
+        <ul class="cap-features">
+          <li>竞品对比分析报告</li>
+          <li>市场机会与威胁梳理</li>
+          <li>目标用户画像构建</li>
+          <li>行业趋势解读</li>
+        </ul>
+      </div>
+      <div class="chat-ui" id="chat-0">
+        <!-- JS 填充 -->
+      </div>
+    </div>
+
+    <!-- Tab 1 -->
+    <div class="cap-content" data-content="1">
+      <div class="cap-desc">
+        <h3>写作文案</h3>
+        <p>产品介绍、营销邮件、社交媒体文案、融资 Deck……不同场景、不同语气，一键生成。</p>
+        <ul class="cap-features">
+          <li>品牌故事与定位文案</li>
+          <li>营销邮件与转化文案</li>
+          <li>社交媒体内容日历</li>
+          <li>融资材料与路演稿</li>
+        </ul>
+      </div>
+      <div class="chat-ui" id="chat-1"></div>
+    </div>
+
+    <!-- Tab 2 -->
+    <div class="cap-content" data-content="2">
+      <div class="cap-desc">
+        <h3>代码开发</h3>
+        <p>从功能需求到可运行代码，从 bug 修复到架构优化，技术团队随时待命。</p>
+        <ul class="cap-features">
+          <li>全栈代码实现</li>
+          <li>API 设计与文档</li>
+          <li>Bug 排查与修复</li>
+          <li>代码审查与优化建议</li>
+        </ul>
+      </div>
+      <div class="chat-ui" id="chat-2"></div>
+    </div>
+
+    <!-- Tab 3 -->
+    <div class="cap-content" data-content="3">
+      <div class="cap-desc">
+        <h3>数据分析</h3>
+        <p>把原始数据变成可执行的洞察，支持 CSV、数据库查询、可视化报告等多种形式。</p>
+        <ul class="cap-features">
+          <li>数据清洗与预处理</li>
+          <li>趋势分析与预测</li>
+          <li>可视化报告生成</li>
+          <li>A/B 测试结果解读</li>
+        </ul>
+      </div>
+      <div class="chat-ui" id="chat-3"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── 起步指南 ──────────────────────────── -->
+<section id="guide" class="section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-tag">// GET STARTED</div>
       <h2 class="section-title">5分钟开始</h2>
-      <p class="section-sub" style="margin:0 auto;">三步走，从零到第一个AI任务完成</p>
+      <p class="section-sub">三步配置，立即上线。</p>
     </div>
     <div class="guide-steps">
-      <div class="guide-step fade-up" data-step="1">
-        <div class="guide-step-num">1</div>
-        <h3>打开 Telegram，找到天音</h3>
-        <p>在 Telegram 搜索天音的账号，发送第一条消息，她会立刻回应。</p>
+      <div class="guide-step fade-in">
+        <div class="step-num">STEP 01</div>
+        <h3>添加天音到 Telegram</h3>
+        <p>搜索 <strong style="color:var(--brand)">@HiveMindAI_bot</strong>，发送 /start，完成初始化。整个过程不需要任何技术操作。</p>
       </div>
-      <div class="guide-step fade-up" data-step="2">
-        <div class="guide-step-num">2</div>
-        <h3>发送第一句话</h3>
-        <p>可以直接说「帮我查一下…」或「写一封邮件…」，用自然语言就行，不需要特殊格式。</p>
+      <div class="guide-step fade-in">
+        <div class="step-num">STEP 02</div>
+        <h3>告诉天音你是谁</h3>
+        <p>发送 /setup，天音会引导你填写基本信息：你的行业、工作偏好、常用语言。团队从此认识你。</p>
       </div>
-      <div class="guide-step fade-up" data-step="3">
-        <div class="guide-step-num">3</div>
-        <h3>等待天音安排，收到结果</h3>
-        <p>天音会自动分派任务给团队，完成后直接把结果发回给你，无需跟进。</p>
+      <div class="guide-step fade-in">
+        <div class="step-num">STEP 03</div>
+        <h3>发出你的第一个任务</h3>
+        <p>直接说你想做的事，不需要特殊格式。天音会分析、分配，然后你只等结果。</p>
       </div>
     </div>
-
-    <!-- 指令模板 -->
-    <div class="template-box fade-up">
-      <div class="template-tabs">
-        <button class="template-tab active" data-tab="research">查资料</button>
-        <button class="template-tab" data-tab="write">写文案</button>
-        <button class="template-tab" data-tab="data">分析数据</button>
-      </div>
-      <div class="template-panels">
-        <div class="template-panel active" id="tab-research">
-          <div class="template-label">可以直接复制使用</div>
-          <div class="template-code">
-            帮我调研一下 <em>[主题]</em>，给我 3 个关键结论，每条不超过两行，附上信息来源。
-          </div>
+    <div class="fade-in">
+      <p class="templates-title">常用指令模板</p>
+      <div class="template-grid">
+        <div class="template-card">
+          <h4>调研任务</h4>
+          <div class="template-code">帮我分析 [行业/产品] 的竞品，<br>重点看定价策略和用户评价，<br>最后给我一个对比表格。</div>
+          <button class="copy-btn" onclick="copyTemplate(this)">复制</button>
         </div>
-        <div class="template-panel" id="tab-write">
-          <div class="template-label">可以直接复制使用</div>
-          <div class="template-code">
-            帮我写一封给 <em>[对象/公司]</em> 的 <em>[类型：合作邀请 / 道歉 / 跟进]</em> 邮件，语气 <em>[正式 / 友好 / 简洁]</em>，不超过 200 字。
-          </div>
+        <div class="template-card">
+          <h4>内容创作</h4>
+          <div class="template-code">帮我写一篇 [主题] 的小红书文章，<br>目标用户是 [人群]，<br>语气要 [风格]，配上5个标签。</div>
+          <button class="copy-btn" onclick="copyTemplate(this)">复制</button>
         </div>
-        <div class="template-panel" id="tab-data">
-          <div class="template-label">可以直接复制使用</div>
-          <div class="template-code">
-            这是我的数据：<em>[粘贴数据]</em>。帮我找出核心趋势，并给我 2 个可操作的建议。
-          </div>
+        <div class="template-card">
+          <h4>代码开发</h4>
+          <div class="template-code">帮我用 [技术栈] 实现 [功能]，<br>需要支持 [具体需求]，<br>写完顺便加上基础文档。</div>
+          <button class="copy-btn" onclick="copyTemplate(this)">复制</button>
+        </div>
+        <div class="template-card">
+          <h4>数据分析</h4>
+          <div class="template-code">我有一份 [数据描述]，<br>帮我找出 [想了解的规律/问题]，<br>用图表展示主要结论。</div>
+          <button class="copy-btn" onclick="copyTemplate(this)">复制</button>
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- ═══════ TRUST ═══════ -->
+<!-- ─── 信任 ──────────────────────────────── -->
 <section id="trust" class="section">
   <div class="container">
-    <div class="section-header" style="text-align:center;margin-bottom:64px;">
-      <div class="section-label">安全与信任</div>
-      <h2 class="section-title">你的数据，只在你的机器上</h2>
-      <p class="section-sub" style="margin:0 auto;">我们把安全放在第一位，不妥协，不例外</p>
+    <div class="fade-in">
+      <div class="section-tag">// TRUST</div>
+      <h2 class="section-title">安全与隐私</h2>
     </div>
-    <div class="trust-cards">
-      <div class="trust-card fade-up">
+    <div class="trust-grid">
+      <div class="trust-card fade-in">
         <div class="trust-icon">🔒</div>
-        <h3>本地部署</h3>
-        <p>数据不经过任何第三方服务器。所有处理在你自己的机器上完成，完全私有。</p>
+        <h3>数据加密存储</h3>
+        <p>所有记忆与对话内容端对端加密，存储在你专属的隔离空间，不会用于模型训练。</p>
       </div>
-      <div class="trust-card fade-up">
-        <div class="trust-icon">✅</div>
-        <h3>双重审核</h3>
-        <p>义勇负责所有输出的最终质检。没有通过审核的内容，不会到达你手上。</p>
+      <div class="trust-card fade-in">
+        <div class="trust-icon">🎛</div>
+        <h3>完全可控</h3>
+        <p>随时查看、编辑、删除团队关于你的全部记忆。你对自己的数据拥有完整控制权。</p>
       </div>
-      <div class="trust-card fade-up">
-        <div class="trust-icon">💰</div>
-        <h3>透明费用</h3>
-        <p>按实际使用量计费，无订阅套路，无隐藏收费。用多少付多少，随时可查账单。</p>
+      <div class="trust-card fade-in">
+        <div class="trust-icon">🌐</div>
+        <h3>透明执行</h3>
+        <p>每一个任务的执行过程都有日志记录，你随时可以查看天音派给了谁、做了什么。</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ FAQ ═══════ -->
-<section id="faq" class="section" style="background:var(--card);">
+<!-- ─── FAQ ───────────────────────────────── -->
+<section id="faq" class="section">
   <div class="container">
-    <div class="section-header" style="text-align:center;margin-bottom:56px;">
-      <div class="section-label">常见问题</div>
-      <h2 class="section-title">你可能想问的</h2>
+    <div class="fade-in">
+      <div class="section-tag">// FAQ</div>
+      <h2 class="section-title">常见问题</h2>
     </div>
-    <div class="faq-list">
+    <div class="faq-list fade-in">
 
       <div class="faq-item">
-        <button class="faq-q">
-          和 ChatGPT 有什么区别？
-          <span class="faq-arrow">▾</span>
+        <button class="faq-q" onclick="toggleFaq(this)">
+          HiveMind 和普通 ChatGPT 有什么本质区别？
+          <div class="faq-icon">+</div>
         </button>
-        <div class="faq-a">
-          <p>ChatGPT 是一个对话框，给你建议，你自己去执行。天音 AI 团队是一个完整的执行团队：9 位专才各司其职，有记忆、能行动、会审核，直接交付结果，不是建议。</p>
-        </div>
+        <div class="faq-a"><div class="faq-a-inner">ChatGPT 是单线程对话，你问它答，没有记忆、没有分工。HiveMind 是一支有组织的 AI 团队，每个成员有明确职能，天音负责统筹，所有对话都有长期记忆沉淀。本质上是"工具"和"团队"的区别。</div></div>
       </div>
 
       <div class="faq-item">
-        <button class="faq-q">
-          数据安全吗，会泄露吗？
-          <span class="faq-arrow">▾</span>
+        <button class="faq-q" onclick="toggleFaq(this)">
+          我需要会编程才能使用吗？
+          <div class="faq-icon">+</div>
         </button>
-        <div class="faq-a">
-          <p>全部本地部署，数据不经过任何第三方服务器。你的对话记录、文件、任务内容都存在你自己的机器上，我们访问不到，也不会上传。</p>
-        </div>
+        <div class="faq-a"><div class="faq-a-inner">完全不需要。HiveMind 的唯一交互界面是 Telegram，用自然语言说话即可。配置过程有引导，大多数用户 5 分钟内就能完成设置并发出第一个任务。</div></div>
       </div>
 
       <div class="faq-item">
-        <button class="faq-q">
-          费用怎么算？
-          <span class="faq-arrow">▾</span>
+        <button class="faq-q" onclick="toggleFaq(this)">
+          「记忆」存在哪里？会不会泄露？
+          <div class="faq-icon">+</div>
         </button>
-        <div class="faq-a">
-          <p>按实际 AI 调用量计费，没有月租或套餐门槛。轻度使用（日常查资料、写邮件）通常每月花费极低。复杂任务会自动选择性价比最高的模型，不会无谓烧钱。</p>
-        </div>
+        <div class="faq-a"><div class="faq-a-inner">记忆以加密形式存储在你专属的隔离数据库中，不同用户之间完全隔离。我们不会用你的数据训练模型，也不会共享给第三方。你可以随时通过 /memory 命令查看、编辑或清除所有记忆。</div></div>
       </div>
 
       <div class="faq-item">
-        <button class="faq-q">
-          AI 会出错吗，怎么保障？
-          <span class="faq-arrow">▾</span>
+        <button class="faq-q" onclick="toggleFaq(this)">
+          9个成员是真的会同时工作吗？
+          <div class="faq-icon">+</div>
         </button>
-        <div class="faq-a">
-          <p>AI 确实会出错，这是现实。所以我们设计了义勇质检环节——所有产出在交付前都经过逻辑审核。如果你发现问题，直接告诉天音，她会重新处理，不收额外费用。</p>
-        </div>
+        <div class="faq-a"><div class="faq-a-inner">是的。对于复杂任务，天音会拆解成多个子任务，分配给不同成员并行处理。比如一份完整的商业分析报告，伊黑负责数据、无一郎负责需求框架、炭治郎负责技术可行性——同时进行，最后合并。</div></div>
       </div>
 
       <div class="faq-item">
-        <button class="faq-q">
-          需要技术背景才能用吗？
-          <span class="faq-arrow">▾</span>
+        <button class="faq-q" onclick="toggleFaq(this)">
+          支持哪些语言？
+          <div class="faq-icon">+</div>
         </button>
-        <div class="faq-a">
-          <p>完全不需要。你只需要会发 Telegram 消息就行。用自然语言说清楚你要什么，天音负责理解和分派，背后的技术细节你完全不用管。</p>
-        </div>
+        <div class="faq-a"><div class="faq-a-inner">中文和英文是最优先支持的语言，日文也有良好支持。你用什么语言和天音说话，天音就用什么语言回复。可以在初始设置中指定默认语言偏好。</div></div>
       </div>
 
       <div class="faq-item">
-        <button class="faq-q">
-          支持哪些平台？
-          <span class="faq-arrow">▾</span>
+        <button class="faq-q" onclick="toggleFaq(this)">
+          怎么开始？需要付费吗？
+          <div class="faq-icon">+</div>
         </button>
-        <div class="faq-a">
-          <p>目前主要通过 Telegram 交互，支持手机（iOS / Android）和桌面端（Mac / Windows / Linux）。Web 界面和更多平台支持正在开发中。</p>
-        </div>
+        <div class="faq-a"><div class="faq-a-inner">新用户免费试用14天，包含完整功能体验。试用期结束后按月订阅。目前处于内测阶段，加入候补名单可提前获得邀请码和早鸟优惠。</div></div>
       </div>
 
     </div>
   </div>
 </section>
 
-<!-- ═══════ CTA ═══════ -->
-<section id="start" class="section">
-  <div class="container">
-    <div class="cta-inner fade-up">
-      <div class="section-label" style="color:rgba(255,255,255,.5);">现在开始</div>
-      <h2 class="section-title">准备好了吗？</h2>
-      <p class="section-sub">现在开始，5分钟内你的第一个AI任务就会完成</p>
-      <a href="#guide" class="btn btn-primary">马上开始 →</a>
-    </div>
+<!-- ─── CTA ───────────────────────────────── -->
+<section id="start">
+  <div class="cta-glow"></div>
+  <div style="position:relative;z-index:2;">
+    <h2 class="fade-in">准备好了吗？</h2>
+    <p class="fade-in">加入内测，5分钟组建你的专属 AI 团队。</p>
+    <a href="#guide" class="btn-primary fade-in" style="display:inline-flex;margin:0 auto;">⬡ 立即开始</a>
   </div>
 </section>
 
-<!-- ═══════ FOOTER ═══════ -->
+<!-- ─── Footer ────────────────────────────── -->
 <footer>
   <div class="container">
-    <div class="footer-inner">
-      <div class="footer-logo">🌸 天音 AI 总部</div>
-      <div class="footer-copy">© 2026 · 你的专属 AI 团队</div>
-    </div>
+    <p style="margin-bottom:8px;">
+      <span style="font-family:'JetBrains Mono',monospace;color:var(--brand);">⬡ HiveMind</span>
+      · 你的专属 AI 团队
+    </p>
+    <p>© 2026 HiveMind · 数据加密 · 隐私优先</p>
   </div>
 </footer>
 
-<!-- ═══════ JS ═══════ -->
+<!-- ─── JavaScript ─────────────────────────── -->
 <script>
-  // ─── 汉堡菜单 ────────────────────────────────
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobileMenu');
-  hamburger.addEventListener('click', () => {
-    mobileMenu.classList.toggle('open');
+// ── IntersectionObserver 入场动画 ────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // 延迟子元素
+      const delay = Array.from(e.target.parentElement?.children || []).indexOf(e.target) * 80;
+      e.target.style.transitionDelay = delay + 'ms';
+    }
   });
-  function closeMobileMenu() { mobileMenu.classList.remove('open'); }
+}, { threshold: 0.12 });
 
-  // ─── 滚动激活导航链接 ─────────────────────────
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        navLinks.forEach(a => a.classList.remove('active'));
-        const active = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
-        if (active) active.classList.add('active');
-      }
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ── Hero Canvas 蜂巢网络动画 ─────────────────────
+const canvas = document.getElementById('hero-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, nodes, animId;
+
+const MEMBERS = [
+  { name: '天音·总管', emoji: '🌸' },
+  { name: '继国·战略', emoji: '⬡' },
+  { name: '无一郎·分析', emoji: '🌫' },
+  { name: '忍·协调', emoji: '🦋' },
+  { name: '煉獄·内容', emoji: '🔥' },
+  { name: '炭治郎·后端', emoji: '⚔' },
+  { name: '伊黑·数据', emoji: '📊' },
+  { name: '実弥·自动化', emoji: '⚡' },
+  { name: '义勇·质检', emoji: '✓' },
+];
+
+function resize() {
+  W = canvas.width = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+  buildNodes();
+}
+
+function buildNodes() {
+  nodes = [];
+  const cx = W / 2, cy = H / 2;
+  const r = Math.min(W, H) * 0.28;
+  // 中心节点（天音）
+  nodes.push({ x: cx, y: cy, r: 22, member: MEMBERS[0], isCenter: true, pulseT: 0, connections: [] });
+  // 外围8个
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
+    nodes.push({
+      x: cx + Math.cos(angle) * r,
+      y: cy + Math.sin(angle) * r,
+      r: 15, member: MEMBERS[i + 1], isCenter: false,
+      pulseT: 0, connections: []
     });
-  }, { rootMargin: '-40% 0px -55% 0px' });
-  sections.forEach(s => observer.observe(s));
+  }
+  // 建立连接：中心 ↔ 所有外围
+  for (let i = 1; i < 9; i++) nodes[0].connections.push(i);
+  // 相邻外围互联
+  for (let i = 1; i <= 8; i++) {
+    const next = i === 8 ? 1 : i + 1;
+    nodes[i].connections.push(next);
+  }
+}
 
-  // ─── 入场动画 ────────────────────────────────
-  const fadeEls = document.querySelectorAll('.fade-up');
-  const fadeObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        fadeObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  fadeEls.forEach(el => fadeObserver.observe(el));
+// 流动粒子
+const particles = [];
+function spawnParticle() {
+  const from = 0, to = Math.floor(Math.random() * 8) + 1;
+  const src = nodes[from], dst = nodes[to];
+  particles.push({ from, to, t: 0, speed: 0.005 + Math.random() * 0.004 });
+}
+setInterval(() => { if (particles.length < 18) spawnParticle(); }, 350);
 
-  // ─── FAQ 手风琴 ──────────────────────────────
-  document.querySelectorAll('.faq-q').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.faq-item');
-      const isOpen = item.classList.contains('open');
-      // 关闭所有
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
+let hoverNode = null;
+
+function draw(ts) {
+  ctx.clearRect(0, 0, W, H);
+
+  // 连线
+  nodes.forEach((n, i) => {
+    n.connections.forEach(j => {
+      const dst = nodes[j];
+      ctx.beginPath();
+      ctx.moveTo(n.x, n.y);
+      ctx.lineTo(dst.x, dst.y);
+      ctx.strokeStyle = 'rgba(124,106,247,0.15)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
     });
   });
 
-  // ─── 指令模板 Tab ────────────────────────────
-  document.querySelectorAll('.template-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const tabId = tab.dataset.tab;
-      document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.template-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('tab-' + tabId).classList.add('active');
-    });
+  // 粒子
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.t += p.speed;
+    if (p.t >= 1) { particles.splice(i, 1); continue; }
+    const src = nodes[p.from], dst = nodes[p.to];
+    const x = src.x + (dst.x - src.x) * p.t;
+    const y = src.y + (dst.y - src.y) * p.t;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(124,106,247,' + (0.9 - p.t * 0.5) + ')';
+    ctx.fill();
+  }
+
+  // 中心脉冲圈
+  const c = nodes[0];
+  const pulseSize = (Math.sin(ts * 0.001) + 1) * 0.5;
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, c.r + 20 + pulseSize * 20, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(124,106,247,' + (0.08 + pulseSize * 0.06) + ')';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // 节点
+  nodes.forEach((n, i) => {
+    const isHov = hoverNode === i;
+    // 外发光
+    const grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 2.5);
+    grd.addColorStop(0, n.isCenter ? 'rgba(200,169,110,0.25)' : 'rgba(124,106,247,0.2)');
+    grd.addColorStop(1, 'rgba(124,106,247,0)');
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r * 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    // 节点圆
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, isHov ? n.r + 4 : n.r, 0, Math.PI * 2);
+    ctx.fillStyle = n.isCenter ? 'rgba(200,169,110,0.3)' : 'rgba(124,106,247,0.2)';
+    ctx.fill();
+    ctx.strokeStyle = n.isCenter ? '#C8A96E' : (isHov ? '#A599FF' : 'rgba(124,106,247,0.7)');
+    ctx.lineWidth = isHov ? 2.5 : 1.5;
+    ctx.stroke();
+
+    // emoji
+    ctx.font = (n.isCenter ? 16 : 12) + 'px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(n.member.emoji, n.x, n.y);
+
+    // hover 名字
+    if (isHov) {
+      const label = n.member.name;
+      ctx.font = '600 13px Inter, sans-serif';
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = 'rgba(18,18,26,0.92)';
+      roundRect(ctx, n.x - tw/2 - 10, n.y - n.r - 34, tw + 20, 24, 6);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(124,106,247,0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#F0EEF8';
+      ctx.fillText(label, n.x, n.y - n.r - 22);
+    }
   });
+
+  animId = requestAnimationFrame(draw);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  hoverNode = null;
+  nodes.forEach((n, i) => {
+    const d = Math.hypot(n.x - mx, n.y - my);
+    if (d < n.r + 10) hoverNode = i;
+  });
+  canvas.style.cursor = hoverNode !== null ? 'pointer' : 'default';
+});
+canvas.addEventListener('mouseleave', () => { hoverNode = null; });
+
+window.addEventListener('resize', () => { cancelAnimationFrame(animId); resize(); requestAnimationFrame(draw); });
+resize();
+requestAnimationFrame(draw);
+
+// ── 工作流动画 ──────────────────────────────────
+const phases = document.querySelectorAll('.wf-phase');
+const packet = document.getElementById('wf-packet');
+const track = document.getElementById('wf-track');
+let currentPhase = 0;
+
+function updateWorkflow() {
+  phases.forEach((p, i) => {
+    p.classList.toggle('active', i === currentPhase);
+  });
+  // 移动包的位置
+  const phasesEl = document.getElementById('wf-phases');
+  const phaseEls = phasesEl.querySelectorAll('.wf-phase');
+  if (phaseEls[currentPhase]) {
+    const phRect = phaseEls[currentPhase].getBoundingClientRect();
+    const trackRect = track.getBoundingClientRect();
+    const targetX = phRect.left - trackRect.left + phRect.width / 2 - 30;
+    packet.style.left = Math.max(0, targetX) + 'px';
+  }
+  currentPhase = (currentPhase + 1) % phases.length;
+}
+
+// 初始位置
+packet.style.left = '0px';
+updateWorkflow();
+setInterval(updateWorkflow, 1800);
+
+// ── FAQ 手风琴 ──────────────────────────────────
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  // 关闭所有
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── 能力展示 Tab ───────────────────────────────
+const tabs = document.querySelectorAll('.cap-tab');
+const contents = document.querySelectorAll('.cap-content');
+let activeTab = 0;
+
+const CHATS = [
+  [ // 调研分析
+    { role: 'user', text: '帮我分析一下国内 AI 写作工具的市场现状' },
+    { role: 'ai', text: '好的，我来为你做一份竞品分析。\n\n📊 主要玩家：Notion AI、讯飞星火、文心一言写作、MiniMax...\n\n核心维度对比：价格 / 场景覆盖 / 中文质量 / API 开放程度\n\n正在整理数据，预计 2 分钟出初稿报告。' },
+  ],
+  [ // 写作文案
+    { role: 'user', text: '帮我写一条 AI 团队产品的小红书推广文' },
+    { role: 'ai', text: '✨ 已帮你生成3个版本：\n\n**版本A（情感共鸣型）**\n「终于找到了那个懂我的AI团队...」\n\n**版本B（功能展示型）**  \n「9个AI成员各司其职，我只需要说目标」\n\n**版本C（对比反差型）**\n「其他AI给我建议，HiveMind给我结果」\n\n要我调整哪个版本的语气吗？' },
+  ],
+  [ // 代码开发
+    { role: 'user', text: '帮我写一个 Telegram Bot，接收消息后自动保存到数据库' },
+    { role: 'ai', text: '我来用 Node.js + Hono + PostgreSQL 实现这个需求。\n\n```typescript\n// bot.ts\nconst bot = new Telegraf(TOKEN);\nbot.on("text", async ctx => {\n  await db.insert(messages).values({\n    userId: ctx.from.id,\n    text: ctx.message.text,\n    createdAt: new Date()\n  });\n  ctx.reply("已保存 ✓");\n});\n```\n\n已包含 Drizzle ORM schema + 环境变量配置，要我一并生成吗？' },
+  ],
+  [ // 数据分析
+    { role: 'user', text: '我的用户留存率下降了，帮我找找原因' },
+    { role: 'ai', text: '收到数据，我来做留存分析。\n\n📉 初步发现：\n• D7 留存从 42% → 31%（下降 26%）\n• 流失主要发生在**新用户第 2-3 天**\n• 高留存用户特征：完成过 ≥3 次任务\n\n🔍 假设方向：\n1. 新用户激活路径摩擦过高\n2. 第一次任务体验质量下降\n3. 某次版本更新影响了关键流程\n\n要我生成完整分析报告吗？' },
+  ],
+];
+
+function renderChat(tabIndex, containerId, animated = false) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  const msgs = CHATS[tabIndex];
+  if (!animated) {
+    msgs.forEach(m => {
+      el.appendChild(makeBubble(m.role, m.text));
+    });
+    return;
+  }
+  // 打字机效果
+  let msgIdx = 0;
+  function nextMsg() {
+    if (msgIdx >= msgs.length) return;
+    const m = msgs[msgIdx++];
+    if (m.role === 'user') {
+      el.appendChild(makeBubble('user', m.text));
+      setTimeout(nextMsg, 600);
+    } else {
+      const wrap = makeBubble('ai', '');
+      el.appendChild(wrap);
+      const bubble = wrap.querySelector('.chat-bubble');
+      typewrite(bubble, m.text, 18, nextMsg);
+    }
+    el.scrollTop = el.scrollHeight;
+  }
+  nextMsg();
+}
+
+function makeBubble(role, text) {
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-msg ' + role;
+  const av = document.createElement('div');
+  av.className = 'chat-avatar';
+  av.textContent = role === 'ai' ? '🌸' : '👤';
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+  bubble.style.whiteSpace = 'pre-wrap';
+  bubble.textContent = text;
+  wrap.appendChild(av);
+  wrap.appendChild(bubble);
+  return wrap;
+}
+
+function typewrite(el, text, speed, cb) {
+  let i = 0;
+  function tick() {
+    if (i > text.length) { if (cb) setTimeout(cb, 500); return; }
+    el.textContent = text.slice(0, i++);
+    setTimeout(tick, speed);
+  }
+  tick();
+}
+
+// 初始化第一个
+renderChat(0, 'chat-0', true);
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const idx = +tab.dataset.tab;
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelector('[data-content="' + idx + '"]').classList.add('active');
+    renderChat(idx, 'chat-' + idx, true);
+  });
+});
+
+// ── 记忆终端动画 ─────────────────────────────────
+const MEMORY_LINES = [
+  { type: 'comment', text: '# 用户档案 · alex@hivemind' },
+  { type: 'prompt', file: 'preference.json', text: '偏好深色主题，使用英文命名' },
+  { type: 'ok', text: '[WRITE OK]' },
+  { type: 'prompt', file: 'project.json', text: '当前项目：HiveMind 官网 v7.1' },
+  { type: 'ok', text: '[WRITE OK]' },
+  { type: 'prompt', file: 'style.json', text: '代码风格：TypeScript + 函数式' },
+  { type: 'ok', text: '[WRITE OK]' },
+  { type: 'prompt', file: 'memory/decisions.log', text: '决策记录：采用暗色科技风' },
+  { type: 'ok', text: '[WRITE OK]' },
+  { type: 'comment', text: '# 技能库已加载 12 个模板' },
+];
+
+const termBody = document.getElementById('terminal-body');
+let lineIdx = 0;
+
+function addTermLine() {
+  if (!termBody) return;
+  if (lineIdx >= MEMORY_LINES.length) {
+    lineIdx = 0;
+    termBody.innerHTML = '';
+  }
+  const l = MEMORY_LINES[lineIdx++];
+  const div = document.createElement('div');
+  div.className = 't-line';
+  if (l.type === 'comment') {
+    div.innerHTML = '<span class="t-comment">' + l.text + '</span>';
+  } else if (l.type === 'ok') {
+    div.innerHTML = '<span class="t-ok">' + l.text + '</span>';
+  } else {
+    div.innerHTML = '<span class="t-prompt">›</span><span class="t-file">' + l.file + '</span><span class="t-text"> · ' + l.text + '</span>';
+  }
+  termBody.appendChild(div);
+  termBody.scrollTop = termBody.scrollHeight;
+  setTimeout(addTermLine, l.type === 'ok' ? 400 : 900);
+}
+
+// 延迟到可见再触发
+const termObserver = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    addTermLine();
+    termObserver.disconnect();
+  }
+});
+if (termBody) termObserver.observe(termBody);
+
+// ── 复制按钮 ─────────────────────────────────────
+function copyTemplate(btn) {
+  const code = btn.previousElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已复制!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  });
+}
 </script>
 </body>
 </html>
