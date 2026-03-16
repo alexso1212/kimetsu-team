@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEMORY & RAG Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0d;
+    --purple: #7C6AF7;
+    --gold: #C8A96E;
+    --text: #F0EEF8;
+    --text-dim: #8B8899;
+    --card-bg: #141414;
+    --border: #2a2a3a;
+    --green: #4ade80;
+    --blue: #60a5fa;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Header ─── */
+  .hero {
+    text-align: center;
+    padding: 64px 24px 48px;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124,106,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(20px, 4vw, 36px);
+    color: var(--purple);
+    letter-spacing: 2px;
+    text-shadow: 0 0 30px rgba(124,106,247,0.5);
+    margin-bottom: 16px;
+  }
+  .hero-sub {
+    font-size: clamp(14px, 2vw, 18px);
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── Layout ─── */
+  .section-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--purple);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .demos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 0 24px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  @media (max-width: 768px) {
+    .demos-grid { grid-template-columns: 1fr; }
+  }
+
+  .demo-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .demo-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--purple), transparent);
+    opacity: 0.6;
+  }
+
+  /* ─── ANIMATION 1: Memory Write ─── */
+  .mem-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    min-height: 320px;
+  }
+  @media (max-width: 500px) {
+    .mem-layout { grid-template-columns: 1fr; }
+  }
+
+  /* Chat bubbles */
+  .chat-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .chat-panel-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chat-panel-label::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  .bubble-wrap { display: flex; flex-direction: column; gap: 0; }
+  .bubble {
+    max-width: 90%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s, transform 0.3s;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .bubble.visible { opacity: 1; transform: translateY(0); }
+  .bubble.user {
+    background: rgba(124,106,247,0.18);
+    border: 1px solid rgba(124,106,247,0.3);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble.bot {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .bubble .bot-name {
+    font-size: 9px;
+    color: var(--gold);
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .highlight-word {
+    color: var(--gold);
+    background: rgba(200,169,110,0.15);
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 600;
+  }
+  .cursor-blink {
+    display: inline-block;
+    width: 2px;
+    height: 12px;
+    background: var(--purple);
+    margin-left: 1px;
+    vertical-align: middle;
+    animation: blink 0.7s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* File system */
+  .fs-panel {
+    background: #0a0a12;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 11px;
+  }
+  .fs-titlebar {
+    background: #1a1a2e;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fs-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .fs-dot.r { background: #ff5f57; }
+  .fs-dot.y { background: #febc2e; }
+  .fs-dot.g { background: #28c840; }
+  .fs-titlebar span {
+    color: var(--text-dim);
+    font-size: 10px;
+    margin-left: 6px;
+    font-family: monospace;
+  }
+  .fs-tree {
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 2;
+  }
+  .fs-dir { color: var(--gold); }
+  .fs-file {
+    padding-left: 16px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 4px;
+    padding: 2px 4px 2px 16px;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .fs-file.active {
+    color: var(--text);
+    background: rgba(124,106,247,0.15);
+  }
+  .fs-file.writing {
+    animation: fileFlash 0.4s ease 3;
+    color: var(--purple);
+  }
+  @keyframes fileFlash {
+    0%, 100% { background: rgba(124,106,247,0.1); }
+    50% { background: rgba(124,106,247,0.35); }
+  }
+  .fs-badge {
+    font-size: 8px;
+    background: var(--green);
+    color: #000;
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .fs-badge.show { opacity: 1; }
+  .fs-content {
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(124,106,247,0.05);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 10px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    min-height: 60px;
+    transition: all 0.3s;
+  }
+  .fs-content .key { color: var(--purple); }
+  .fs-content .val { color: var(--green); }
+  .fs-content .ts  { color: var(--text-dim); font-size: 9px; }
+
+  /* ─── ANIMATION 2: RAG ─── */
+  .rag-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 320px;
+  }
+
+  .rag-query {
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rag-query .q-icon { font-size: 16px; }
+  .rag-query-text { color: var(--text); }
+
+  .rag-search-area {
+    position: relative;
+    height: 120px;
+    background: #0a0a12;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  canvas#ragCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .rag-status {
+    position: relative;
+    z-index: 2;
+    font-size: 11px;
+    color: var(--purple);
+    font-family: monospace;
+    text-align: center;
+    transition: opacity 0.4s;
+  }
+
+  .rag-docs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rag-doc-card {
+    background: #0e0e1a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.4s ease;
+    font-size: 11px;
+  }
+  .rag-doc-card.show { opacity: 1; transform: translateX(0); }
+  .rag-doc-name { color: var(--text); flex: 1; }
+  .rag-doc-match { font-size: 9px; color: var(--text-dim); }
+  .rag-match-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(124,106,247,0.2);
+    width: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .rag-match-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--purple);
+    width: 0%;
+    transition: width 0.8s ease;
+    box-shadow: 0 0 6px var(--purple);
+  }
+  .rag-doc-pct {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--purple);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  .rag-answer {
+    background: rgba(200,169,110,0.05);
+    border: 1px solid rgba(200,169,110,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    min-height: 54px;
+    color: var(--text);
+  }
+  .rag-answer .bot-prefix {
+    font-size: 9px;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* ─── ANIMATION 3: Comparison ─── */
+  .compare-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+  }
+  .compare-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 640px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+  .compare-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    overflow: hidden;
+    position: relative;
+  }
+  .compare-card.plain { border-color: rgba(255,255,255,0.1); }
+  .compare-card.hive  { border-color: rgba(124,106,247,0.4); }
+  .compare-card.hive::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,106,247,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .compare-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compare-card.plain .compare-card-title { color: var(--text-dim); }
+  .compare-card.hive  .compare-card-title { color: var(--purple); }
+  .compare-card-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  /* bubble animation theater */
+  .theater {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+  }
+  .theater-bubble {
+    position: absolute;
+    max-width: 80%;
+    padding: 7px 11px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.4;
+    transition: all 0.6s ease;
+  }
+  .theater-bubble.user-b {
+    right: 0;
+    background: rgba(124,106,247,0.18);
+    border: 1px solid rgba(124,106,247,0.3);
+  }
+  .theater-bubble.bot-b {
+    left: 0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+  }
+
+  /* plain: bubbles fade and disappear */
+  .plain-session {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: absolute;
+    width: 100%;
+    transition: opacity 0.8s, transform 0.8s;
+  }
+
+  /* hive: bubbles sink to memory bar */
+  .memory-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 32px;
+    background: rgba(124,106,247,0.08);
+    border: 1px solid rgba(124,106,247,0.25);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
+  }
+  .memory-bar-icon { font-size: 12px; }
+  .memory-bar-label {
+    font-size: 9px;
+    color: var(--purple);
+    font-weight: 600;
+  }
+  .memory-dots {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .mem-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--purple);
+    opacity: 0;
+    transition: opacity 0.4s;
+    box-shadow: 0 0 4px var(--purple);
+  }
+  .mem-dot.lit { opacity: 1; }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 24px 24px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── Hero ─── -->
+<div class="hero">
+  <div class="hero-tag">MEMORY & RAG</div>
+  <div class="hero-sub">认识你三年的AI助理</div>
+</div>
+
+<!-- ─── Two Demos ─── -->
+<div class="demos-grid">
+
+  <!-- Demo 1: Memory Write -->
+  <div class="demo-card" id="demo-memory">
+    <div class="section-label">DEMO 01</div>
+    <div class="section-title">每次对话，它都在学习</div>
+    <div class="mem-layout">
+      <!-- Chat -->
+      <div class="chat-panel">
+        <div class="chat-panel-label">Telegram 对话</div>
+        <div class="bubble-wrap" id="chatBubbles"></div>
+      </div>
+      <!-- File System -->
+      <div class="fs-panel">
+        <div class="fs-titlebar">
+          <div class="fs-dot r"></div>
+          <div class="fs-dot y"></div>
+          <div class="fs-dot g"></div>
+          <span>memory/</span>
+        </div>
+        <div class="fs-tree">
+          <div class="fs-dir">📁 memory/</div>
+          <div class="fs-file" id="fsPrefs">📄 preferences.md <span class="fs-badge" id="prefsBadge">已加载</span></div>
+          <div class="fs-file" id="fsToday">📄 2026-03-17.md</div>
+          <div class="fs-file" id="fsProject">📄 project-context.md</div>
+          <div class="fs-content" id="fsContent">
+            <span style="color:var(--text-dim); font-size:10px;">← 等待写入...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo 2: RAG -->
+  <div class="demo-card" id="demo-rag">
+    <div class="section-label">DEMO 02</div>
+    <div class="section-title">问你的问题，它去翻你的记录</div>
+    <div class="rag-layout">
+      <div class="rag-query">
+        <span class="q-icon">💬</span>
+        <span class="rag-query-text" id="ragQuery"></span>
+      </div>
+      <div class="rag-search-area">
+        <canvas id="ragCanvas"></canvas>
+        <div class="rag-status" id="ragStatus">向量检索中...</div>
+      </div>
+      <div class="rag-docs" id="ragDocs">
+        <div class="rag-doc-card" id="doc1">
+          <span>📄</span>
+          <span class="rag-doc-name">project-deltapex.md</span>
+          <div class="rag-match-bar"><div class="rag-match-fill" id="fill1"></div></div>
+          <span class="rag-doc-pct">94%</span>
+        </div>
+        <div class="rag-doc-card" id="doc2">
+          <span>📄</span>
+          <span class="rag-doc-name">2026-03-10.md</span>
+          <div class="rag-match-bar"><div class="rag-match-fill" id="fill2"></div></div>
+          <span class="rag-doc-pct">87%</span>
+        </div>
+        <div class="rag-doc-card" id="doc3">
+          <span>📄</span>
+          <span class="rag-doc-name">tech-stack.md</span>
+          <div class="rag-match-bar"><div class="rag-match-fill" id="fill3"></div></div>
+          <span class="rag-doc-pct">82%</span>
+        </div>
+      </div>
+      <div class="rag-answer" id="ragAnswer">
+        <span class="bot-prefix">✦ 天音</span>
+        <span id="ragAnswerText"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── Comparison ─── -->
+<div class="divider"></div>
+<div class="compare-section">
+  <div class="compare-header">
+    <div class="section-label" style="text-align:center; margin-bottom:8px;">DEMO 03</div>
+    <div class="section-title" style="text-align:center; font-size:18px;">普通AI vs 有记忆的AI</div>
+  </div>
+  <div class="compare-grid">
+
+    <!-- Plain AI -->
+    <div class="compare-card plain">
+      <div class="compare-card-title">⊘ 普通 AI</div>
+      <div class="compare-card-sub">每次对话从零开始</div>
+      <div class="theater" id="theaterPlain">
+        <div class="plain-session" id="plainSess1">
+          <div class="theater-bubble user-b" style="top:0">帮我写个简洁风格的方案</div>
+          <div class="theater-bubble bot-b" style="top:36px">好的，我来写一份方案...</div>
+        </div>
+        <div class="plain-session" id="plainSess2" style="opacity:0; top:0; transform:translateY(20px)">
+          <div class="theater-bubble user-b" style="top:0">继续上次的方案</div>
+          <div class="theater-bubble bot-b" style="top:36px; color:#f87171; border-color:rgba(248,113,113,0.3)">对不起，我没有上次对话的记录...</div>
+        </div>
+        <div style="position:absolute; bottom:0; left:0; right:0; text-align:center; font-size:10px; color:var(--text-dim); padding:4px; background:rgba(248,113,113,0.05); border:1px solid rgba(248,113,113,0.15); border-radius:6px; opacity:0; transition:opacity 0.5s" id="plainWarning">
+          ⚠ 上下文已清空
+        </div>
+      </div>
+    </div>
+
+    <!-- HiveMind AI -->
+    <div class="compare-card hive">
+      <div class="compare-card-title">✦ HiveMind AI</div>
+      <div class="compare-card-sub">跨会话记忆，越用越懂你</div>
+      <div class="theater" id="theaterHive">
+        <div class="plain-session" id="hiveSess1">
+          <div class="theater-bubble user-b" style="top:0">帮我写个简洁风格的方案</div>
+          <div class="theater-bubble bot-b" style="top:36px">好的，我来写一份方案...</div>
+        </div>
+        <div class="memory-bar" id="memBar">
+          <span class="memory-bar-icon">🧠</span>
+          <span class="memory-bar-label">记忆库</span>
+          <div class="memory-dots">
+            <div class="mem-dot" id="md1"></div>
+            <div class="mem-dot" id="md2"></div>
+            <div class="mem-dot" id="md3"></div>
+            <div class="mem-dot" id="md4"></div>
+            <div class="mem-dot" id="md5"></div>
+          </div>
+        </div>
+        <div class="plain-session" id="hiveSess2" style="opacity:0; top:0; transform:translateY(20px)">
+          <div class="theater-bubble user-b" style="top:0">继续上次的方案</div>
+          <div class="theater-bubble bot-b" style="top:36px; color:#4ade80; border-color:rgba(74,222,128,0.3)">好的，根据你的简洁风格偏好，继续完善...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// Utility
+// ─────────────────────────────────────────
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function typewriter(el, text, speed = 17) {
+  el.innerHTML = '';
+  for (let i = 0; i < text.length; i++) {
+    el.innerHTML += text[i] === ' ' ? '&nbsp;' : text[i];
+    await sleep(speed);
+  }
+}
+
+async function typewriterHTML(el, text, speed = 17) {
+  // supports <span> tags for highlighting
+  el.innerHTML = '';
+  let buf = '';
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] === '<') {
+      const end = text.indexOf('>', i);
+      buf += text.slice(i, end + 1);
+      i = end + 1;
+    } else {
+      buf += text[i];
+      i++;
+      el.innerHTML = buf;
+      await sleep(speed);
+    }
+  }
+  el.innerHTML = buf;
+}
+
+// ─────────────────────────────────────────
+// DEMO 1: Memory Write
+// ─────────────────────────────────────────
+const chatLines = [
+  { role: 'user', text: '记住，我们公司偏好简洁风格的方案，不要花哨' },
+  { role: 'bot',  text: '好的，已记录 ✓' },
+  { role: 'user', text: '帮我写一份方案' },
+  { role: 'bot',  text: '（调用记忆中...）好的，会按照你偏好的简洁风格来写...' },
+];
+
+function createBubble(role) {
+  const b = document.createElement('div');
+  b.className = `bubble ${role}`;
+  if (role === 'bot') {
+    const n = document.createElement('div');
+    n.className = 'bot-name';
+    n.textContent = '✦ 天音';
+    b.appendChild(n);
+  }
+  const txt = document.createElement('span');
+  b.appendChild(txt);
+  document.getElementById('chatBubbles').appendChild(b);
+  return { bubble: b, txt };
+}
+
+const HIGHLIGHT_WORDS = ['简洁风格', '简洁', '不要花哨', '调用记忆中'];
+
+function buildHighlighted(text) {
+  let result = text;
+  for (const w of HIGHLIGHT_WORDS) {
+    result = result.replace(w, `<span class="highlight-word">${w}</span>`);
+  }
+  return result;
+}
+
+async function typewriterHighlight(el, text, speed = 17) {
+  const highlighted = buildHighlighted(text);
+  // type plain first, then swap to highlighted version
+  el.textContent = '';
+  for (let i = 0; i < text.length; i++) {
+    el.textContent = text.slice(0, i + 1);
+    await sleep(speed);
+  }
+  el.innerHTML = highlighted;
+}
+
+async function runMemoryDemo() {
+  const fsContent = document.getElementById('fsContent');
+  const fsPrefs   = document.getElementById('fsPrefs');
+  const prefsBadge = document.getElementById('prefsBadge');
+  const chatBubbles = document.getElementById('chatBubbles');
+
+  while (true) {
+    chatBubbles.innerHTML = '';
+    fsContent.innerHTML = '<span style="color:var(--text-dim); font-size:10px;">← 等待写入...</span>';
+    fsPrefs.classList.remove('writing', 'active');
+    prefsBadge.classList.remove('show');
+
+    for (let i = 0; i < chatLines.length; i++) {
+      const line = chatLines[i];
+      const { bubble, txt } = createBubble(line.role);
+      await sleep(200);
+      bubble.classList.add('visible');
+
+      // add cursor while typing
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor-blink';
+      bubble.appendChild(cursor);
+
+      await typewriterHighlight(txt, line.text, 18);
+
+      cursor.remove();
+
+      // After user says "简洁风格" → trigger file write
+      if (i === 0) {
+        await sleep(400);
+        fsPrefs.classList.add('writing');
+        await sleep(600);
+        fsPrefs.classList.remove('writing');
+        fsPrefs.classList.add('active');
+
+        // type content into file
+        fsContent.innerHTML = '';
+        const lines = [
+          { t: '# <span class="key">用户偏好</span>', delay: 0 },
+          { t: '- 方案风格：<span class="val">简洁，不花哨</span>', delay: 0 },
+          { t: '<span class="ts">- 更新：2026-03-17 01:30</span>', delay: 0 },
+        ];
+        for (const l of lines) {
+          const row = document.createElement('div');
+          row.innerHTML = '';
+          fsContent.appendChild(row);
+          const raw = l.t.replace(/<[^>]+>/g, '');
+          const html = l.t;
+          for (let c = 0; c < raw.length; c++) {
+            // approximate char-by-char with HTML
+            row.innerHTML = html.slice(0, html.indexOf(raw[c]) + raw[c].length + (html.length - raw.length));
+            await sleep(16);
+          }
+          row.innerHTML = html;
+          await sleep(80);
+        }
+      }
+
+      // After "帮我写一份方案" → show loaded badge
+      if (i === 2) {
+        await sleep(300);
+        prefsBadge.classList.add('show');
+      }
+
+      await sleep(i === chatLines.length - 1 ? 2000 : 1600);
+    }
+
+    await sleep(2000);
+  }
+}
+
+// ─────────────────────────────────────────
+// DEMO 2: RAG Canvas
+// ─────────────────────────────────────────
+const canvas = document.getElementById('ragCanvas');
+const ctx = canvas.getContext('2d');
+let ripples = [];
+let animFrame;
+
+function resizeCanvas() {
+  const r = canvas.parentElement.getBoundingClientRect();
+  canvas.width = r.width;
+  canvas.height = r.height;
+}
+
+function addRipple() {
+  ripples.push({ r: 0, max: Math.min(canvas.width, canvas.height) * 0.45, alpha: 0.7 });
+}
+
+function drawRipples() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+
+  // center dot
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#7C6AF7';
+  ctx.fill();
+  ctx.shadowColor = '#7C6AF7';
+  ctx.shadowBlur = 10;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ripples = ripples.filter(rp => rp.alpha > 0.01);
+  for (const rp of ripples) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, rp.r, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(124,106,247,${rp.alpha})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    rp.r  += 1.2;
+    rp.alpha *= 0.97;
+  }
+  animFrame = requestAnimationFrame(drawRipples);
+}
+
+const QUERY_TEXT = '上次那个项目用什么技术栈来着？';
+const ANSWER_TEXT = '根据你的项目记录，Deltapex 使用的是 Next.js + FastAPI，数据库是 Supabase，部署在 Vercel + Railway。';
+const DOC_MATCHES = [94, 87, 82];
+
+async function runRagDemo() {
+  resizeCanvas();
+  cancelAnimationFrame(animFrame);
+  ripples = [];
+  drawRipples();
+
+  const queryEl  = document.getElementById('ragQuery').querySelector('.rag-query-text');
+  const statusEl = document.getElementById('ragStatus');
+  const answerEl = document.getElementById('ragAnswerText');
+  const docs     = ['doc1', 'doc2', 'doc3'];
+  const fills    = ['fill1', 'fill2', 'fill3'];
+
+  while (true) {
+    // reset
+    queryEl.textContent = '';
+    statusEl.style.opacity = '1';
+    statusEl.textContent = '向量检索中...';
+    answerEl.textContent = '';
+    ripples = [];
+    for (const d of docs) document.getElementById(d).classList.remove('show');
+    for (const f of fills) { document.getElementById(f).style.width = '0%'; }
+
+    // type query
+    for (let c = 0; c < QUERY_TEXT.length; c++) {
+      queryEl.textContent = QUERY_TEXT.slice(0, c + 1);
+      await sleep(20);
+    }
+    await sleep(600);
+
+    // ripple burst
+    statusEl.textContent = '语义向量搜索中...';
+    for (let i = 0; i < 6; i++) {
+      await sleep(180);
+      addRipple();
+    }
+    await sleep(1400);
+
+    // show docs one by one
+    statusEl.textContent = '找到 3 条相关记忆';
+    for (let i = 0; i < docs.length; i++) {
+      document.getElementById(docs[i]).classList.add('show');
+      await sleep(300);
+      document.getElementById(fills[i]).style.width = DOC_MATCHES[i] + '%';
+      await sleep(350);
+    }
+    await sleep(800);
+
+    // ripple fade
+    statusEl.style.opacity = '0';
+
+    // type answer
+    const cursor2 = document.createElement('span');
+    cursor2.className = 'cursor-blink';
+    answerEl.parentElement.appendChild(cursor2);
+
+    for (let c = 0; c < ANSWER_TEXT.length; c++) {
+      answerEl.textContent = ANSWER_TEXT.slice(0, c + 1);
+      await sleep(19);
+    }
+    cursor2.remove();
+
+    await sleep(2800);
+  }
+}
+
+// ─────────────────────────────────────────
+// DEMO 3: Comparison
+// ─────────────────────────────────────────
+async function runPlainDemo() {
+  const s1 = document.getElementById('plainSess1');
+  const s2 = document.getElementById('plainSess2');
+  const warn = document.getElementById('plainWarning');
+
+  while (true) {
+    // show session 1
+    s1.style.opacity = '1';
+    s1.style.transform = 'translateY(0)';
+    s2.style.opacity = '0';
+    s2.style.transform = 'translateY(20px)';
+    warn.style.opacity = '0';
+
+    await sleep(2200);
+
+    // fade out session 1 (context lost)
+    s1.style.transition = 'opacity 0.8s, transform 0.8s';
+    s1.style.opacity = '0';
+    s1.style.transform = 'translateY(-16px)';
+    warn.style.opacity = '1';
+
+    await sleep(1000);
+
+    // show session 2 (doesn't remember)
+    s2.style.transition = 'opacity 0.6s, transform 0.6s';
+    s2.style.opacity = '1';
+    s2.style.transform = 'translateY(0)';
+
+    await sleep(2400);
+
+    s2.style.opacity = '0';
+    s2.style.transform = 'translateY(-16px)';
+    warn.style.opacity = '0';
+    await sleep(600);
+    s1.style.transition = 'none';
+    s2.style.transition = 'none';
+  }
+}
+
+async function runHiveDemo() {
+  const s1   = document.getElementById('hiveSess1');
+  const s2   = document.getElementById('hiveSess2');
+  const dots = [1,2,3,4,5].map(i => document.getElementById('md' + i));
+
+  while (true) {
+    // session 1 visible
+    s1.style.opacity = '1';
+    s1.style.transform = 'translateY(0)';
+    s2.style.opacity = '0';
+    s2.style.transform = 'translateY(20px)';
+    dots.forEach(d => d.classList.remove('lit'));
+
+    await sleep(2000);
+
+    // bubbles sink to memory bar
+    s1.style.transition = 'opacity 0.7s, transform 0.7s';
+    s1.style.opacity = '0.2';
+    s1.style.transform = 'translateY(60px) scale(0.85)';
+
+    // light up dots one by one
+    for (let i = 0; i < dots.length; i++) {
+      await sleep(160);
+      dots[i].classList.add('lit');
+    }
+
+    s1.style.opacity = '0';
+    await sleep(400);
+
+    // session 2: remembers
+    s2.style.transition = 'opacity 0.6s, transform 0.6s';
+    s2.style.opacity = '1';
+    s2.style.transform = 'translateY(0)';
+
+    await sleep(2600);
+
+    s2.style.opacity = '0';
+    s2.style.transform = 'translateY(-16px)';
+    await sleep(600);
+    s1.style.transition = 'none';
+    s2.style.transition = 'none';
+  }
+}
+
+// ─────────────────────────────────────────
+// Start all
+// ─────────────────────────────────────────
+window.addEventListener('load', () => {
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  runMemoryDemo();
+  runRagDemo();
+  runPlainDemo();
+  runHiveDemo();
+});
+</script>
+</body>
+</html>
