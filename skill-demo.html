@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKILL SYSTEM — HiveMind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --surface2: #1a1a1a;
+      --border: #222;
+      --border2: #2a2a2a;
+      --brand: #7C6AF7;
+      --brand-dim: rgba(124,106,247,.12);
+      --brand-glow: rgba(124,106,247,.3);
+      --gold: #C8A96E;
+      --gold-dim: rgba(200,169,110,.12);
+      --green: #4ade80;
+      --green-dim: rgba(74,222,128,.12);
+      --text: #EFEFEF;
+      --muted: #8B8BA0;
+      --muted2: #555;
+      --ease: cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .pixel { font-family: 'Press Start 2P', monospace; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── 页面布局 ── */
+    .page { max-width: 900px; margin: 0 auto; padding: 80px 40px 120px; }
+
+    /* ── 页头 ── */
+    .page-header { text-align: center; margin-bottom: 80px; }
+    .page-header .label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--brand);
+      letter-spacing: .15em;
+      margin-bottom: 20px;
+    }
+    .page-header h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(18px, 3vw, 28px);
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .page-header p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ── 分区标题 ── */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--brand);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .section-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    /* ══════════════════════════════════════
+       动画一：Skill 调用流程
+    ══════════════════════════════════════ */
+    .flow-section { margin-bottom: 80px; }
+
+    .flow-canvas {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-canvas::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124,106,247,.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* 流程步骤容器 */
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    /* 单个步骤 */
+    .flow-node {
+      width: 100%;
+      max-width: 560px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .5s var(--ease), transform .5s var(--ease);
+    }
+    .flow-node.visible { opacity: 1; transform: translateY(0); }
+
+    .flow-node-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      position: relative;
+    }
+
+    /* 步骤激活状态 */
+    .flow-node.active .flow-node-inner {
+      border-color: var(--brand);
+      background: rgba(124,106,247,.07);
+      box-shadow: 0 0 20px rgba(124,106,247,.15);
+    }
+    .flow-node.done .flow-node-inner {
+      border-color: var(--border2);
+      background: var(--surface2);
+      opacity: .6;
+    }
+
+    .flow-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+      background: var(--brand-dim);
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .flow-node.active .flow-icon {
+      background: var(--brand);
+      color: #fff;
+      animation: pulse-icon 1s ease infinite;
+    }
+    @keyframes pulse-icon {
+      0%,100% { box-shadow: 0 0 0 0 rgba(124,106,247,.5); }
+      50% { box-shadow: 0 0 0 8px rgba(124,106,247,0); }
+    }
+
+    .flow-content { flex: 1; min-width: 0; }
+    .flow-step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted2);
+      margin-bottom: 3px;
+    }
+    .flow-node.active .flow-step-num { color: var(--brand); }
+
+    .flow-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .flow-node.active .flow-text { color: var(--text); }
+
+    /* 用户消息气泡样式 */
+    .bubble {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--brand-dim);
+      border: 1px solid rgba(124,106,247,.25);
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .flow-node.active .bubble {
+      background: rgba(124,106,247,.2);
+      border-color: var(--brand);
+    }
+
+    /* Skill 徽章 */
+    .skill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(200,169,110,.25);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--gold);
+    }
+    .flow-node.active .skill-badge {
+      background: rgba(200,169,110,.2);
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(200,169,110,.2);
+    }
+    .skill-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* 连线 */
+    .flow-connector {
+      width: 1px;
+      height: 24px;
+      background: linear-gradient(to bottom, var(--border2), var(--border));
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-connector.active {
+      background: linear-gradient(to bottom, var(--brand), rgba(124,106,247,.2));
+    }
+    .flow-connector .particle {
+      position: absolute;
+      top: -4px; left: -2px;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--brand);
+      box-shadow: 0 0 8px var(--brand);
+      animation: flow-down .6s linear infinite;
+    }
+    @keyframes flow-down {
+      0% { top: -5px; opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* 进度条 */
+    .progress-bar-wrap {
+      margin-top: 10px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--brand), #a89bfa);
+      width: 0%;
+      transition: width 1.8s var(--ease);
+    }
+    .flow-node.active .progress-bar-fill { width: 100%; }
+
+    /* 结果卡片 */
+    .result-card {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      transform: scale(.96);
+      opacity: 0;
+      transition: opacity .4s var(--ease), transform .4s var(--ease);
+    }
+    .flow-node.active .result-card {
+      opacity: 1;
+      transform: scale(1);
+      border-color: rgba(74,222,128,.3);
+    }
+    .result-card .result-title {
+      color: var(--green);
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+    .result-item { color: var(--muted); line-height: 1.8; }
+
+    /* 回放按钮 */
+    .replay-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 28px auto 0;
+      padding: 9px 20px;
+      background: var(--brand-dim);
+      border: 1px solid rgba(124,106,247,.3);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--brand);
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      width: fit-content;
+    }
+    .replay-btn:hover {
+      background: rgba(124,106,247,.2);
+      border-color: var(--brand);
+    }
+    .replay-icon {
+      width: 14px; height: 14px;
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+      border-right-color: transparent;
+      animation: none;
+    }
+    .replay-btn.spinning .replay-icon {
+      animation: spin .6s linear;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ══════════════════════════════════════
+       动画二：Skill 列表
+    ══════════════════════════════════════ */
+    .grid-section { margin-bottom: 80px; }
+
+    .skill-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Skill 网格 */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .skill-card {
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color .25s, background .25s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--brand-dim);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .skill-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+    .skill-card:hover::before { opacity: .5; }
+    .skill-card.selected {
+      border-color: var(--brand);
+      background: rgba(124,106,247,.06);
+    }
+    .skill-card.selected::before { opacity: 1; }
+
+    .skill-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .skill-ico {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .skill-ico svg { width: 16px; height: 16px; }
+
+    .skill-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .skill-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .skill-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      background: var(--green-dim);
+      border: 1px solid rgba(74,222,128,.2);
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--green);
+    }
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    /* 详情面板 */
+    .skill-detail {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      min-height: 280px;
+      position: sticky;
+      top: 24px;
+    }
+    .detail-empty {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--muted2);
+      text-align: center;
+      padding: 40px 0;
+    }
+    .detail-empty .hint-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .detail-empty p { font-size: 12px; color: var(--muted2); }
+
+    .detail-content { display: none; }
+    .detail-content.visible { display: block; }
+
+    .detail-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-ico {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .detail-ico svg { width: 20px; height: 20px; }
+    .detail-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .detail-tag {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .case-title {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--brand);
+      letter-spacing: .08em;
+      margin-bottom: 12px;
+    }
+    .case-steps { display: flex; flex-direction: column; gap: 8px; }
+    .case-step {
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .case-step-arrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--brand);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .case-step-text {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .case-step-text strong { color: var(--text); }
+
+    .case-time {
+      margin-top: 14px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      border: 1px solid var(--border);
+    }
+
+    /* ══════════════════════════════════════
+       动画三：可扩展说明
+    ══════════════════════════════════════ */
+    .extend-section { }
+
+    .extend-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .extend-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s, transform .3s;
+    }
+    .extend-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+
+    .extend-card:nth-child(1) { --accent: var(--brand); --accent-dim: var(--brand-dim); }
+    .extend-card:nth-child(2) { --accent: var(--gold); --accent-dim: var(--gold-dim); }
+    .extend-card:nth-child(3) { --accent: #4ade80; --accent-dim: rgba(74,222,128,.1); }
+
+    .extend-icon-wrap {
+      width: 64px; height: 64px;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+
+    /* 卡片堆叠动画 */
+    .card-stack {
+      position: relative;
+      width: 64px; height: 64px;
+    }
+    .stack-card {
+      position: absolute;
+      width: 44px; height: 32px;
+      border-radius: 6px;
+      border: 1.5px solid var(--accent);
+      background: var(--accent-dim);
+      left: 50%; transform: translateX(-50%);
+    }
+    .stack-card:nth-child(1) { bottom: 0; opacity: .3; transform: translateX(-50%) translateY(6px); }
+    .stack-card:nth-child(2) { bottom: 6px; opacity: .6; }
+    .stack-card:nth-child(3) { bottom: 12px; opacity: 1; }
+
+    /* 加号动画 */
+    .plus-icon {
+      position: absolute;
+      top: 0; right: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0d0d0d;
+      animation: plus-pop 2s ease-in-out infinite;
+    }
+    @keyframes plus-pop {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* 社区图标 */
+    .hub-icon {
+      width: 44px; height: 44px;
+      margin: 10px auto 0;
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 4px;
+    }
+    .hub-dot {
+      border-radius: 3px;
+      background: var(--accent);
+      opacity: .5;
+      animation: hub-blink 2s ease-in-out infinite;
+    }
+    .hub-dot:nth-child(2) { animation-delay: .2s; }
+    .hub-dot:nth-child(4) { animation-delay: .4s; }
+    .hub-dot:nth-child(5) { opacity: 1; animation-delay: 0s; animation-name: hub-center; }
+    .hub-dot:nth-child(6) { animation-delay: .4s; }
+    .hub-dot:nth-child(8) { animation-delay: .2s; }
+    @keyframes hub-blink {
+      0%,100% { opacity: .3; }
+      50% { opacity: .8; }
+    }
+    @keyframes hub-center {
+      0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,.4); }
+      50% { opacity: 1; box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+    }
+
+    .extend-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .extend-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .extend-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── 计数动画 ── */
+    .count-up { display: inline-block; }
+
+    /* ── 响应式 ── */
+    @media (max-width: 680px) {
+      .page { padding: 60px 20px 80px; }
+      .skill-layout { grid-template-columns: 1fr; }
+      .skill-grid { grid-template-columns: 1fr; }
+      .extend-grid { grid-template-columns: 1fr; gap: 12px; }
+      .flow-node-inner { padding: 12px 14px; }
+      .skill-detail { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── 页头 ── -->
+  <header class="page-header">
+    <div class="label">FEATURE DEMO</div>
+    <h1>SKILL SYSTEM</h1>
+    <p>随时可扩展的超能力<br>需要什么能力，就安装什么——就像手机 App</p>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       动画一：调用流程
+  ══════════════════════════════════════ -->
+  <section class="flow-section">
+    <div class="section-label">ANIMATION 01</div>
+    <div class="section-title">Skill 调用流程</div>
+    <div class="section-desc">天音收到任务 → 识别意图 → 调用 Skill → 返回结果，全程透明可见</div>
+
+    <div class="flow-canvas">
+      <div class="flow-steps" id="flowSteps">
+
+        <!-- Step 1: 用户输入 -->
+        <div class="flow-node" data-step="0">
+          <div class="flow-node-inner">
+            <div class="flow-icon">U</div>
+            <div class="flow-content">
+              <div class="flow-step-num">// 用户输入</div>
+              <div class="flow-text">
+                <span class="bubble">帮我搜一下最新的 AI 新闻</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-connector" data-connector="0">
+          <div class="particle" style="display:none"></div>
+        </div>
+
+        <!-- Step 2: 天音分析 -->
+        <div class="flow-node" data-step="1">
+          <div class="flow-node-inner">
+            <div class="flow-icon">A</div>
+            <div class="flow-content">
+              <div class="flow-step-num">// 天音分析</div>
+              <div class="flow-text">识别到「搜索」关键词，正在匹配对应 Skill...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-connector" data-connector="1">
+          <div class="particle" style="display:none"></div>
+        </div>
+
+        <!-- Step 3: Skill 匹配 -->
+        <div class="flow-node" data-step="2">
+          <div class="flow-node-inner">
+            <div class="flow-icon">S</div>
+            <div class="flow-content">
+              <div class="flow-step-num">// Skill 匹配</div>
+              <div class="flow-text">
+                <span class="skill-badge">
+                  <span class="skill-badge-dot"></span>
+                  web-search
+                </span>
+                &nbsp;— 命中，置信度 98%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-connector" data-connector="2">
+          <div class="particle" style="display:none"></div>
+        </div>
+
+        <!-- Step 4: 调用执行 -->
+        <div class="flow-node" data-step="3">
+          <div class="flow-node-inner">
+            <div class="flow-icon">→</div>
+            <div class="flow-content">
+              <div class="flow-step-num">// 调用执行</div>
+              <div class="flow-text">
+                正在搜索...
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-connector" data-connector="3">
+          <div class="particle" style="display:none"></div>
+        </div>
+
+        <!-- Step 5: 结果返回 -->
+        <div class="flow-node" data-step="4">
+          <div class="flow-node-inner">
+            <div class="flow-icon">✓</div>
+            <div class="flow-content">
+              <div class="flow-step-num">// 结果返回</div>
+              <div class="flow-text">
+                已找到 12 条相关结果
+                <div class="result-card">
+                  <div class="result-title">// search_results</div>
+                  <div class="result-item">1. OpenAI 发布 GPT-5 预览版，推理能力提升 3x</div>
+                  <div class="result-item">2. Google DeepMind Gemini Ultra 2.0 正式上线</div>
+                  <div class="result-item">3. Anthropic Claude 4 系列发布，上下文窗口 1M</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-connector" data-connector="4">
+          <div class="particle" style="display:none"></div>
+        </div>
+
+        <!-- Step 6: 整合交付 -->
+        <div class="flow-node" data-step="5">
+          <div class="flow-node-inner">
+            <div class="flow-icon">A</div>
+            <div class="flow-content">
+              <div class="flow-step-num">// 天音整合交付</div>
+              <div class="flow-text">
+                <span class="bubble" style="background:rgba(200,169,110,.12);border-color:rgba(200,169,110,.3);color:var(--gold)">
+                  主公，已为您整理最新 AI 动态 →
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /flow-steps -->
+
+      <button class="replay-btn" id="replayBtn">
+        <div class="replay-icon" id="replayIcon"></div>
+        重新播放
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       动画二：Skill 列表
+  ══════════════════════════════════════ -->
+  <section class="grid-section">
+    <div class="section-label">ANIMATION 02</div>
+    <div class="section-title">已安装的 Skill</div>
+    <div class="section-desc">点击任意 Skill 查看真实使用案例</div>
+
+    <div class="skill-layout">
+
+      <!-- 左：网格 -->
+      <div class="skill-grid" id="skillGrid">
+
+        <!-- 1. web-search -->
+        <div class="skill-card" data-skill="web-search">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(124,106,247,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5">
+                <circle cx="7" cy="7" r="5"/>
+                <line x1="11" y1="11" x2="14" y2="14"/>
+              </svg>
+            </div>
+            <div class="skill-name">web-search</div>
+          </div>
+          <div class="skill-desc">实时网络搜索</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+        <!-- 2. deep-research-pro -->
+        <div class="skill-card" data-skill="deep-research-pro">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(200,169,110,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#C8A96E" stroke-width="1.5">
+                <rect x="2" y="3" width="12" height="10" rx="2"/>
+                <line x1="5" y1="7" x2="11" y2="7"/>
+                <line x1="5" y1="10" x2="9" y2="10"/>
+              </svg>
+            </div>
+            <div class="skill-name">deep-research-pro</div>
+          </div>
+          <div class="skill-desc">多源深度调研报告</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+        <!-- 3. gmail -->
+        <div class="skill-card" data-skill="gmail">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(234,88,12,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#ea580c" stroke-width="1.5">
+                <rect x="2" y="4" width="12" height="9" rx="2"/>
+                <polyline points="2,4 8,9 14,4"/>
+              </svg>
+            </div>
+            <div class="skill-name">gmail</div>
+          </div>
+          <div class="skill-desc">读取与发送邮件</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+        <!-- 4. calendar -->
+        <div class="skill-card" data-skill="calendar">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(56,189,248,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5">
+                <rect x="2" y="3" width="12" height="11" rx="2"/>
+                <line x1="5" y1="2" x2="5" y2="5"/>
+                <line x1="11" y1="2" x2="11" y2="5"/>
+                <line x1="2" y1="7" x2="14" y2="7"/>
+              </svg>
+            </div>
+            <div class="skill-name">calendar</div>
+          </div>
+          <div class="skill-desc">日历查询与创建事件</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+        <!-- 5. coding-agent -->
+        <div class="skill-card" data-skill="coding-agent">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(124,106,247,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5">
+                <polyline points="4,5 1,8 4,11"/>
+                <polyline points="12,5 15,8 12,11"/>
+                <line x1="9" y1="3" x2="7" y2="13"/>
+              </svg>
+            </div>
+            <div class="skill-name">coding-agent</div>
+          </div>
+          <div class="skill-desc">代码生成与执行</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+        <!-- 6. apple-notes -->
+        <div class="skill-card" data-skill="apple-notes">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(250,204,21,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#facc15" stroke-width="1.5">
+                <rect x="3" y="2" width="10" height="13" rx="2"/>
+                <line x1="6" y1="6" x2="10" y2="6"/>
+                <line x1="6" y1="9" x2="10" y2="9"/>
+                <line x1="6" y1="12" x2="8" y2="12"/>
+              </svg>
+            </div>
+            <div class="skill-name">apple-notes</div>
+          </div>
+          <div class="skill-desc">笔记管理</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+        <!-- 7. weather -->
+        <div class="skill-card" data-skill="weather">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(56,189,248,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5">
+                <circle cx="8" cy="6" r="3"/>
+                <path d="M3,12 Q4,10 5,12 Q6,14 7,12 Q8,10 9,12 Q10,14 11,12 Q12,10 13,12"/>
+              </svg>
+            </div>
+            <div class="skill-name">weather</div>
+          </div>
+          <div class="skill-desc">天气查询</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+        <!-- 8. openai-whisper -->
+        <div class="skill-card" data-skill="openai-whisper">
+          <div class="skill-card-top">
+            <div class="skill-ico" style="background:rgba(74,222,128,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#4ade80" stroke-width="1.5">
+                <rect x="6" y="1" width="4" height="8" rx="2"/>
+                <path d="M3,8 C3,11.31 5.69,14 9,14 C12.31,14 15,11.31 15,8" stroke="#4ade80"/>
+                <line x1="9" y1="14" x2="9" y2="15"/>
+                <line x1="6" y1="15" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="skill-name">openai-whisper</div>
+          </div>
+          <div class="skill-desc">语音转文字</div>
+          <div class="skill-status"><span class="status-dot"></span>已安装</div>
+        </div>
+
+      </div><!-- /skill-grid -->
+
+      <!-- 右：详情面板 -->
+      <div class="skill-detail" id="skillDetail">
+        <div class="detail-empty" id="detailEmpty">
+          <div class="hint-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--muted2)" stroke-width="1.5">
+              <path d="M9 4H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2v-5"/>
+              <polyline points="12,2 16,2 16,6"/>
+              <line x1="10" y1="10" x2="16" y2="4"/>
+            </svg>
+          </div>
+          <p>点击左侧 Skill<br>查看使用案例</p>
+        </div>
+
+        <!-- deep-research-pro 详情 -->
+        <div class="detail-content" data-detail="deep-research-pro">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(200,169,110,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#C8A96E" stroke-width="1.5">
+                <rect x="2" y="3" width="12" height="10" rx="2"/>
+                <line x1="5" y1="7" x2="11" y2="7"/>
+                <line x1="5" y1="10" x2="9" y2="10"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">deep-research-pro</div>
+              <div class="detail-tag">多源深度调研报告</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>帮我调研新能源汽车市场</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">激活 <strong>deep-research-pro</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">搜索 <strong>17 个来源</strong>（新闻、研报、数据库）</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">生成 <strong>2000 字深度报告</strong>，含数据图表</div>
+            </div>
+          </div>
+          <div class="case-time">用时：45 秒</div>
+        </div>
+
+        <!-- web-search 详情 -->
+        <div class="detail-content" data-detail="web-search">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(124,106,247,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5">
+                <circle cx="7" cy="7" r="5"/>
+                <line x1="11" y1="11" x2="14" y2="14"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">web-search</div>
+              <div class="detail-tag">实时网络搜索</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>搜索今日 A 股涨幅最大的板块</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">激活 <strong>web-search</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">抓取 <strong>实时行情数据</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">返回 <strong>今日涨幅榜 Top10</strong>，标注异动原因</div>
+            </div>
+          </div>
+          <div class="case-time">用时：3 秒</div>
+        </div>
+
+        <!-- gmail 详情 -->
+        <div class="detail-content" data-detail="gmail">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(234,88,12,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#ea580c" stroke-width="1.5">
+                <rect x="2" y="4" width="12" height="9" rx="2"/>
+                <polyline points="2,4 8,9 14,4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">gmail</div>
+              <div class="detail-tag">读取与发送邮件</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>帮我回复一下王总的邮件，说周三可以开会</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">激活 <strong>gmail</strong>，读取最近邮件</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">定位到王总邮件，<strong>起草回复</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">确认后<strong>一键发送</strong></div>
+            </div>
+          </div>
+          <div class="case-time">用时：8 秒</div>
+        </div>
+
+        <!-- calendar 详情 -->
+        <div class="detail-content" data-detail="calendar">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(56,189,248,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5">
+                <rect x="2" y="3" width="12" height="11" rx="2"/>
+                <line x1="5" y1="2" x2="5" y2="5"/>
+                <line x1="11" y1="2" x2="11" y2="5"/>
+                <line x1="2" y1="7" x2="14" y2="7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">calendar</div>
+              <div class="detail-tag">日历查询与创建事件</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>下周五下午有空吗，帮我约个会</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">读取<strong>日历空档</strong>，确认下周五 14-18 时空闲</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">创建事件 <strong>「会议」</strong> 并发送邀请</div>
+            </div>
+          </div>
+          <div class="case-time">用时：5 秒</div>
+        </div>
+
+        <!-- coding-agent 详情 -->
+        <div class="detail-content" data-detail="coding-agent">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(124,106,247,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5">
+                <polyline points="4,5 1,8 4,11"/>
+                <polyline points="12,5 15,8 12,11"/>
+                <line x1="9" y1="3" x2="7" y2="13"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">coding-agent</div>
+              <div class="detail-tag">代码生成与执行</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>帮我写一个爬取京东价格的脚本</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">生成 <strong>Python 爬虫代码</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text"><strong>沙盒执行</strong>测试，调试通过</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">输出<strong>可直接运行</strong>的完整脚本</div>
+            </div>
+          </div>
+          <div class="case-time">用时：20 秒</div>
+        </div>
+
+        <!-- apple-notes 详情 -->
+        <div class="detail-content" data-detail="apple-notes">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(250,204,21,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#facc15" stroke-width="1.5">
+                <rect x="3" y="2" width="10" height="13" rx="2"/>
+                <line x1="6" y1="6" x2="10" y2="6"/>
+                <line x1="6" y1="9" x2="10" y2="9"/>
+                <line x1="6" y1="12" x2="8" y2="12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">apple-notes</div>
+              <div class="detail-tag">笔记管理</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>把刚才聊天的结论整理成笔记</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">提取对话<strong>关键结论</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">在 Apple Notes 创建<strong>结构化笔记</strong></div>
+            </div>
+          </div>
+          <div class="case-time">用时：4 秒</div>
+        </div>
+
+        <!-- weather 详情 -->
+        <div class="detail-content" data-detail="weather">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(56,189,248,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5">
+                <circle cx="8" cy="6" r="3"/>
+                <path d="M3,12 Q4,10 5,12 Q6,14 7,12 Q8,10 9,12 Q10,14 11,12 Q12,10 13,12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">weather</div>
+              <div class="detail-tag">天气查询</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>明天上海适合出门吗</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">获取<strong>上海明日天气预报</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">晴转多云，<strong>适合出行</strong>，建议带伞</div>
+            </div>
+          </div>
+          <div class="case-time">用时：2 秒</div>
+        </div>
+
+        <!-- openai-whisper 详情 -->
+        <div class="detail-content" data-detail="openai-whisper">
+          <div class="detail-header">
+            <div class="detail-ico" style="background:rgba(74,222,128,.12)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="#4ade80" stroke-width="1.5">
+                <rect x="6" y="1" width="4" height="8" rx="2"/>
+                <path d="M3,8 C3,11.31 5.69,14 9,14 C12.31,14 15,11.31 15,8" stroke="#4ade80"/>
+                <line x1="9" y1="14" x2="9" y2="15"/>
+                <line x1="6" y1="15" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div>
+              <div class="detail-name">openai-whisper</div>
+              <div class="detail-tag">语音转文字</div>
+            </div>
+          </div>
+          <div class="case-title">// 真实使用案例</div>
+          <div class="case-steps">
+            <div class="case-step">
+              <div class="case-step-arrow">›</div>
+              <div class="case-step-text"><strong>主公：</strong>帮我把这段会议录音转成文字摘要</div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">Whisper 识别 <strong>45 分钟录音</strong></div>
+            </div>
+            <div class="case-step">
+              <div class="case-step-arrow">→</div>
+              <div class="case-step-text">输出<strong>全文 + 3 条行动项</strong></div>
+            </div>
+          </div>
+          <div class="case-time">用时：38 秒</div>
+        </div>
+
+      </div><!-- /skill-detail -->
+
+    </div><!-- /skill-layout -->
+  </section>
+
+  <!-- ══════════════════════════════════════
+       动画三：可扩展说明
+  ══════════════════════════════════════ -->
+  <section class="extend-section">
+    <div class="section-label">ANIMATION 03</div>
+    <div class="section-title">无限扩展</div>
+    <div class="section-desc">Skill 生态持续增长，你的天音能力边界不断扩大</div>
+
+    <div class="extend-grid">
+
+      <!-- 现有 -->
+      <div class="extend-card">
+        <div class="extend-icon-wrap">
+          <div class="card-stack">
+            <div class="stack-card"></div>
+            <div class="stack-card"></div>
+            <div class="stack-card"></div>
+          </div>
+        </div>
+        <div class="extend-num"><span class="count-up" data-target="30">0</span>+</div>
+        <div class="extend-label">现有 Skill</div>
+        <div class="extend-desc">开箱即用，覆盖搜索、邮件、日历、代码等高频场景</div>
+      </div>
+
+      <!-- 自定义 -->
+      <div class="extend-card">
+        <div class="extend-icon-wrap">
+          <div class="card-stack">
+            <div class="stack-card"></div>
+            <div class="stack-card"></div>
+            <div class="stack-card"></div>
+            <div class="plus-icon">+</div>
+          </div>
+        </div>
+        <div class="extend-num" style="font-size:14px;letter-spacing:.05em">CUSTOM</div>
+        <div class="extend-label">自定义 Skill</div>
+        <div class="extend-desc">用自然语言描述你的工作流，天音帮你生成专属 Skill</div>
+      </div>
+
+      <!-- 社区 -->
+      <div class="extend-card">
+        <div class="extend-icon-wrap">
+          <div class="hub-icon">
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+            <div class="hub-dot"></div>
+          </div>
+        </div>
+        <div class="extend-num" style="font-size:13px;letter-spacing:.05em">ClawHub</div>
+        <div class="extend-label">社区生态</div>
+        <div class="extend-desc">从 ClawHub 一键安装社区贡献的 Skill，持续扩充能力库</div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /page -->
+
+<script>
+  /* ══════════════════════════════════════
+     动画一：流程步骤播放器
+  ══════════════════════════════════════ */
+  const STEP_DELAY = 1700; // 每步停留 ms
+  const nodes = Array.from(document.querySelectorAll('.flow-node'));
+  const connectors = Array.from(document.querySelectorAll('.flow-connector'));
+  const replayBtn = document.getElementById('replayBtn');
+  const replayIcon = document.getElementById('replayIcon');
+
+  let currentStep = -1;
+  let playing = false;
+  let timer = null;
+
+  function setStep(i) {
+    nodes.forEach((n, idx) => {
+      n.classList.remove('active', 'done', 'visible');
+      if (idx < i) n.classList.add('done', 'visible');
+      else if (idx === i) n.classList.add('active', 'visible');
+    });
+    connectors.forEach((c, idx) => {
+      const p = c.querySelector('.particle');
+      if (idx < i) {
+        c.classList.add('active');
+        p.style.display = 'block';
+      } else {
+        c.classList.remove('active');
+        p.style.display = 'none';
+      }
+    });
+  }
+
+  function playNext() {
+    if (!playing) return;
+    currentStep++;
+    if (currentStep > nodes.length - 1) {
+      playing = false;
+      return;
+    }
+    setStep(currentStep);
+    timer = setTimeout(playNext, STEP_DELAY);
+  }
+
+  function startPlay() {
+    if (timer) clearTimeout(timer);
+    playing = false;
+    currentStep = -1;
+    nodes.forEach(n => n.classList.remove('active','done','visible'));
+    connectors.forEach(c => {
+      c.classList.remove('active');
+      c.querySelector('.particle').style.display = 'none';
+    });
+    setTimeout(() => {
+      playing = true;
+      playNext();
+    }, 300);
+  }
+
+  replayBtn.addEventListener('click', () => {
+    replayIcon.parentElement.classList.add('spinning');
+    setTimeout(() => replayIcon.parentElement.classList.remove('spinning'), 600);
+    startPlay();
+  });
+
+  // 页面进入视口时自动播放
+  const flowObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && currentStep === -1) {
+      setTimeout(startPlay, 500);
+    }
+  }, { threshold: 0.3 });
+  flowObs.observe(document.querySelector('.flow-canvas'));
+
+  /* ══════════════════════════════════════
+     动画二：Skill 卡片点击
+  ══════════════════════════════════════ */
+  const skillCards = document.querySelectorAll('.skill-card');
+  const detailEmpty = document.getElementById('detailEmpty');
+  const detailContents = document.querySelectorAll('.detail-content');
+
+  skillCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const skill = card.dataset.skill;
+
+      // 更新卡片选中状态
+      skillCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+
+      // 切换详情
+      detailEmpty.style.display = 'none';
+      detailContents.forEach(d => {
+        if (d.dataset.detail === skill) {
+          d.classList.add('visible');
+        } else {
+          d.classList.remove('visible');
+        }
+      });
+
+      // 如果没有对应详情，回退到默认
+      const hasDetail = Array.from(detailContents).some(d => d.dataset.detail === skill && d.classList.contains('visible'));
+      if (!hasDetail) detailEmpty.style.display = '';
+    });
+  });
+
+  // 默认选中 deep-research-pro
+  document.querySelector('[data-skill="deep-research-pro"]').click();
+
+  /* ══════════════════════════════════════
+     动画三：计数动画
+  ══════════════════════════════════════ */
+  function animateCount(el) {
+    const target = parseInt(el.dataset.target);
+    let current = 0;
+    const step = Math.ceil(target / 25);
+    const interval = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(interval);
+    }, 60);
+  }
+
+  const countObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.count-up').forEach(animateCount);
+        countObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.extend-card').forEach(c => countObs.observe(c));
+</script>
+
+</body>
+</html>
