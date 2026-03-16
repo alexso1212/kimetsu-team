@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鬼杀队 AI 总部</title>
+    <title>鬼杀队 AI 总部 - Alex 的 AI 团队</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,6 +13,7 @@
             --primary-purple: #b388ff;
             --text-color: #ffffff;
             --font-pixel: 'Press Start 2P', cursive;
+            --card-bg: rgba(255, 255, 255, 0.05);
         }
 
         * {
@@ -44,9 +45,9 @@
         }
 
         .section {
-            height: 100vh;
+            min-height: 100vh;
             width: 100vw;
-            overflow: hidden;
+            padding: 60px 0;
             position: relative;
             display: flex;
             align-items: center;
@@ -87,8 +88,9 @@
 
         /* Hero Section */
         #hero h1 { font-size: 3rem; color: var(--primary-orange); text-shadow: 4px 4px var(--primary-purple); }
-        #hero h2 { font-size: 1.2rem; color: var(--primary-cyan); }
-        #hero .description { margin-top: 40px; font-size: 0.8rem; opacity: 0.8; }
+        #hero h2 { font-size: 1.2rem; color: var(--primary-cyan); margin-bottom: 20px; }
+        #hero .subtitle { font-size: 0.8rem; color: #aaa; margin-top: 10px; max-width: 80%; text-align: center; line-height: 1.8; }
+        #hero .description { margin-top: 40px; font-size: 0.8rem; opacity: 0.8; text-align: center; }
         .glitched { animation: glitch 1s infinite; }
         @keyframes glitch {
             0% { transform: translate(0); }
@@ -101,18 +103,19 @@
         .scroll-indicator { position: absolute; bottom: 30px; animation: bounce 2s infinite; font-size: 0.6rem; color: var(--primary-purple); }
 
         /* Team Orbit */
-        .team-orbit { position: relative; width: 600px; height: 600px; display: flex; justify-content: center; align-items: center; }
+        .section-subtitle { font-size: 0.6rem; color: #888; margin-bottom: 30px; text-align: center; }
+        .team-orbit { position: relative; width: 600px; height: 600px; display: flex; justify-content: center; align-items: center; margin-top: 20px; }
         .pillar-card { 
             position: absolute; width: 100px; height: 120px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.3s;
-            background: rgba(255,255,255,0.05);
+            background: var(--card-bg);
             border: 2px solid #333;
             z-index: 10;
         }
         .pillar-card:hover { transform: scale(1.1); border-color: var(--primary-cyan); box-shadow: 0 0 15px var(--primary-cyan); }
         .pillar-card .emoji { font-size: 2rem; margin-bottom: 10px; }
-        .pillar-card .name { font-size: 0.6rem; text-align: center; }
+        .pillar-card .name { font-size: 0.5rem; text-align: center; line-height: 1.2; }
         
         .pillar-card.central { width: 120px; height: 140px; border-color: var(--primary-orange); box-shadow: 0 0 20px var(--primary-orange); }
 
@@ -127,18 +130,84 @@
         .close-btn { position: absolute; right: 10px; top: 10px; background: none; border: none; color: #fff; font-family: var(--font-pixel); cursor: pointer; }
 
         /* Workflow */
-        .flow-container { width: 90%; max-width: 800px; }
-        .flow-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 40px; }
-        .flow-step { padding: 10px; border: 2px solid #333; font-size: 0.6rem; opacity: 0.5; transition: all 0.5s; }
-        .flow-step.active { opacity: 1; border-color: var(--primary-cyan); box-shadow: 0 0 10px var(--primary-cyan); transform: scale(1.1); }
+        .flow-container { width: 90%; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+        .flow-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .flow-step { padding: 12px; border: 2px solid #333; font-size: 0.5rem; opacity: 0.4; transition: all 0.4s; text-align: center; width: 160px; position: relative; cursor: help; }
+        .flow-step:hover::after {
+            content: attr(data-desc);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            border: 1px solid var(--primary-cyan);
+            padding: 8px;
+            width: 200px;
+            z-index: 100;
+            font-size: 0.4rem;
+            color: #fff;
+            pointer-events: none;
+            margin-bottom: 10px;
+        }
+        .flow-step.active { opacity: 1; border-color: var(--primary-cyan); box-shadow: 0 0 15px var(--primary-cyan); transform: scale(1.05); color: var(--primary-cyan); }
+        #flow-info { height: 40px; color: var(--primary-purple); font-size: 0.6rem; text-align: center; margin-bottom: 20px; }
+
+        /* Report Card */
+        .report-card { margin-top: 20px; width: 100%; background: #111; border: 2px solid #444; padding: 15px; font-size: 0.6rem; animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .report-header { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 10px; color: var(--primary-orange); display: flex; justify-content: space-between; align-items: center; }
+        .badge { background: var(--primary-cyan); color: #000; padding: 2px 5px; font-size: 0.4rem; }
+        .summary-item { margin-bottom: 8px; }
+        .summary-item .label { color: #888; display: block; font-size: 0.45rem; margin-bottom: 2px; }
+        .summary-item .value { color: #fff; }
+        .report-footer { margin-top: 15px; padding-top: 8px; border-top: 1px solid #333; font-size: 0.45rem; color: #666; text-align: right; }
+
+        /* AI Brain / Models */
+        .model-cards { display: flex; gap: 30px; width: 100%; max-width: 1000px; }
+        .model-card { flex: 1; display: flex; flex-direction: column; }
+        .model-card h3 { color: var(--primary-cyan); font-size: 1rem; margin-bottom: 10px; }
+        .model-card.opus h3 { color: var(--primary-orange); }
+        .model-card p { font-size: 0.6rem; margin-bottom: 15px; opacity: 0.7; }
+        .pillar-list { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; }
+        .pillar-list li { background: rgba(255,255,255,0.1); padding: 5px 8px; font-size: 0.5rem; border: 1px solid #444; }
+
+        /* Mobile Concept Section */
+        .mobile-concept { display: flex; gap: 40px; align-items: center; width: 100%; max-width: 1000px; }
+        .pixel-cards { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .pixel-card { background: var(--card-bg); border: 2px solid #444; padding: 15px; display: flex; gap: 15px; align-items: center; }
+        .pixel-card .icon { font-size: 1.5rem; }
+        .pixel-card .text h4 { font-size: 0.7rem; color: var(--primary-orange); margin-bottom: 5px; }
+        .pixel-card .text p { font-size: 0.5rem; opacity: 0.8; }
+        
+        .tg-status-card { 
+            width: 320px; background: #1c1c1c; border-radius: 0; padding: 15px; 
+            font-family: 'Press Start 2P', cursive; font-size: 8px; line-height: 2;
+        }
+        .tg-status-card .header { color: #fff; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .tg-status-card .task { color: #aaa; }
+        .tg-status-card .progress { color: var(--primary-cyan); }
+        .tg-status-card .timer { color: #888; margin-top: 5px; }
+
+        /* Why Better Section */
+        .comparison-container { display: flex; gap: 20px; width: 100%; max-width: 1000px; margin-bottom: 40px; }
+        .comp-card { flex: 1; padding: 20px; text-align: center; }
+        .comp-card.single { border-color: #555; opacity: 0.7; }
+        .comp-card.team { border-color: var(--primary-orange); box-shadow: 0 0 20px rgba(255, 107, 53, 0.2); }
+        .comp-card h3 { font-size: 0.8rem; margin-bottom: 20px; }
+        .comp-card ul { list-style: none; text-align: left; font-size: 0.5rem; }
+        .comp-card li { margin-bottom: 10px; display: flex; gap: 8px; }
+        .diff-points { display: flex; justify-content: space-between; width: 100%; max-width: 1000px; gap: 20px; }
+        .diff-point { flex: 1; text-align: center; padding: 15px; background: var(--card-bg); border: 1px solid #333; }
+        .diff-point h4 { font-size: 0.6rem; color: var(--primary-cyan); margin-bottom: 10px; }
+        .diff-point p { font-size: 0.5rem; opacity: 0.7; }
 
         /* Chat UI */
-        .chat-container { width: 100%; max-width: 600px; height: 400px; overflow-y: auto; padding: 20px; }
-        .chat-bubble { margin-bottom: 15px; max-width: 80%; padding: 10px; border: 2px solid #444; position: relative; }
+        .chat-container { width: 100%; max-width: 650px; height: 450px; overflow-y: auto; padding: 25px; background: #000; }
+        .chat-bubble { margin-bottom: 20px; max-width: 85%; padding: 12px; border: 2px solid #444; position: relative; }
         .chat-bubble.master { align-self: flex-start; border-color: var(--primary-orange); }
         .chat-bubble.ai { align-self: flex-end; border-color: var(--primary-cyan); margin-left: auto; }
-        .bubble-name { font-size: 0.5rem; color: var(--primary-purple); margin-bottom: 5px; }
-        .bubble-text { font-size: 0.7rem; }
+        .bubble-name { font-size: 0.5rem; color: var(--primary-purple); margin-bottom: 8px; }
+        .bubble-text { font-size: 0.65rem; word-break: break-all; }
 
         .pixel-btn {
             background: var(--primary-orange);
@@ -148,6 +217,7 @@
             font-family: var(--font-pixel);
             cursor: pointer;
             box-shadow: 4px 4px 0 #8a3a1d;
+            font-size: 0.6rem;
         }
         .pixel-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #8a3a1d; }
 
@@ -160,6 +230,9 @@
             .pillar-card { width: 70px; height: 90px; }
             .pillar-card .emoji { font-size: 1.2rem; }
             .pillar-card .name { font-size: 0.4rem; }
+            .model-cards, .mobile-concept, .comparison-container, .diff-points { flex-direction: column; align-items: center; }
+            .mobile-concept { gap: 20px; }
+            .section { height: auto; min-height: 100vh; }
         }
     </style>
 </head>
@@ -169,8 +242,11 @@
         <section id="hero" class="section active">
             <div class="container">
                 <h1 class="pixel-text glitched">鬼杀队 AI 总部</h1>
-                <h2 class="pixel-text">由 AI 驱动的超级团队</h2>
-                <p class="description">主公一人指挥，9 个 AI 协作完成一切</p>
+                <h2 class="pixel-text">一声令下，九路齐发。</h2>
+                <div class="description">
+                    <p>9 位 AI 各司其职，接你一句话，</p>
+                    <p>报告、代码、分析——全部搞定交到你手上。</p>
+                </div>
                 <div class="scroll-indicator">SCROLL DOWN</div>
             </div>
         </section>
@@ -179,10 +255,11 @@
         <section id="team" class="section">
             <div class="container">
                 <h2 class="pixel-text section-title">团队全貌</h2>
+                <div class="section-subtitle">点击成员了解分工</div>
                 <div class="team-orbit">
                     <div id="central-node" class="pillar-card central">
                         <span class="emoji">🌸</span>
-                        <div class="name">天音</div>
+                        <div class="name">天音<br>(主控/总管)</div>
                     </div>
                     <div class="pillars-container">
                         <!-- Pillars will be injected by JS -->
@@ -204,31 +281,112 @@
                     <div class="flow-steps">
                         <!-- Steps injected by JS -->
                     </div>
+                    <div id="flow-info">点击播放查看任务如何在这支团队中高效流转</div>
                     <button id="play-workflow" class="pixel-btn">播放动画</button>
                 </div>
             </div>
         </section>
 
-        <!-- Section 4: Equipment -->
-        <section id="equipment" class="section">
+        <!-- Section 4: AI Brain -->
+        <section id="brain" class="section">
             <div class="container">
-                <h2 class="pixel-text section-title">武器装备</h2>
+                <h2 class="pixel-text section-title">AI 大脑：两种思维模式</h2>
                 <div class="model-cards">
                     <div class="model-card pixel-border sonnet">
-                        <h3>Claude Sonnet</h3>
-                        <p>快速响应柱</p>
+                        <h3>Claude Sonnet 4.5</h3>
+                        <p>快速响应柱：极速处理，精准执行，适合调研与创作</p>
                         <ul class="pillar-list"></ul>
                     </div>
                     <div class="model-card pixel-border opus">
-                        <h3>Claude Opus</h3>
-                        <p>深度思考柱</p>
+                        <h3>Claude Opus 4.6</h3>
+                        <p>深度思考柱：Extended Thinking，攻克复杂逻辑与代码</p>
                         <ul class="pillar-list"></ul>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Section 5: Real Case -->
+        <!-- Section 5: Only a Phone -->
+        <section id="mobile" class="section">
+            <div class="container">
+                <h2 class="pixel-text section-title">掌上指挥，全军出动</h2>
+                <h3 class="pixel-text" style="font-size: 0.8rem; color: var(--primary-cyan);">主公在哪，指挥部就在哪</h3>
+                <div class="mobile-concept">
+                    <div class="pixel-cards">
+                        <div class="pixel-card">
+                            <div class="icon">📱</div>
+                            <div class="text">
+                                <h4>随时随地下令</h4>
+                                <p>不需要打开电脑，拿起手机说出你的需求就够了。</p>
+                            </div>
+                        </div>
+                        <div class="pixel-card">
+                            <div class="icon">📊</div>
+                            <div class="text">
+                                <h4>全程自动追踪</h4>
+                                <p>柱们边做边汇报进度，你只需要等结果出现。</p>
+                            </div>
+                        </div>
+                        <div class="pixel-card">
+                            <div class="icon">✅</div>
+                            <div class="text">
+                                <h4>结果直接送达</h4>
+                                <p>完成的报告、代码、分析，直接推到你面前，不需要你去找。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tg-status-card pixel-border">
+                        <div class="header">⚔️ 炭治郎 出动中</div>
+                        <div class="task">任务：新能源行业投资报告</div>
+                        <div class="progress">进度：60% — 正在分析第三个投资逻辑</div>
+                        <div class="timer">已用时：3分12秒 ⏱️</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Why Kimetsu -->
+        <section id="why" class="section">
+            <div class="container">
+                <h2 class="pixel-text section-title">为什么 9 > 1</h2>
+                <div class="comparison-container">
+                    <div class="comp-card pixel-border single">
+                        <h3>单个 AI</h3>
+                        <p style="font-size: 0.5rem; margin-bottom: 15px; opacity: 0.8;">什么都能做，但什么都只到60分。<br><br>它不知道你真正想要什么，做完了还要你自己检查对不对。</p>
+                        <ul>
+                            <li>❌ 一个人什么都做，杂而不精</li>
+                            <li>❌ 没有第三方审核，结果不可靠</li>
+                            <li>❌ 执行过程黑盒，不知道在干嘛</li>
+                        </ul>
+                    </div>
+                    <div class="comp-card pixel-border team">
+                        <h3>鬼杀队</h3>
+                        <p style="font-size: 0.5rem; margin-bottom: 15px; opacity: 0.8;">每个成员只做自己最拿手的事。<br><br>任务并行推进，结果彼此校验，交到你手里的，已经过严格审核。</p>
+                        <ul>
+                            <li>✅ 专人专事，每个环节由最强 AI 负责</li>
+                            <li>✅ 质量门控，发出前必须通过义勇审核</li>
+                            <li>✅ 实时透明，你看得见每一步在发生什么</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="diff-points">
+                    <div class="diff-point">
+                        <h4>专才 vs 全才</h4>
+                        <p>鬼杀队每个柱只做一件事，做到极致——写作的不碰代码，审核的不写报告。</p>
+                    </div>
+                    <div class="diff-point">
+                        <h4>并行 vs 排队</h4>
+                        <p>多柱同时作业，复杂任务不排队等，该分析的分析，该写作的写作，同步进行。</p>
+                    </div>
+                    <div class="diff-point">
+                        <h4>内置审核 vs 自己查</h4>
+                        <p>义勇专职把关，每份成果发出前都经过验证，你不需要再检查一遍。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Real Case -->
         <section id="case" class="section">
             <div class="container">
                 <h2 class="pixel-text section-title">实战演练</h2>
@@ -240,14 +398,14 @@
     </div>
     <script>
         const pillars = [
-            { id: 'kasumi', emoji: '🌫️', name: '霞柱·無一郎', role: '需求探索', description: '把模糊想法变成清晰目标', model: 'Claude 3.5 Sonnet', traits: '敏捷、洞察力极强' },
-            { id: 'shinobu', emoji: '🦋', name: '蟲柱·忍', role: '产品经理', description: '拆解任务、分配模型', model: 'Claude 3.5 Sonnet', traits: '细致、逻辑严密' },
-            { id: 'rengoku', emoji: '🔥', name: '炎柱·煉獄', role: '写作专家', description: '邮件/PPT/文案', model: 'Claude 3.5 Sonnet', traits: '热情、文采斐然' },
-            { id: 'tanjiro', emoji: '⚔️', name: '炭治郎', role: '代码经理', description: '开发/技术/工程', model: 'Claude 3.5 Opus (Thinking)', traits: '稳重、解决复杂问题' },
-            { id: 'iguro', emoji: '🐍', name: '蛇柱·伊黑', role: '数据分析', description: '数据分析 + 量化策略', model: 'Claude 3.5 Sonnet', traits: '精准、目光敏锐' },
-            { id: 'sanemi', emoji: '💨', name: '风柱·実弥', role: '系统操控', description: '自动化 + 系统操控', model: 'Claude 3.5 Sonnet', traits: '暴力高效、执行力强' },
-            { id: 'giyu', emoji: '💧', name: '水柱·义勇', role: '审核验证', description: '所有成果的最后把关', model: 'Claude 3.5 Opus (Thinking)', traits: '冷静、追求完美' },
-            { id: 'yoruichi', emoji: '☀️', name: '继国缘一', role: '至高战略', description: '重大决策的最终裁量', model: 'Claude 3.5 Opus (Thinking)', traits: '神级逻辑、降维打击' }
+            { id: 'kasumi', emoji: '🌫️', name: '霞柱·無一郎', role: '需求探索', description: '把模糊想法变成清晰目标', model: 'Claude Sonnet 4.5', traits: '擅长从模糊想法中提炼出清晰指令' },
+            { id: 'shinobu', emoji: '🦋', name: '蟲柱·忍', role: '产品经理', description: '拆解任务、把关 UX 体验', model: 'Claude Sonnet 4.5', traits: '把复杂任务拆成可执行的清单，每步都有交代' },
+            { id: 'rengoku', emoji: '🔥', name: '炎柱·煉獄', role: '写作专家', description: '文案策划/邮件/PPT', model: 'Claude Sonnet 4.5', traits: '邮件、报告、方案——每个字都有重量，不废话' },
+            { id: 'tanjiro', emoji: '⚔️', name: '炭治郎', role: '代码经理', description: '负责所有技术开发与工程实现', model: 'Claude Opus 4.6 (Extended Thinking)', traits: '写代码、看技术方案，遇到难题也不会放弃' },
+            { id: 'iguro', emoji: '🐍', name: '蛇柱·伊黑', role: '数据分析', description: '深度数据挖掘与量化策略', model: 'Claude Sonnet 4.5', traits: '数字背后藏着什么，他一眼看穿，直接给你结论' },
+            { id: 'sanemi', emoji: '💨', name: '风柱·実弥', role: '系统操控', description: '浏览器操控与自动化部署', model: 'Claude Sonnet 4.5', traits: '重复性操作和自动化流程，交给他一劳永逸' },
+            { id: 'giyu', emoji: '💧', name: '水柱·义勇', role: '审核验证', description: '所有产出的最终质量关口', model: 'Claude Opus 4.6 (Extended Thinking)', traits: '所有成果上线前的最后把关，他比任何人都严' },
+            { id: 'yoruichi', emoji: '☀️', name: '继国缘一', role: '至高战略', description: '顶级架构设计与战略判断', model: 'Claude Opus 4.6 (Extended Thinking)', traits: '重大决策、方向选择——需要深度思考时才召唤' }
         ];
 
         const container = document.querySelector('.pillars-container');
@@ -280,7 +438,9 @@
 
         function drawConnections() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const central = document.getElementById('central-node').getBoundingClientRect();
+            const centralNode = document.getElementById('central-node');
+            if (!centralNode) return;
+            const central = centralNode.getBoundingClientRect();
             const parent = canvas.parentElement.getBoundingClientRect();
             const cx = central.left + central.width / 2 - parent.left;
             const cy = central.top + central.height / 2 - parent.top;
@@ -314,10 +474,10 @@
         function showDetail(p) {
             const panel = document.getElementById('detail-panel');
             panel.querySelector('.detail-content').innerHTML = `
-                <h3 style="color:var(--primary-orange);margin-bottom:15px;">${p.emoji} ${p.name}</h3>
-                <p><strong>职责:</strong> ${p.role}</p>
-                <p><strong>说明:</strong> ${p.description}</p>
-                <p><strong>模型:</strong> ${p.model}</p>
+                <h3 style="color:var(--primary-orange);margin-bottom:15px;font-size:0.8rem;">${p.emoji} ${p.name}</h3>
+                <p style="margin-bottom:8px;"><strong>职责:</strong> ${p.role}</p>
+                <p style="margin-bottom:8px;"><strong>说明:</strong> ${p.description}</p>
+                <p style="margin-bottom:8px;color:var(--primary-cyan);"><strong>大脑:</strong> ${p.model}</p>
                 <p><strong>特点:</strong> ${p.traits}</p>
             `;
             panel.classList.remove('hidden');
@@ -329,22 +489,32 @@
 
         // Workflow Animation
         const workflowSteps = [
-            '主公下令', '天音判断', '分派给柱', '柱执行任务', '汇报进度(30/60/90%)', '义勇审核', '天音交付'
+            { title: '① 主公下令', desc: '你说出任务，一句话即可' },
+            { title: '② 天音判断', desc: '分析需求，找出最合适的柱' },
+            { title: '③ 分派给柱', desc: '把子任务精准分配给对的人' },
+            { title: '④ 柱执行任务', desc: '各柱各司其职，专项突破' },
+            { title: '⑤ 实时汇报进度', desc: '每走一步都告诉你进展' },
+            { title: '⑥ 义勇审核', desc: '交付前严格把关，零漏洞' },
+            { title: '⑦ 天音交付', desc: '结果打包，直接送到你面前' }
         ];
         const flowContainer = document.querySelector('.flow-steps');
+        const flowInfo = document.getElementById('flow-info');
+        
         workflowSteps.forEach(step => {
             const div = document.createElement('div');
             div.className = 'flow-step';
-            div.innerText = step;
+            div.innerText = step.title;
+            div.setAttribute('data-desc', step.desc);
             flowContainer.appendChild(div);
         });
 
         document.getElementById('play-workflow').onclick = async function() {
             const steps = document.querySelectorAll('.flow-step');
-            for (let step of steps) {
+            for (let i = 0; i < steps.length; i++) {
                 steps.forEach(s => s.classList.remove('active'));
-                step.classList.add('active');
-                await new Promise(r => setTimeout(r, 800));
+                steps[i].classList.add('active');
+                flowInfo.innerText = workflowSteps[i].desc;
+                await new Promise(r => setTimeout(r, 1200));
             }
         };
 
@@ -354,22 +524,21 @@
                 document.querySelector('.opus .pillar-list') : 
                 document.querySelector('.sonnet .pillar-list');
             const li = document.createElement('li');
-            li.style.fontSize = '0.6rem';
-            li.style.marginTop = '5px';
             li.innerText = `${p.emoji} ${p.name.split('·')[1] || p.name}`;
             list.appendChild(li);
         });
 
         // Chat Demo
         const chatData = [
-            { name: '主公', text: '帮我写一份投资报告', side: 'master' },
-            { name: '天音', text: '收到，正在为您分派任务...', side: 'ai' },
-            { name: '無一郎', text: '需求已明确：Deltapex 出海战略分析。', side: 'ai' },
-            { name: '忍', text: '任务已拆解，炭治郎负责技术部分，煉獄负责文案。', side: 'ai' },
-            { name: '炭治郎', text: '代码分析完成，正在生成技术架构图。', side: 'ai' },
-            { name: '煉獄', text: '投资建议已拟好，文辞激昂，逻辑严密！', side: 'ai' },
-            { name: '义勇', text: '审核通过，报告无误。', side: 'ai' },
-            { name: '天音', text: '主公，投资报告已为您准备好了，请查收。', side: 'ai' }
+            { name: '主公', text: '帮我写一份 AI 医疗行业投资分析报告，给专业投资人看的。', side: 'master' },
+            { name: '天音', text: '收到，主公。正在分派任务……', side: 'ai' },
+            { name: '無一郎', text: '需求已明确：AI 医疗赛道，目标读者为专业投资人，需含市场数据与投资建议。', side: 'ai' },
+            { name: '忍', text: '任务拆解完成。伊黑负责市场数据抓取，煉獄负责报告正文，义勇最终审核。', side: 'ai' },
+            { name: '伊黑', text: '30% — 近三个月 AI 医疗融资数据已整理，头部公司市值与增速汇总完毕。', side: 'ai' },
+            { name: '煉獄', text: '60% — 报告正文框架确立：市场规模、竞争格局、投资建议三大模块齐备，逻辑清晰。', side: 'ai' },
+            { name: '煉獄', text: '90% — 初稿完成，语言精准有力，已提交义勇审核。', side: 'ai' },
+            { name: '义勇', text: '审核通过。数据来源可核查，结论有据可查，无逻辑漏洞。', side: 'ai' },
+            { name: '天音', text: '主公，报告已就绪，请查收。', side: 'ai' }
         ];
 
         const chatBox = document.getElementById('chat-messages');
@@ -391,10 +560,47 @@
                         clearInterval(timer);
                         chatIdx++;
                         chatBox.scrollTop = chatBox.scrollHeight;
-                        setTimeout(typeChat, 1000);
+                        if (chatIdx === chatData.length) {
+                            setTimeout(showReportCard, 1000);
+                        } else {
+                            setTimeout(typeChat, 1000);
+                        }
                     }
-                }, 50);
+                }, 40);
             }
+        }
+
+        function showReportCard() {
+            const card = document.createElement('div');
+            card.className = 'report-card pixel-border';
+            card.innerHTML = `
+                <div class="report-header">
+                    📄 AI 医疗行业投资分析报告  <span class="badge">✅ 义勇审核通过</span>
+                </div>
+                <div class="report-summary">
+                    <div class="summary-item">
+                        <span class="label">市场规模</span>
+                        <span class="value">2025年全球 AI 医疗市场达 $458 亿，年增速 47%</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">头部标标</span>
+                        <span class="value">Tempus AI · Recursion · Insilico Medicine</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">投资建议</span>
+                        <span class="value">关注诊断影像与药物发现赛道，规避纯硬件整合概念股</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">风险提示</span>
+                        <span class="value">监管落地节奏不确定，建议分批建仓</span>
+                    </div>
+                </div>
+                <div class="report-footer">
+                    由 伊黑 · 煉獄 · 义勇 协作完成 | 耗时 < 3 分钟
+                </div>
+            `;
+            chatBox.appendChild(card);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
         
         // Start chat when section is in view
