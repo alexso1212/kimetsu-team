@@ -177,7 +177,7 @@ body {
    2. HERO
 ══════════════════════════════════════════════ */
 .hero {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   padding: 80px 24px 40px;
@@ -458,7 +458,7 @@ body {
 #memory .mem-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
-  min-height: 420px;
+  height: 450px;
 }
 #memory .mem-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -493,7 +493,7 @@ body {
 @keyframes memory_fileFlash { 0%, 100% { background: rgba(124,106,247,.1); } 50% { background: rgba(124,106,247,.35); } }
 #memory .mem-fs-badge { font-size: 8px; background: var(--green); color: #000; border-radius: 3px; padding: 1px 4px; font-weight: 700; opacity: 0; transition: opacity .3s; }
 #memory .mem-fs-badge.show { opacity: 1; }
-#memory .mem-fs-content { margin-top: 8px; padding: 8px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.2); border-radius: 6px; font-family: monospace; font-size: 10px; line-height: 1.7; color: var(--text-dim); min-height: 60px; }
+#memory .mem-fs-content { margin-top: 8px; padding: 8px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.2); border-radius: 6px; font-family: monospace; font-size: 10px; line-height: 1.7; color: var(--text-dim); height: 80px; overflow: hidden; }
 #memory .mem-fs-content .key { color: var(--brand); }
 #memory .mem-fs-content .val { color: var(--green); }
 
@@ -581,7 +581,7 @@ body {
 #skills .sk-status { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; background: var(--green-dim); border: 1px solid rgba(74,222,128,.2); border-radius: 5px; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--green); }
 #skills .sk-status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
 
-#skills .sk-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; min-height: 280px; position: sticky; top: 80px; }
+#skills .sk-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; height: 320px; overflow-y: auto; position: sticky; top: 80px; }
 @media (max-width: 680px) { #skills .sk-detail { position: static; } }
 #skills .sk-detail-empty { display: flex; align-items: center; justify-content: center; padding: 40px 0; color: var(--muted); font-size: 12px; }
 #skills .sk-detail-content { display: none; }
@@ -676,8 +676,9 @@ body {
 #guide .guide-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
 #guide .guide-tab { padding: 8px 16px; border: 1px solid var(--border2); border-radius: 8px; background: transparent; color: var(--text-dim); font-size: 13px; cursor: pointer; min-height: 44px; transition: all .2s; }
 #guide .guide-tab.active { background: var(--brand); border-color: var(--brand); color: #fff; }
-#guide .guide-template { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; position: relative; }
-#guide .guide-template.active { display: block; }
+#guide .guide-templates-wrap { position: relative; min-height: 100px; }
+#guide .guide-template { position: absolute; top: 0; left: 0; right: 0; visibility: hidden; opacity: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; transition: opacity .2s; }
+#guide .guide-template.active { position: relative; visibility: visible; opacity: 1; }
 #guide .guide-template-text { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; }
 #guide .guide-copy-btn { position: absolute; top: 12px; right: 12px; padding: 6px 12px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3); border-radius: 6px; color: var(--brand); font-size: 11px; cursor: pointer; min-height: 44px; min-width: 44px; display: flex; align-items: center; }
 
@@ -701,8 +702,9 @@ body {
 #faq .faq-question:hover { color: var(--brand); }
 #faq .faq-arrow { font-size: 18px; color: var(--text-dim); transition: transform .3s; flex-shrink: 0; }
 #faq .faq-item.open .faq-arrow { transform: rotate(180deg); }
-#faq .faq-answer { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
-#faq .faq-item.open .faq-answer { max-height: 300px; }
+#faq .faq-answer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+#faq .faq-item.open .faq-answer { grid-template-rows: 1fr; }
+#faq .faq-answer > * { overflow: hidden; }
 #faq .faq-answer-inner { padding: 0 0 20px; font-size: 14px; color: var(--text-dim); line-height: 1.7; }
 
 /* ══════════════════════════════════════════════
@@ -1044,10 +1046,12 @@ body {
     <button class="guide-tab" data-tab="analysis">分析</button>
     <button class="guide-tab" data-tab="code">代码</button>
   </div>
+  <div class="guide-templates-wrap">
   <div class="guide-template active" data-template="research"><div class="guide-template-text">帮我调研[主题]，给我3个关键结论</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
   <div class="guide-template" data-template="writing"><div class="guide-template-text">写一封给[对象]的邮件，语气[风格]</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
   <div class="guide-template" data-template="analysis"><div class="guide-template-text">这是数据：[数据]，找出核心趋势</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
   <div class="guide-template" data-template="code"><div class="guide-template-text">帮我写[功能]的Python脚本</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
+  </div>
 </section>
 
 <!-- 8. TRUST -->
