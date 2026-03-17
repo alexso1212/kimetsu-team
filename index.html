@@ -458,6 +458,7 @@ body {
 #memory .mem-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+  min-height: 420px;
 }
 #memory .mem-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -898,7 +899,7 @@ body {
       <div class="mem-layout">
         <div>
           <div class="mem-chat-label">Telegram 对话</div>
-          <div style="display:flex;flex-direction:column" id="memChatBubbles"></div>
+          <div style="display:flex;flex-direction:column;min-height:220px;height:220px;overflow:hidden;transition:opacity .3s" id="memChatBubbles"></div>
         </div>
         <div class="mem-fs">
           <div class="mem-fs-titlebar"><div class="mem-fs-dot r"></div><div class="mem-fs-dot y"></div><div class="mem-fs-dot g"></div><span>memory/</span></div>
@@ -1187,7 +1188,7 @@ document.querySelectorAll('#workflow .wf-tab').forEach(b=>{
 const m_s=ms=>new Promise(r=>setTimeout(r,ms));
 const m_cl=[{role:'user',text:'记住，我们公司偏好简洁风格的方案'},{role:'bot',text:'好的，已记录'},{role:'user',text:'帮我写一份方案'},{role:'bot',text:'（调用记忆中...）会按简洁风格来写...'}];
 async function m_write(){const fc=document.getElementById('memFsContent'),fp=document.getElementById('memFsPrefs'),fb=document.getElementById('memPrefsBadge'),cb=document.getElementById('memChatBubbles');
-while(true){cb.innerHTML='';fc.innerHTML='<span style="color:var(--text-dim);font-size:10px">等待写入...</span>';fp.classList.remove('writing','active');fb.classList.remove('show');
+while(true){cb.style.opacity='0';await m_s(300);cb.innerHTML='';cb.style.opacity='1';fc.innerHTML='<span style="color:var(--text-dim);font-size:10px">等待写入...</span>';fp.classList.remove('writing','active');fb.classList.remove('show');
 for(let i=0;i<m_cl.length;i++){const l=m_cl[i];const b=document.createElement('div');b.className='mem-bubble '+l.role;if(l.role==='bot'){const n=document.createElement('div');n.className='mem-bot-name';n.textContent='天音';b.appendChild(n);}const tx=document.createElement('span');b.appendChild(tx);cb.appendChild(b);await m_s(200);b.classList.add('visible');tx.textContent='';for(let c=0;c<l.text.length;c++){tx.textContent+=l.text[c];await m_s(18);}
 if(i===0){await m_s(400);fp.classList.add('writing');await m_s(600);fp.classList.remove('writing');fp.classList.add('active');fc.innerHTML='';const ls=['# <span class="key">用户偏好</span>','- 风格：<span class="val">简洁</span>','<span style="font-size:9px;color:var(--text-dim)">更新：2026-03-17</span>'];for(const ln of ls){const r=document.createElement('div');r.innerHTML=ln;fc.appendChild(r);await m_s(200);}}
 if(i===2){await m_s(300);fb.classList.add('show');}await m_s(i===m_cl.length-1?2000:1600);}await m_s(2000);}}
@@ -1198,7 +1199,7 @@ function m_ar(){m_rp.push({r:0,max:Math.min(m_rc.width,m_rc.height)*.45,alpha:.7
 function m_dr(){m_rx.clearRect(0,0,m_rc.width,m_rc.height);const cx=m_rc.width/2,cy=m_rc.height/2;m_rx.beginPath();m_rx.arc(cx,cy,5,0,Math.PI*2);m_rx.fillStyle='#7C6AF7';m_rx.shadowColor='#7C6AF7';m_rx.shadowBlur=10;m_rx.fill();m_rx.shadowBlur=0;m_rp=m_rp.filter(r=>r.alpha>0.01);for(const r of m_rp){m_rx.beginPath();m_rx.arc(cx,cy,r.r,0,Math.PI*2);m_rx.strokeStyle=`rgba(124,106,247,${r.alpha})`;m_rx.lineWidth=1.5;m_rx.stroke();r.r+=1.2;r.alpha*=.97;}requestAnimationFrame(m_dr);}
 
 async function m_rag(){m_rsz();m_rp=[];m_dr();const qe=document.getElementById('memRagQuery'),se=document.getElementById('memRagStatus'),ae=document.getElementById('memRagAnswerText');const ds=['memDoc1','memDoc2','memDoc3'],fs=['memFill1','memFill2','memFill3'],ps=[94,87,82];const QT='上次那个项目用什么技术栈来着？',AT='根据项目记录，Deltapex 使用 Next.js + FastAPI，数据库 Supabase，部署在 Vercel + Railway。';
-while(true){qe.textContent='';se.style.opacity='1';se.textContent='向量检索中...';ae.textContent='';m_rp=[];for(const d of ds)document.getElementById(d).classList.remove('show');for(const f of fs)document.getElementById(f).style.width='0%';
+while(true){qe.textContent='';se.style.opacity='1';se.textContent='等待提问...';ae.textContent='';m_rp=[];for(const d of ds){document.getElementById(d).classList.remove('show');}for(const f of fs){document.getElementById(f).style.width='0%';}await m_s(200);
 for(let c=0;c<QT.length;c++){qe.textContent=QT.slice(0,c+1);await m_s(20);}await m_s(600);se.textContent='语义向量搜索中...';for(let i=0;i<6;i++){await m_s(180);m_ar();}await m_s(1400);se.textContent='找到 3 条相关记忆';for(let i=0;i<ds.length;i++){document.getElementById(ds[i]).classList.add('show');await m_s(300);document.getElementById(fs[i]).style.width=ps[i]+'%';await m_s(350);}await m_s(800);se.style.opacity='0';for(let c=0;c<AT.length;c++){ae.textContent=AT.slice(0,c+1);await m_s(19);}await m_s(2800);}}
 
 async function m_plain(){const s1=document.getElementById('memPlainS1'),s2=document.getElementById('memPlainS2'),w=document.getElementById('memPlainWarn');while(true){s1.style.opacity='1';s1.style.transform='translateY(0)';s2.style.opacity='0';s2.style.transform='translateY(20px)';w.style.opacity='0';await m_s(2200);s1.style.transition='opacity .8s,transform .8s';s1.style.opacity='0';s1.style.transform='translateY(-16px)';w.style.opacity='1';await m_s(1000);s2.style.transition='opacity .6s,transform .6s';s2.style.opacity='1';s2.style.transform='translateY(0)';await m_s(2400);s2.style.opacity='0';w.style.opacity='0';await m_s(600);s1.style.transition='none';s2.style.transition='none';}}
