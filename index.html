@@ -1,1207 +1,1066 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HiveMind — 你的专属 AI 团队</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* ── 变量 ── */
-    :root {
-      --bg: #0d0d0d;
-      --surface: #141414;
-      --surface2: #1a1a1a;
-      --border: #222;
-      --border2: #2a2a2a;
-      --brand: #7C6AF7;
-      --brand-dim: rgba(124,106,247,.12);
-      --brand-glow: rgba(124,106,247,.3);
-      --gold: #C8A96E;
-      --gold-dim: rgba(200,169,110,.12);
-      --text: #EFEFEF;
-      --muted: #8B8BA0;
-      --muted2: #555;
-      --nav-h: 60px;
-      --max-w: 1120px;
-      --r: 10px;
-      --r-lg: 18px;
-      --ease: cubic-bezier(.4,0,.2,1);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HiveMind - 9个专属AI成员，各司其职</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   GLOBAL RESET & VARIABLES
+══════════════════════════════════════════════ */
+:root {
+  --bg: #0d0d0d;
+  --surface: #141414;
+  --surface2: #1a1a1a;
+  --border: #1e1e2e;
+  --border2: #2a2a3a;
+  --brand: #7C6AF7;
+  --brand-dim: rgba(124,106,247,.12);
+  --brand-glow: rgba(124,106,247,.3);
+  --gold: #C8A96E;
+  --gold-dim: rgba(200,169,110,.12);
+  --green: #4ade80;
+  --green-dim: rgba(74,222,128,.12);
+  --blue: #60a5fa;
+  --cyan: #22d3ee;
+  --text: #F0EEF8;
+  --text-dim: #8B8BA0;
+  --muted: #555;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
-      line-height: 1.75;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; text-decoration: none; }
-    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-    .pixel { font-family: 'Press Start 2P', monospace; }
-    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 40px; }
-    .section { padding: 120px 0; }
+.pixel { font-family: 'Press Start 2P', monospace; }
+.mono { font-family: 'JetBrains Mono', monospace; }
 
-    /* 入场 */
-    .fade-up { opacity: 0; transform: translateY(28px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
+/* Section entrance animation */
+.section-animate {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.section-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-    /* ── 导航 ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      height: var(--nav-h);
-      background: rgba(13,13,13,.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-inner {
-      max-width: var(--max-w); margin: 0 auto; padding: 0 40px;
-      height: 100%; display: flex; align-items: center; justify-content: space-between;
-    }
-    .logo-wrap { display: flex; flex-direction: column; gap: 3px; }
-    .logo-title { font-family: 'Press Start 2P', monospace; font-size: 13px; color: var(--text); letter-spacing: .04em; }
-    .logo-sub { font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
-    .nav-links { display: flex; gap: 28px; align-items: center; }
-    .nav-links a { font-size: 13px; color: var(--muted); transition: color .25s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--text); }
-    .nav-cta {
-      background: var(--brand); color: #fff; padding: 7px 18px;
-      border-radius: 7px; font-size: 13px; font-weight: 600;
-      transition: opacity .2s, transform .2s;
-    }
-    .nav-cta:hover { opacity: .9; transform: translateY(-1px); }
-    .nav-mobile-btn { display: none; flex-direction: column; gap: 5px; padding: 4px; }
-    .nav-mobile-btn span { display: block; width: 22px; height: 1.5px; background: var(--muted); border-radius: 2px; transition: .3s; }
+/* Section spacing */
+.page-section {
+  padding: 80px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .page-section { padding: 120px 40px; }
+}
 
-    /* ── Hero ── */
-    #hero {
-      min-height: 100vh;
-      display: flex; align-items: center;
-      padding-top: var(--nav-h);
-    }
-    .hero-inner {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
-    }
-    .hero-eyebrow {
-      display: inline-block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-      color: var(--gold); border: 1px solid rgba(200,169,110,.35);
-      padding: 5px 14px; border-radius: 100px; margin-bottom: 28px;
-    }
-    .hero-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: clamp(22px, 3.5vw, 38px);
-      line-height: 1.5;
-      margin-bottom: 20px;
-      color: var(--text);
-    }
-    .hero-title span { color: var(--brand); }
-    .hero-sub {
-      font-size: 20px; font-weight: 500; color: var(--text);
-      margin-bottom: 14px; line-height: 1.4;
-    }
-    .hero-desc { font-size: 15px; color: var(--muted); max-width: 480px; margin-bottom: 36px; line-height: 1.8; }
-    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
-    .btn-primary {
-      background: var(--brand); color: #fff;
-      padding: 13px 28px; border-radius: 9px; font-size: 14px; font-weight: 600;
-      transition: opacity .2s, transform .2s, box-shadow .2s;
-    }
-    .btn-primary:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 8px 24px var(--brand-glow); }
-    .btn-outline {
-      border: 1px solid var(--border2); color: var(--text);
-      padding: 13px 28px; border-radius: 9px; font-size: 14px; font-weight: 500;
-      transition: border-color .2s, background .2s;
-    }
-    .btn-outline:hover { border-color: var(--brand); background: var(--brand-dim); }
+/* Section titles */
+.sec-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: var(--brand);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.sec-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 48px;
+}
 
-    /* Telegram 模拟窗口 */
-    .tg-window {
-      background: #1a1a1f; border: 1px solid var(--border2); border-radius: 16px;
-      overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,.6);
-    }
-    .tg-header {
-      background: #141419; padding: 14px 18px;
-      display: flex; align-items: center; gap: 12px;
-      border-bottom: 1px solid var(--border);
-    }
-    .tg-avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--brand), #9f8cf7);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; color: #fff;
-    }
-    .tg-header-info h4 { font-size: 13px; font-weight: 600; }
-    .tg-header-info p { font-size: 11px; color: #4CAF50; }
-    .tg-dot { width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; margin-left: auto; animation: pulse-dot 2s infinite; }
-    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .tg-messages { padding: 18px; height: 340px; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
-    .tg-msg {
-      max-width: 85%; font-size: 12.5px; line-height: 1.6; padding: 9px 13px; border-radius: 12px;
-      animation: msg-in .3s var(--ease);
-    }
-    @keyframes msg-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    .tg-msg.user { background: var(--brand); color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
-    .tg-msg.bot { background: #2a2a35; color: var(--text); align-self: flex-start; border-bottom-left-radius: 3px; }
-    .tg-msg.report { background: #1e2a1e; border: 1px solid #2d4a2d; color: #a0d4a0; align-self: flex-start; border-bottom-left-radius: 3px; }
-    .tg-msg .msg-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
-    .tg-typing { display: flex; gap: 4px; align-items: center; padding: 9px 13px; background: #2a2a35; border-radius: 12px; border-bottom-left-radius: 3px; align-self: flex-start; width: 52px; }
-    .tg-typing span { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; animation: typing 1.2s infinite; }
-    .tg-typing span:nth-child(2) { animation-delay: .2s; }
-    .tg-typing span:nth-child(3) { animation-delay: .4s; }
-    @keyframes typing { 0%,80%,100%{transform:scale(.7);opacity:.5} 40%{transform:scale(1);opacity:1} }
+/* ══════════════════════════════════════════════
+   1. NAVBAR
+══════════════════════════════════════════════ */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(13,13,13,.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(30,30,46,.5);
+}
+.nav-logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--brand);
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+.nav-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
 
-    /* ── 工作流 ── */
-    #workflow { background: var(--surface); }
-    .section-label {
-      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-      color: var(--brand); margin-bottom: 16px; display: block;
-    }
-    .section-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: clamp(16px, 2.5vw, 22px);
-      line-height: 1.7;
-      margin-bottom: 16px;
-      color: var(--text);
-    }
-    .section-sub { font-size: 15px; color: var(--muted); max-width: 540px; margin-bottom: 60px; }
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 44px; height: 44px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.nav-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-dim);
+  transition: transform .3s, opacity .3s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-    /* Canvas 节点图 */
-    #workflow-canvas { width: 100%; height: 180px; display: block; }
-    .workflow-nodes-desc {
-      display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px;
-    }
-    .node-chip {
-      padding: 8px 16px; border-radius: 8px; font-size: 12px;
-      border: 1px solid var(--border2); color: var(--muted);
-      transition: border-color .3s, color .3s;
-    }
-    .node-chip.lit { border-color: var(--brand); color: var(--brand); background: var(--brand-dim); }
-    .node-chip.gold { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.nav-mobile {
+  display: none;
+  position: fixed;
+  top: 56px; left: 0; right: 0;
+  background: rgba(13,13,13,.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 999;
+}
+.nav-mobile.open { display: flex; }
+.nav-mobile a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 15px;
+  padding: 8px 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
 
-    /* ── 团队 ── */
-    .team-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;
-      margin-top: 50px;
-    }
-    .member-card {
-      position: relative; height: 200px;
-      perspective: 800px; cursor: pointer;
-    }
-    .member-card-inner {
-      position: absolute; inset: 0;
-      transform-style: preserve-3d; transition: transform .55s var(--ease);
-    }
-    .member-card:hover .member-card-inner { transform: rotateY(180deg); }
-    .member-front, .member-back {
-      position: absolute; inset: 0;
-      backface-visibility: hidden;
-      border-radius: var(--r-lg); padding: 24px;
-      border: 1px solid var(--border2);
-      display: flex; flex-direction: column;
-    }
-    .member-front { background: var(--surface); align-items: center; justify-content: center; gap: 14px; }
-    .member-back { background: var(--surface2); transform: rotateY(180deg); justify-content: center; border-color: var(--brand); }
-    .member-icon {
-      width: 56px; height: 56px; border-radius: 14px;
-      background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--brand);
-    }
-    .member-name { font-size: 13px; font-weight: 600; }
-    .member-role { font-size: 11px; color: var(--muted); }
-    .member-back h4 { font-size: 13px; font-weight: 600; color: var(--brand); margin-bottom: 8px; }
-    .member-back p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-hamburger { display: flex; }
+}
 
-    /* ── Memory ── */
-    #memory { background: var(--surface); }
-    .memory-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; margin-top: 60px; }
-    .memory-chat { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r-lg); padding: 24px; }
-    .memory-chat h4 { font-size: 12px; color: var(--muted); margin-bottom: 16px; letter-spacing: .06em; text-transform: uppercase; }
-    .memory-msg-user { background: var(--brand); color: #fff; padding: 10px 14px; border-radius: 10px 10px 2px 10px; font-size: 13px; margin-bottom: 12px; max-width: 90%; margin-left: auto; }
-    .memory-fs { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r-lg); padding: 24px; }
-    .memory-fs h4 { font-size: 12px; color: var(--muted); margin-bottom: 16px; letter-spacing: .06em; text-transform: uppercase; }
-    .fs-item {
-      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-      border-radius: 8px; margin-bottom: 8px; border: 1px solid transparent;
-      transition: border-color .3s, background .3s;
-    }
-    .fs-item.writing { border-color: var(--brand); background: var(--brand-dim); }
-    .fs-icon { font-size: 11px; font-weight: 700; color: var(--brand); width: 28px; text-align: center; }
-    .fs-name { font-size: 12px; font-weight: 500; }
-    .fs-status { font-size: 10px; color: var(--muted); margin-left: auto; }
-    .fs-status.active { color: var(--brand); }
-    .memory-features { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 40px; }
-    .memory-feat { padding: 20px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--bg); }
-    .memory-feat h5 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-    .memory-feat p { font-size: 12px; color: var(--muted); }
+/* ══════════════════════════════════════════════
+   2. HERO
+══════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 80px 24px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  width: 100%;
+  align-items: center;
+}
+.hero-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 38px;
+  color: var(--brand);
+  letter-spacing: 2px;
+  line-height: 1.3;
+  text-shadow: 0 0 40px var(--brand-glow);
+  margin-bottom: 16px;
+}
+.hero-subtitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.hero-desc {
+  font-size: 16px;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+  line-height: 1.7;
+}
+.hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 12px 28px;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.btn-primary:hover { background: #6b5ce6; transform: translateY(-1px); }
+.btn-outline {
+  padding: 12px 28px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.btn-outline:hover { border-color: var(--brand); color: var(--brand); }
 
-    /* ── Skills ── */
-    .skills-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; margin-top: 60px; }
-    .skills-store { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r-lg); overflow: hidden; }
-    .skills-store-header { padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); }
-    .skills-store-header h4 { font-size: 13px; font-weight: 600; }
-    .skills-store-header p { font-size: 11px; color: var(--muted); }
-    .skill-item {
-      padding: 14px 20px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 14px; cursor: pointer;
-      transition: background .2s;
-    }
-    .skill-item:last-child { border-bottom: none; }
-    .skill-item:hover, .skill-item.active { background: var(--brand-dim); }
-    .skill-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border2); flex-shrink: 0; }
-    .skill-item.active .skill-dot { background: var(--brand); box-shadow: 0 0 6px var(--brand); }
-    .skill-info h5 { font-size: 13px; font-weight: 600; }
-    .skill-info p { font-size: 11px; color: var(--muted); }
-    .skill-badge { margin-left: auto; font-size: 10px; padding: 3px 8px; border-radius: 4px; }
-    .skill-badge.installed { background: rgba(76,175,80,.15); color: #4CAF50; border: 1px solid rgba(76,175,80,.3); }
-    .skills-detail { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r-lg); padding: 24px; min-height: 340px; }
-    .skills-detail h4 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
-    .skills-detail .detail-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
-    .detail-scene { background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; padding: 14px; font-size: 12px; color: var(--muted); line-height: 1.7; }
-    .skills-note { margin-top: 32px; padding: 20px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surface); font-size: 14px; color: var(--muted); text-align: center; }
-    .skills-note strong { color: var(--text); }
+/* Hero Chat */
+.hero-chat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 420px;
+  margin-left: auto;
+}
+.hero-chat-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.hero-chat-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand), #a89bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #fff; font-weight: 700;
+}
+.hero-chat-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.hero-chat-status { font-size: 10px; color: var(--green); }
+.hero-chat-body {
+  padding: 16px; min-height: 320px;
+  display: flex; flex-direction: column; gap: 8px; overflow: hidden;
+}
+.chat-msg {
+  max-width: 85%; padding: 8px 12px; border-radius: 12px;
+  font-size: 13px; line-height: 1.5;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .3s, transform .3s;
+}
+.chat-msg.show { opacity: 1; transform: translateY(0); }
+.chat-msg.user {
+  align-self: flex-end;
+  background: rgba(124,106,247,.18);
+  border: 1px solid rgba(124,106,247,.3);
+  border-bottom-right-radius: 4px;
+}
+.chat-msg.bot {
+  align-self: flex-start;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg .msg-name { font-size: 10px; font-weight: 600; margin-bottom: 3px; display: block; }
+.chat-msg .msg-name.tianyin { color: var(--brand); }
+.chat-msg .msg-name.member { color: var(--gold); }
+.chat-cursor {
+  display: inline-block; width: 2px; height: 13px;
+  background: var(--brand); margin-left: 1px; vertical-align: middle;
+  animation: cursorBlink .7s step-end infinite;
+}
+@keyframes cursorBlink { 50% { opacity: 0; } }
 
-    /* ── Evolution ── */
-    #evolution { background: var(--surface); }
-    .evo-timeline { margin-top: 60px; max-width: 680px; position: relative; }
-    .evo-timeline::before { content: ''; position: absolute; left: 16px; top: 0; bottom: 0; width: 1px; background: var(--border2); }
-    .evo-item {
-      display: flex; gap: 20px; margin-bottom: 28px;
-      opacity: 0; transform: translateX(-16px);
-      transition: opacity .5s, transform .5s;
-    }
-    .evo-item.visible { opacity: 1; transform: translateX(0); }
-    .evo-dot {
-      width: 33px; height: 33px; border-radius: 50%; border: 1px solid var(--border2);
-      background: var(--surface2); display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 9px; font-weight: 700; color: var(--muted);
-      position: relative; z-index: 1;
-      transition: border-color .3s, background .3s;
-    }
-    .evo-item.lit .evo-dot { border-color: var(--brand); background: var(--brand-dim); color: var(--brand); }
-    .evo-content { padding-top: 6px; }
-    .evo-time { font-size: 10px; color: var(--muted); margin-bottom: 4px; font-family: 'Courier New', monospace; }
-    .evo-text { font-size: 13px; line-height: 1.7; color: var(--text); }
-    .evo-text em { color: var(--brand); font-style: normal; }
+@media (max-width: 768px) {
+  .hero { padding: 80px 20px 40px; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-title { font-size: 22px; }
+  .hero-subtitle { font-size: 18px; }
+  .hero-chat { display: none; }
+}
 
-    /* ── Guide ── */
-    .guide-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-bottom: 60px; }
-    .guide-step { padding: 28px; border: 1px solid var(--border2); border-radius: var(--r-lg); background: var(--surface); }
-    .step-num { font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--brand); margin-bottom: 14px; }
-    .guide-step h4 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-    .guide-step p { font-size: 13px; color: var(--muted); }
-    .guide-tabs { border: 1px solid var(--border2); border-radius: var(--r-lg); overflow: hidden; background: var(--surface); }
-    .guide-tab-nav { display: flex; border-bottom: 1px solid var(--border); background: var(--surface2); }
-    .guide-tab-btn {
-      padding: 12px 20px; font-size: 12px; font-weight: 500; color: var(--muted);
-      border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
-      cursor: pointer;
-    }
-    .guide-tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
-    .guide-tab-content { padding: 24px; display: none; }
-    .guide-tab-content.active { display: block; }
-    .cmd-block {
-      background: var(--bg); border: 1px solid var(--border2); border-radius: 8px;
-      padding: 16px 20px; font-size: 13px; line-height: 1.8; color: #b0b0c0;
-      position: relative; font-family: 'Courier New', monospace; white-space: pre-wrap;
-    }
-    .copy-btn {
-      position: absolute; top: 10px; right: 10px;
-      background: var(--border2); color: var(--muted); padding: 5px 12px;
-      border-radius: 6px; font-size: 11px; cursor: pointer; transition: background .2s, color .2s;
-    }
-    .copy-btn:hover { background: var(--brand); color: #fff; }
+/* ══════════════════════════════════════════════
+   3. WORKFLOW
+══════════════════════════════════════════════ */
+#workflow .wf-tabs { display: flex; gap: 6px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+#workflow .wf-tab {
+  padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border2);
+  background: transparent; color: var(--text-dim); font-family: 'Inter', sans-serif;
+  font-size: 13px; cursor: pointer; transition: all .2s; min-height: 44px;
+}
+#workflow .wf-tab:hover { border-color: var(--brand); color: var(--brand); }
+#workflow .wf-tab.active { background: var(--brand); border-color: var(--brand); color: #fff; }
 
-    /* ── FAQ ── */
-    .faq-list { margin-top: 50px; max-width: 720px; }
-    .faq-item { border-bottom: 1px solid var(--border); }
-    .faq-q {
-      padding: 20px 0; display: flex; justify-content: space-between; align-items: center;
-      cursor: pointer; font-size: 14px; font-weight: 500;
-      transition: color .2s;
-    }
-    .faq-q:hover { color: var(--brand); }
-    .faq-arrow { font-size: 12px; color: var(--muted); transition: transform .3s; flex-shrink: 0; margin-left: 20px; }
-    .faq-item.open .faq-arrow { transform: rotate(180deg); }
-    .faq-a { font-size: 13px; color: var(--muted); line-height: 1.8; padding-bottom: 20px; display: none; }
-    .faq-item.open .faq-a { display: block; }
+#workflow .wf-canvas-wrap {
+  width: 100%; height: 500px; position: relative; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px 16px 0 0;
+}
+#workflow canvas { display: block; width: 100%; height: 100%; }
+#workflow .wf-tooltip {
+  position: absolute; pointer-events: none; opacity: 0;
+  background: rgba(10,10,20,.9); border: 1px solid #3a3a5c;
+  border-radius: 6px; padding: 5px 10px; font-size: 11px; color: #bbb;
+  white-space: nowrap; transition: opacity .15s; transform: translate(-50%, -110%); z-index: 10;
+}
 
-    /* ── CTA ── */
-    #start { text-align: center; padding: 140px 0; }
-    .cta-title { font-family: 'Press Start 2P', monospace; font-size: clamp(18px, 3vw, 28px); line-height: 1.7; margin-bottom: 20px; }
-    .cta-sub { font-size: 16px; color: var(--muted); margin-bottom: 40px; }
-    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+#workflow .wf-panel {
+  background: var(--surface); border: 1px solid var(--border); border-top: 1px solid var(--border);
+  border-radius: 0 0 16px 16px; max-height: 220px; overflow: hidden;
+}
+#workflow .wf-panel-inner { overflow-y: auto; padding: 20px 18px; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+#workflow .wf-step-list { list-style: none; display: flex; gap: 0; overflow-x: auto; padding-bottom: 4px; }
+#workflow .wf-step-item { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; border-right: 1px solid #111; min-width: 160px; flex-shrink: 0; }
+#workflow .wf-step-dot { width: 8px; height: 8px; border-radius: 50%; background: #222; transition: all .4s; }
+#workflow .wf-step-dot.active { background: var(--brand); box-shadow: 0 0 8px var(--brand); }
+#workflow .wf-step-dot.done { background: var(--gold); }
+#workflow .wf-step-label { font-size: 12px; color: #bbb; transition: color .3s; }
+#workflow .wf-step-label.active { color: #fff; font-weight: 500; }
+#workflow .wf-step-desc { font-size: 11px; color: var(--muted); transition: color .3s; }
+#workflow .wf-step-desc.active { color: #888; }
 
-    /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--border); padding: 40px 0;
-      color: var(--muted); font-size: 13px;
-    }
-    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+#workflow .wf-prog-wrap { margin: 14px 0 0; padding: 10px 14px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.18); border-radius: 8px; display: none; }
+#workflow .wf-prog-wrap.show { display: block; }
+#workflow .wf-prog-label { font-size: 11px; color: var(--brand); margin-bottom: 6px; }
+#workflow .wf-prog-track { height: 3px; background: #1a1a2e; border-radius: 3px; overflow: hidden; }
+#workflow .wf-prog-fill { height: 100%; background: linear-gradient(90deg, var(--brand), var(--gold)); border-radius: 3px; transition: width .6s ease; }
 
-    /* ── 响应式 ── */
-    @media (max-width: 900px) {
-      .container { padding: 0 24px; }
-      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
-      .tg-window { max-width: 100%; }
-      .memory-layout { grid-template-columns: 1fr; }
-      .skills-layout { grid-template-columns: 1fr; }
-      .memory-features { grid-template-columns: 1fr; }
-      .guide-steps { grid-template-columns: 1fr; }
-      .team-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-      .nav-links { display: none; }
-      .nav-mobile-btn { display: flex; }
-      .section { padding: 80px 0; }
-    }
-    @media (max-width: 600px) {
-      .hero-title { font-size: 18px; }
-      .section-title { font-size: 14px; }
-    }
+#workflow .wf-member-panel { display: none; }
+#workflow .wf-member-panel.show { display: block; animation: wfSlideIn .25s ease; }
+@keyframes wfSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+#workflow .wf-back-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: none; color: var(--muted); font-size: 11px; cursor: pointer; min-height: 44px; font-family: 'Inter', sans-serif; margin-bottom: 18px; }
+#workflow .wf-back-btn:hover { color: var(--brand); }
+#workflow .wf-m-avatar { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 14px; }
+#workflow .wf-m-name { font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fff; margin-bottom: 4px; }
+#workflow .wf-m-role { font-size: 12px; color: var(--gold); margin-bottom: 12px; }
+#workflow .wf-info-block { margin-bottom: 14px; }
+#workflow .wf-info-lbl { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+#workflow .wf-info-val { font-size: 12px; color: #ccc; line-height: 1.65; }
+#workflow .wf-trigger-tag { display: inline-block; padding: 4px 10px; border-radius: 4px; background: var(--gold-dim); border: 1px solid rgba(200,169,110,.25); font-size: 11px; color: var(--gold); }
+#workflow .wf-example-box { background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 11px; color: #777; font-style: italic; }
 
-    /* 滚动进度线 */
-    #progress-bar {
-      position: fixed; top: 0; left: 0; height: 2px; z-index: 1001;
-      background: var(--brand); width: 0%; transition: width .1s;
-    }
-  </style>
+@media (max-width: 768px) {
+  #workflow .wf-canvas-wrap { height: 350px; }
+  #workflow .wf-panel { max-height: 160px; }
+}
+
+/* ══════════════════════════════════════════════
+   4. MEMORY
+══════════════════════════════════════════════ */
+#memory .mem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 768px) { #memory .mem-grid { grid-template-columns: 1fr; } }
+
+#memory .mem-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+}
+#memory .mem-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--brand), transparent); opacity: 0.6;
+}
+#memory .mem-card-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--brand); letter-spacing: 1px; margin-bottom: 8px; opacity: .7; }
+#memory .mem-card-title { font-size: 16px; font-weight: 600; margin-bottom: 24px; }
+
+#memory .mem-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 320px; }
+@media (max-width: 500px) { #memory .mem-layout { grid-template-columns: 1fr; } }
+
+#memory .mem-chat-label { font-size: 10px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+#memory .mem-chat-label::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+#memory .mem-bubble { max-width: 90%; padding: 8px 12px; border-radius: 12px; font-size: 12px; line-height: 1.5; opacity: 0; transform: translateY(6px); transition: opacity 0.3s, transform 0.3s; margin-bottom: 8px; }
+#memory .mem-bubble.visible { opacity: 1; transform: translateY(0); }
+#memory .mem-bubble.user { background: rgba(124,106,247,.18); border: 1px solid rgba(124,106,247,.3); align-self: flex-end; border-bottom-right-radius: 4px; }
+#memory .mem-bubble.bot { background: rgba(255,255,255,.05); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+#memory .mem-bot-name { font-size: 9px; color: var(--gold); margin-bottom: 3px; font-weight: 600; }
+
+#memory .mem-fs { background: #0a0a12; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 11px; }
+#memory .mem-fs-titlebar { background: var(--surface2); padding: 6px 10px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--border); }
+#memory .mem-fs-dot { width: 8px; height: 8px; border-radius: 50%; }
+#memory .mem-fs-dot.r { background: #ff5f57; }
+#memory .mem-fs-dot.y { background: #febc2e; }
+#memory .mem-fs-dot.g { background: #28c840; }
+#memory .mem-fs-titlebar span { color: var(--text-dim); font-size: 10px; margin-left: 6px; font-family: monospace; }
+#memory .mem-fs-tree { padding: 10px; font-family: 'Courier New', monospace; font-size: 11px; line-height: 2; }
+#memory .mem-fs-dir { color: var(--gold); }
+#memory .mem-fs-file { padding: 2px 4px 2px 16px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; border-radius: 4px; transition: all .3s; }
+#memory .mem-fs-file.active { color: var(--text); background: rgba(124,106,247,.15); }
+#memory .mem-fs-file.writing { animation: memory_fileFlash .4s ease 3; color: var(--brand); }
+@keyframes memory_fileFlash { 0%, 100% { background: rgba(124,106,247,.1); } 50% { background: rgba(124,106,247,.35); } }
+#memory .mem-fs-badge { font-size: 8px; background: var(--green); color: #000; border-radius: 3px; padding: 1px 4px; font-weight: 700; opacity: 0; transition: opacity .3s; }
+#memory .mem-fs-badge.show { opacity: 1; }
+#memory .mem-fs-content { margin-top: 8px; padding: 8px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.2); border-radius: 6px; font-family: monospace; font-size: 10px; line-height: 1.7; color: var(--text-dim); min-height: 60px; }
+#memory .mem-fs-content .key { color: var(--brand); }
+#memory .mem-fs-content .val { color: var(--green); }
+
+/* RAG */
+#memory .rag-layout { display: flex; flex-direction: column; gap: 16px; min-height: 320px; }
+#memory .rag-query { background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3); border-radius: 10px; padding: 10px 14px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+#memory .rag-search-area { position: relative; height: 120px; background: #0a0a12; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+#memory .rag-search-area canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#memory .rag-status { position: relative; z-index: 2; font-size: 11px; color: var(--brand); font-family: monospace; transition: opacity .4s; }
+#memory .rag-doc-card { background: #0e0e1a; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateX(-10px); transition: all .4s ease; font-size: 11px; }
+#memory .rag-doc-card.show { opacity: 1; transform: translateX(0); }
+#memory .rag-match-bar { height: 4px; border-radius: 2px; background: rgba(124,106,247,.2); width: 60px; overflow: hidden; }
+#memory .rag-match-fill { height: 100%; border-radius: 2px; background: var(--brand); width: 0%; transition: width .8s ease; box-shadow: 0 0 6px var(--brand); }
+#memory .rag-doc-pct { font-size: 10px; font-weight: 600; color: var(--brand); min-width: 32px; text-align: right; }
+#memory .rag-answer { background: var(--gold-dim); border: 1px solid rgba(200,169,110,.2); border-radius: 10px; padding: 12px 14px; font-size: 12px; line-height: 1.6; min-height: 54px; }
+#memory .rag-prefix { font-size: 9px; color: var(--gold); font-weight: 600; margin-bottom: 4px; display: block; }
+
+/* Comparison */
+#memory .mem-compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+@media (max-width: 640px) { #memory .mem-compare-grid { grid-template-columns: 1fr; } }
+#memory .mem-compare-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow: hidden; position: relative; }
+#memory .mem-compare-card.hive { border-color: rgba(124,106,247,.4); }
+#memory .mem-compare-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+#memory .mem-compare-card.plain .mem-compare-title { color: var(--text-dim); }
+#memory .mem-compare-card.hive .mem-compare-title { color: var(--brand); }
+#memory .mem-compare-sub { font-size: 11px; color: var(--text-dim); margin-bottom: 20px; }
+#memory .mem-theater { height: 160px; position: relative; overflow: hidden; }
+#memory .mem-theater-session { display: flex; flex-direction: column; gap: 8px; position: absolute; width: 100%; transition: opacity .8s, transform .8s; }
+#memory .mem-theater-bubble { max-width: 80%; padding: 7px 11px; border-radius: 10px; font-size: 11px; line-height: 1.4; }
+#memory .mem-theater-bubble.user-b { align-self: flex-end; background: rgba(124,106,247,.18); border: 1px solid rgba(124,106,247,.3); }
+#memory .mem-theater-bubble.bot-b { align-self: flex-start; background: rgba(255,255,255,.06); border: 1px solid var(--border); }
+#memory .mem-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 32px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.25); border-radius: 8px; display: flex; align-items: center; padding: 0 10px; gap: 6px; }
+#memory .mem-bar-label { font-size: 9px; color: var(--brand); font-weight: 600; }
+#memory .mem-dots { display: flex; gap: 4px; margin-left: auto; }
+#memory .mem-dot-item { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); opacity: 0; transition: opacity .4s; box-shadow: 0 0 4px var(--brand); }
+#memory .mem-dot-item.lit { opacity: 1; }
+
+/* ══════════════════════════════════════════════
+   5. SKILLS
+══════════════════════════════════════════════ */
+#skills .skill-flow-canvas {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 40px 32px; position: relative; overflow: hidden; margin-bottom: 48px;
+}
+#skills .skill-flow-steps { display: flex; flex-direction: column; align-items: center; gap: 0; }
+#skills .skill-flow-node { width: 100%; max-width: 560px; opacity: 0; transform: translateY(10px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+#skills .skill-flow-node.visible { opacity: 1; transform: translateY(0); }
+#skills .skill-flow-inner { display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface2); }
+#skills .skill-flow-node.active .skill-flow-inner { border-color: var(--brand); background: rgba(124,106,247,.07); box-shadow: 0 0 20px rgba(124,106,247,.15); }
+#skills .skill-flow-node.done .skill-flow-inner { opacity: .6; }
+#skills .skill-flow-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; background: var(--brand-dim); color: var(--brand); font-weight: 700; }
+#skills .skill-flow-node.active .skill-flow-icon { background: var(--brand); color: #fff; animation: skill_pulse 1s ease infinite; }
+@keyframes skill_pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(124,106,247,.5); } 50% { box-shadow: 0 0 0 8px rgba(124,106,247,0); } }
+#skills .skill-flow-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+#skills .skill-flow-node.active .skill-flow-num { color: var(--brand); }
+#skills .skill-flow-text { font-size: 14px; color: var(--text-dim); line-height: 1.5; }
+#skills .skill-flow-node.active .skill-flow-text { color: var(--text); }
+#skills .skill-badge-inline { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; background: var(--gold-dim); border: 1px solid rgba(200,169,110,.25); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gold); }
+#skills .skill-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+#skills .skill-connector { width: 1px; height: 24px; background: linear-gradient(to bottom, var(--border2), var(--border)); margin: 0 auto; position: relative; overflow: hidden; }
+#skills .skill-connector.active { background: linear-gradient(to bottom, var(--brand), rgba(124,106,247,.2)); }
+#skills .skill-connector .skill-particle { position: absolute; top: -4px; left: -2px; width: 5px; height: 5px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 8px var(--brand); animation: skill_flowDown .6s linear infinite; }
+@keyframes skill_flowDown { 0% { top: -5px; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+#skills .skill-progress-wrap { margin-top: 10px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+#skills .skill-progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--brand), #a89bfa); width: 0%; transition: width 1.8s var(--ease); }
+#skills .skill-flow-node.active .skill-progress-fill { width: 100%; }
+#skills .skill-result-card { margin-top: 10px; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; transform: scale(.96); opacity: 0; transition: opacity .4s, transform .4s; }
+#skills .skill-flow-node.active .skill-result-card { opacity: 1; transform: scale(1); border-color: rgba(74,222,128,.3); }
+#skills .skill-result-title { color: var(--green); font-weight: 600; margin-bottom: 4px; font-size: 11px; }
+#skills .skill-replay-btn { display: flex; align-items: center; gap: 8px; margin: 28px auto 0; padding: 9px 20px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--brand); cursor: pointer; min-height: 44px; width: fit-content; }
+
+/* Skill Grid */
+#skills .skill-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; margin-bottom: 48px; }
+@media (max-width: 680px) { #skills .skill-layout { grid-template-columns: 1fr; } }
+#skills .skill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (max-width: 680px) { #skills .skill-grid { grid-template-columns: 1fr; } }
+#skills .sk-card { padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: border-color .25s, transform .2s; min-height: 44px; }
+#skills .sk-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+#skills .sk-card.selected { border-color: var(--brand); background: rgba(124,106,247,.06); }
+#skills .sk-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+#skills .sk-ico { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#skills .sk-ico svg { width: 16px; height: 16px; }
+#skills .sk-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text); }
+#skills .sk-desc { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+#skills .sk-status { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; background: var(--green-dim); border: 1px solid rgba(74,222,128,.2); border-radius: 5px; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--green); }
+#skills .sk-status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+
+#skills .sk-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; min-height: 280px; position: sticky; top: 80px; }
+@media (max-width: 680px) { #skills .sk-detail { position: static; } }
+#skills .sk-detail-empty { display: flex; align-items: center; justify-content: center; padding: 40px 0; color: var(--muted); font-size: 12px; }
+#skills .sk-detail-content { display: none; }
+#skills .sk-detail-content.visible { display: block; }
+#skills .sk-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+#skills .sk-detail-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text); }
+#skills .sk-detail-tag { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+#skills .sk-case-title { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--brand); letter-spacing: .08em; margin-bottom: 12px; }
+#skills .sk-case-step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+#skills .sk-case-arrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--brand); flex-shrink: 0; }
+#skills .sk-case-text { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+#skills .sk-case-text strong { color: var(--text); }
+#skills .sk-case-time { margin-top: 14px; padding: 8px 12px; background: var(--bg); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); border: 1px solid var(--border); }
+
+#skills .skill-extend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 680px) { #skills .skill-extend-grid { grid-template-columns: 1fr; } }
+#skills .skill-extend-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; text-align: center; transition: border-color .3s, transform .3s; }
+#skills .skill-extend-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+#skills .skill-extend-num { font-family: 'Press Start 2P', monospace; font-size: 18px; color: var(--brand); margin-bottom: 6px; }
+#skills .skill-extend-label { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+#skills .skill-extend-desc { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+
+/* ══════════════════════════════════════════════
+   6. EVOLUTION
+══════════════════════════════════════════════ */
+#evolution .evo-concepts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 60px; }
+@media (max-width: 768px) { #evolution .evo-concepts { grid-template-columns: 1fr; } }
+#evolution .evo-concept-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 28px 24px; transition: border-color .3s, transform .3s; }
+#evolution .evo-concept-card:hover { border-color: var(--brand); transform: translateY(-3px); }
+#evolution .evo-concept-num { font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--brand); margin-bottom: 14px; opacity: .7; }
+#evolution .evo-concept-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+#evolution .evo-concept-desc { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+#evolution .evo-main { display: grid; grid-template-columns: 1fr 380px; gap: 48px; align-items: start; margin-bottom: 60px; }
+@media (max-width: 900px) { #evolution .evo-main { grid-template-columns: 1fr; } }
+
+#evolution .evo-timeline { position: relative; padding-left: 36px; }
+#evolution .evo-timeline::before { content: ''; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--brand), rgba(124,106,247,.1)); }
+#evolution .evo-tl-item { position: relative; margin-bottom: 28px; opacity: 0; transform: translateX(24px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+#evolution .evo-tl-item.visible { opacity: 1; transform: translateX(0); }
+#evolution .evo-tl-dot { position: absolute; left: -30px; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--muted); z-index: 1; transition: all .4s; }
+#evolution .evo-tl-item.visible .evo-tl-dot { border-color: var(--brand); background: var(--brand); box-shadow: 0 0 12px var(--brand-glow); }
+#evolution .evo-tl-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 16px 20px; }
+#evolution .evo-tl-item.visible .evo-tl-card { border-color: rgba(124,106,247,.25); }
+#evolution .evo-tl-meta { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--text-dim); margin-bottom: 10px; }
+#evolution .evo-tl-body { font-size: 13px; line-height: 1.7; font-family: 'Courier New', monospace; white-space: pre-wrap; min-height: 1.2em; }
+#evolution .evo-tl-body .arrow { color: var(--gold); }
+#evolution .evo-tl-footer { margin-top: 10px; display: flex; gap: 8px; }
+#evolution .evo-tl-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; opacity: 0; transform: scale(.8); transition: opacity .35s, transform .35s; }
+#evolution .evo-tl-item.visible .evo-tl-tag { opacity: 1; transform: scale(1); }
+.evo-tag-green { background: rgba(74,222,128,.12); color: var(--green); border: 1px solid rgba(74,222,128,.25); }
+.evo-tag-blue { background: rgba(96,165,250,.12); color: var(--blue); border: 1px solid rgba(96,165,250,.25); }
+.evo-tag-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(200,169,110,.3); }
+.evo-tag-purple { background: var(--brand-dim); color: var(--brand); border: 1px solid rgba(124,106,247,.3); }
+.evo-tag-cyan { background: rgba(34,211,238,.1); color: var(--cyan); border: 1px solid rgba(34,211,238,.25); }
+
+#evolution .evo-loop-wrap { position: sticky; top: 80px; }
+@media (max-width: 900px) { #evolution .evo-loop-wrap { position: static; } }
+#evolution .evo-loop-label { font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: .12em; margin-bottom: 24px; text-align: center; }
+#evolution .evo-loop-canvas-wrap { position: relative; width: 100%; padding-bottom: 100%; }
+@media (max-width: 900px) { #evolution .evo-loop-canvas-wrap { max-width: 320px; margin: 0 auto; padding-bottom: 320px; } }
+#evolution #evoLoopCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+#evolution .evo-compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; border-top: 1px solid var(--border); padding-top: 60px; }
+@media (max-width: 768px) { #evolution .evo-compare-grid { grid-template-columns: 1fr; } }
+#evolution .evo-compare-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 32px 24px; transition: transform .3s; }
+#evolution .evo-compare-card:hover { transform: translateY(-4px); }
+#evolution .evo-compare-card.highlight { border-color: var(--brand); background: linear-gradient(145deg, #141414, #161228); }
+#evolution .evo-compare-day { font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--brand); margin-bottom: 6px; }
+#evolution .evo-compare-title { font-size: 14px; color: var(--text-dim); margin-bottom: 24px; }
+#evolution .evo-metric { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+#evolution .evo-metric-row { display: flex; justify-content: space-between; }
+#evolution .evo-metric-name { font-size: 12px; color: var(--text-dim); }
+#evolution .evo-metric-val { font-family: 'Press Start 2P', monospace; font-size: 9px; }
+#evolution .evo-metric-bar { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+#evolution .evo-metric-fill { height: 100%; border-radius: 2px; width: 0; transition: width 1.5s cubic-bezier(.25,.46,.45,.94); }
+.evo-fill-brand { background: linear-gradient(90deg, var(--brand), #a78bfa); }
+.evo-fill-gold { background: linear-gradient(90deg, var(--gold), #f0c96e); }
+.evo-fill-green { background: linear-gradient(90deg, var(--green), #86efac); }
+#evolution .evo-compare-desc { margin-top: 20px; font-size: 12px; color: var(--text-dim); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 16px; }
+
+/* ══════════════════════════════════════════════
+   7. GET STARTED
+══════════════════════════════════════════════ */
+#guide .guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 48px; }
+@media (max-width: 768px) { #guide .guide-steps { grid-template-columns: 1fr; } }
+#guide .guide-step { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; text-align: center; transition: border-color .3s, transform .3s; }
+#guide .guide-step:hover { border-color: var(--brand); transform: translateY(-3px); }
+#guide .guide-step-num { font-family: 'Press Start 2P', monospace; font-size: 24px; color: var(--brand); margin-bottom: 16px; }
+#guide .guide-step-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+#guide .guide-step-desc { font-size: 13px; color: var(--text-dim); }
+#guide .guide-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+#guide .guide-tab { padding: 8px 16px; border: 1px solid var(--border2); border-radius: 8px; background: transparent; color: var(--text-dim); font-size: 13px; cursor: pointer; min-height: 44px; transition: all .2s; }
+#guide .guide-tab.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+#guide .guide-template { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; position: relative; }
+#guide .guide-template.active { display: block; }
+#guide .guide-template-text { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; }
+#guide .guide-copy-btn { position: absolute; top: 12px; right: 12px; padding: 6px 12px; background: var(--brand-dim); border: 1px solid rgba(124,106,247,.3); border-radius: 6px; color: var(--brand); font-size: 11px; cursor: pointer; min-height: 44px; min-width: 44px; display: flex; align-items: center; }
+
+/* ══════════════════════════════════════════════
+   8. TRUST
+══════════════════════════════════════════════ */
+#trust .trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 768px) { #trust .trust-grid { grid-template-columns: 1fr; } }
+#trust .trust-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 32px 24px; text-align: center; transition: border-color .3s, transform .3s; }
+#trust .trust-card:hover { border-color: var(--brand); transform: translateY(-3px); }
+#trust .trust-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--brand-dim); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 18px; color: var(--brand); font-weight: 700; }
+#trust .trust-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+#trust .trust-desc { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+/* ══════════════════════════════════════════════
+   9. FAQ
+══════════════════════════════════════════════ */
+#faq .faq-list { max-width: 720px; margin: 0 auto; }
+#faq .faq-item { border-bottom: 1px solid var(--border); }
+#faq .faq-question { width: 100%; padding: 20px 0; background: none; border: none; color: var(--text); font-size: 15px; font-weight: 500; text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; font-family: 'Inter', sans-serif; }
+#faq .faq-question:hover { color: var(--brand); }
+#faq .faq-arrow { font-size: 18px; color: var(--text-dim); transition: transform .3s; flex-shrink: 0; }
+#faq .faq-item.open .faq-arrow { transform: rotate(180deg); }
+#faq .faq-answer { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+#faq .faq-item.open .faq-answer { max-height: 300px; }
+#faq .faq-answer-inner { padding: 0 0 20px; font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+
+/* ══════════════════════════════════════════════
+   10. CTA
+══════════════════════════════════════════════ */
+#start { text-align: center; padding: 80px 24px 120px; }
+#start .cta-title { font-family: 'Press Start 2P', monospace; font-size: clamp(18px, 4vw, 32px); margin-bottom: 24px; line-height: 1.4; }
+#start .cta-btn { display: inline-flex; align-items: center; padding: 16px 48px; background: var(--brand); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background .2s, transform .2s; text-decoration: none; min-height: 52px; }
+#start .cta-btn:hover { background: #6b5ce6; transform: translateY(-2px); }
+</style>
 </head>
 <body>
 
-<div id="progress-bar"></div>
-
-<!-- ── 导航 ── -->
-<nav>
-  <div class="nav-inner">
-    <a href="#hero" class="logo-wrap">
-      <span class="logo-title">HiveMind</span>
-      <span class="logo-sub">AI Team OS</span>
-    </a>
-    <div class="nav-links">
-      <a href="#workflow">工作流</a>
-      <a href="#team">团队</a>
-      <a href="#memory">Memory</a>
-      <a href="#skills">Skill</a>
-      <a href="#start" class="nav-cta">开始</a>
-    </div>
-    <button class="nav-mobile-btn" onclick="toggleMobileNav()" aria-label="菜单">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
+<!-- 1. NAVBAR -->
+<nav class="navbar">
+  <a href="#" class="nav-logo">HiveMind</a>
+  <ul class="nav-links">
+    <li><a href="#workflow">工作流</a></li>
+    <li><a href="#memory">Memory</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#evolution">进化</a></li>
+    <li><a href="#start">开始</a></li>
+  </ul>
+  <button class="nav-hamburger" id="navHamburger" aria-label="菜单"><span></span><span></span><span></span></button>
 </nav>
-
-<!-- 移动端菜单 -->
-<div id="mobile-nav" style="display:none;position:fixed;top:var(--nav-h);left:0;right:0;background:rgba(13,13,13,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:999;padding:20px 24px;display:flex;flex-direction:column;gap:16px">
-  <a href="#workflow" onclick="toggleMobileNav()">工作流</a>
-  <a href="#team" onclick="toggleMobileNav()">团队</a>
-  <a href="#memory" onclick="toggleMobileNav()">Memory</a>
-  <a href="#skills" onclick="toggleMobileNav()">Skill</a>
-  <a href="#start" onclick="toggleMobileNav()" style="color:var(--brand);font-weight:600">开始</a>
+<div class="nav-mobile" id="navMobile">
+  <a href="#workflow" onclick="closeNav()">工作流</a>
+  <a href="#memory" onclick="closeNav()">Memory</a>
+  <a href="#skills" onclick="closeNav()">Skills</a>
+  <a href="#evolution" onclick="closeNav()">进化</a>
+  <a href="#start" onclick="closeNav()">开始</a>
 </div>
 
-<!-- ── Hero ── -->
-<section id="hero">
-  <div class="container">
-    <div class="hero-inner">
-      <div class="fade-up">
-        <span class="hero-eyebrow">AI Team OS · v8</span>
-        <h1 class="hero-title">Hive<span>Mind</span></h1>
-        <p class="hero-sub">9个专属AI成员，各司其职</p>
-        <p class="hero-desc">不是聊天机器人——是一支会执行、会记忆、会进化的AI团队。发一条消息，团队自动协作完成。</p>
-        <div class="hero-actions">
-          <a href="#guide" class="btn-primary">5分钟开始</a>
-          <a href="#workflow" class="btn-outline">查看演示</a>
-        </div>
-      </div>
-      <div class="fade-up" style="transition-delay:.15s">
-        <div class="tg-window">
-          <div class="tg-header">
-            <div class="tg-avatar">HM</div>
-            <div class="tg-header-info">
-              <h4>HiveMind 天音</h4>
-              <p>在线</p>
-            </div>
-            <div class="tg-dot"></div>
-          </div>
-          <div class="tg-messages" id="tg-messages"></div>
-        </div>
+<!-- 2. HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1 class="hero-title">HiveMind</h1>
+      <p class="hero-subtitle">9个专属AI成员，各司其职</p>
+      <p class="hero-desc">不是聊天机器人——是一支会执行、会记忆、会进化的AI团队</p>
+      <div class="hero-buttons">
+        <a href="#guide" class="btn-primary">5分钟开始</a>
+        <a href="#workflow" class="btn-outline">查看工作流</a>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ── 工作流 ── -->
-<section id="workflow" class="section">
-  <div class="container">
-    <div class="fade-up">
-      <span class="section-label">How it works</span>
-      <h2 class="section-title">任务是怎么完成的</h2>
-      <p class="section-sub">你只需发一条消息，天音负责理解意图、分配成员、协调执行，义勇负责质检把关。</p>
-    </div>
-    <canvas id="workflow-canvas" class="fade-up" style="transition-delay:.1s"></canvas>
-    <div class="workflow-nodes-desc fade-up" id="node-chips" style="transition-delay:.2s">
-      <span class="node-chip" data-node="0">用户发起</span>
-      <span class="node-chip" data-node="1">天音分析</span>
-      <span class="node-chip" data-node="2">霞柱·调研</span>
-      <span class="node-chip" data-node="3">忍·策划</span>
-      <span class="node-chip" data-node="4">炎柱·写作</span>
-      <span class="node-chip" data-node="5">炭治郎·编码</span>
-      <span class="node-chip" data-node="6">伊黑·分析</span>
-      <span class="node-chip" data-node="7">义勇·质检</span>
-      <span class="node-chip gold" data-node="8">交付完成</span>
+    <div class="hero-chat">
+      <div class="hero-chat-header">
+        <div class="hero-chat-avatar">H</div>
+        <div><div class="hero-chat-name">HiveMind</div><div class="hero-chat-status">在线</div></div>
+      </div>
+      <div class="hero-chat-body" id="heroChatBody"></div>
     </div>
   </div>
 </section>
 
-<!-- ── 团队 ── -->
-<section id="team" class="section">
-  <div class="container">
-    <div class="fade-up">
-      <span class="section-label">The Team</span>
-      <h2 class="section-title">认识你的团队</h2>
-      <p class="section-sub">9位成员覆盖从调研到交付的全链路，悬停翻转查看详情。</p>
-    </div>
-    <div class="team-grid fade-up" style="transition-delay:.1s">
-      <!-- 成员卡片由 JS 生成 -->
-    </div>
+<!-- 3. WORKFLOW -->
+<section id="workflow" class="page-section section-animate">
+  <div class="sec-label">WORKFLOW</div>
+  <div class="sec-title">任务是如何完成的</div>
+  <div class="wf-tabs">
+    <button class="wf-tab" data-mode="normal">普通任务</button>
+    <button class="wf-tab active" data-mode="complex">复杂任务</button>
+    <button class="wf-tab" data-mode="new_project">新项目</button>
   </div>
-</section>
-
-<!-- ── Memory ── -->
-<section id="memory" class="section">
-  <div class="container">
-    <div class="fade-up">
-      <span class="section-label">Memory & RAG</span>
-      <h2 class="section-title">它记住了你的一切</h2>
-      <p class="section-sub">每次对话都在写入你的专属知识库，像认识你三年的助理。</p>
-    </div>
-    <div class="memory-layout fade-up" style="transition-delay:.1s">
-      <div>
-        <div class="memory-chat">
-          <h4>对话触发记忆写入</h4>
-          <div class="memory-msg-user">记住：我们公司偏好简洁风格的方案，不要花哨</div>
-          <div style="height:12px"></div>
-          <div style="background:#2a2a35;padding:10px 14px;border-radius:10px 10px 10px 2px;font-size:13px;color:var(--text)">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">天音</div>
-            已记录到你的偏好档案，后续所有方案将默认采用简洁风格。
-          </div>
+  <div class="wf-canvas-wrap" id="wfCanvasWrap">
+    <canvas id="wfCanvas"></canvas>
+    <div class="wf-tooltip" id="wfTooltip"></div>
+  </div>
+  <div class="wf-panel">
+    <div class="wf-panel-inner">
+      <div id="wfStepPanel">
+        <ul class="wf-step-list" id="wfStepList"></ul>
+        <div class="wf-prog-wrap" id="wfProgWrap">
+          <div class="wf-prog-label" id="wfProgLabel">执行中...</div>
+          <div class="wf-prog-track"><div class="wf-prog-fill" id="wfProgFill" style="width:0%"></div></div>
         </div>
-        <div class="memory-features">
-          <div class="memory-feat">
-            <h5>跨会话记忆</h5>
-            <p>关闭再打开，它还记得你上次说的话</p>
-          </div>
-          <div class="memory-feat">
-            <h5>项目上下文</h5>
-            <p>自动关联项目背景，不用每次重复说明</p>
-          </div>
-          <div class="memory-feat">
-            <h5>偏好学习</h5>
-            <p>风格、格式、频率——全部自动更新</p>
+      </div>
+      <div class="wf-member-panel" id="wfMemberPanel">
+        <button class="wf-back-btn" id="wfBackBtn">&#8592; 返回流程</button>
+        <div class="wf-m-avatar" id="wfMAvatar"></div>
+        <div class="wf-m-name" id="wfMName"></div>
+        <div class="wf-m-role" id="wfMRole"></div>
+        <div class="wf-info-block"><div class="wf-info-lbl">职责</div><div class="wf-info-val" id="wfMDuty"></div></div>
+        <div class="wf-info-block"><div class="wf-info-lbl">触发条件</div><div class="wf-trigger-tag" id="wfMTrigger"></div></div>
+        <div class="wf-info-block"><div class="wf-info-lbl">示例</div><div class="wf-example-box" id="wfMExample"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. MEMORY -->
+<section id="memory" class="page-section section-animate">
+  <div class="sec-label">MEMORY</div>
+  <div class="sec-title">认识你三年的AI助理</div>
+  <div class="mem-grid">
+    <div class="mem-card">
+      <div class="mem-card-label">DEMO 01</div>
+      <div class="mem-card-title">每次对话，它都在学习</div>
+      <div class="mem-layout">
+        <div>
+          <div class="mem-chat-label">Telegram 对话</div>
+          <div style="display:flex;flex-direction:column" id="memChatBubbles"></div>
+        </div>
+        <div class="mem-fs">
+          <div class="mem-fs-titlebar"><div class="mem-fs-dot r"></div><div class="mem-fs-dot y"></div><div class="mem-fs-dot g"></div><span>memory/</span></div>
+          <div class="mem-fs-tree">
+            <div class="mem-fs-dir">memory/</div>
+            <div class="mem-fs-file" id="memFsPrefs">preferences.md <span class="mem-fs-badge" id="memPrefsBadge">已加载</span></div>
+            <div class="mem-fs-file">2026-03-17.md</div>
+            <div class="mem-fs-file">project-context.md</div>
+            <div class="mem-fs-content" id="memFsContent"><span style="color:var(--text-dim);font-size:10px">等待写入...</span></div>
           </div>
         </div>
       </div>
-      <div class="memory-fs">
-        <h4>记忆文件系统</h4>
-        <div id="memory-fs-list">
-          <div class="fs-item" data-file="preferences.md">
-            <div class="fs-icon">MD</div>
-            <div><div class="fs-name">preferences.md</div><div style="font-size:11px;color:var(--muted)">用户偏好</div></div>
-            <div class="fs-status">等待写入</div>
-          </div>
-          <div class="fs-item" data-file="project-context.md">
-            <div class="fs-icon">MD</div>
-            <div><div class="fs-name">project-context.md</div><div style="font-size:11px;color:var(--muted)">项目背景</div></div>
-            <div class="fs-status">等待写入</div>
-          </div>
-          <div class="fs-item" data-file="user-style.md">
-            <div class="fs-icon">MD</div>
-            <div><div class="fs-name">user-style.md</div><div style="font-size:11px;color:var(--muted)">风格规则</div></div>
-            <div class="fs-status">等待写入</div>
-          </div>
-          <div class="fs-item" data-file="company-info.md">
-            <div class="fs-icon">MD</div>
-            <div><div class="fs-name">company-info.md</div><div style="font-size:11px;color:var(--muted)">公司信息</div></div>
-            <div class="fs-status">等待写入</div>
-          </div>
-          <div class="fs-item" data-file="task-history.md">
-            <div class="fs-icon">MD</div>
-            <div><div class="fs-name">task-history.md</div><div style="font-size:11px;color:var(--muted)">任务历史</div></div>
-            <div class="fs-status">等待写入</div>
-          </div>
+    </div>
+    <div class="mem-card">
+      <div class="mem-card-label">DEMO 02</div>
+      <div class="mem-card-title">问你的问题，它去翻你的记录</div>
+      <div class="rag-layout">
+        <div class="rag-query"><span style="font-size:16px;color:var(--brand)">Q</span><span id="memRagQuery"></span></div>
+        <div class="rag-search-area"><canvas id="memRagCanvas"></canvas><div class="rag-status" id="memRagStatus">向量检索中...</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="rag-doc-card" id="memDoc1"><span>D</span><span style="flex:1;color:var(--text)">project-deltapex.md</span><div class="rag-match-bar"><div class="rag-match-fill" id="memFill1"></div></div><span class="rag-doc-pct">94%</span></div>
+          <div class="rag-doc-card" id="memDoc2"><span>D</span><span style="flex:1;color:var(--text)">2026-03-10.md</span><div class="rag-match-bar"><div class="rag-match-fill" id="memFill2"></div></div><span class="rag-doc-pct">87%</span></div>
+          <div class="rag-doc-card" id="memDoc3"><span>D</span><span style="flex:1;color:var(--text)">tech-stack.md</span><div class="rag-match-bar"><div class="rag-match-fill" id="memFill3"></div></div><span class="rag-doc-pct">82%</span></div>
         </div>
-        <div style="margin-top:20px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);font-family:'Courier New',monospace;" id="memory-log">
-          <span style="color:var(--brand)">&gt;</span> 等待对话...
-        </div>
+        <div class="rag-answer"><span class="rag-prefix">天音</span><span id="memRagAnswerText"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="mem-compare-grid">
+    <div class="mem-compare-card plain">
+      <div class="mem-compare-title">普通 AI</div>
+      <div class="mem-compare-sub">每次对话从零开始</div>
+      <div class="mem-theater">
+        <div class="mem-theater-session" id="memPlainS1"><div class="mem-theater-bubble user-b">帮我写个简洁风格的方案</div><div class="mem-theater-bubble bot-b">好的，我来写一份方案...</div></div>
+        <div class="mem-theater-session" id="memPlainS2" style="opacity:0;transform:translateY(20px)"><div class="mem-theater-bubble user-b">继续上次的方案</div><div class="mem-theater-bubble bot-b" style="color:#f87171;border-color:rgba(248,113,113,.3)">对不起，我没有上次对话的记录...</div></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:10px;color:var(--text-dim);padding:4px;background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:6px;opacity:0;transition:opacity .5s" id="memPlainWarn">上下文已清空</div>
+      </div>
+    </div>
+    <div class="mem-compare-card hive">
+      <div class="mem-compare-title">HiveMind AI</div>
+      <div class="mem-compare-sub">跨会话记忆，越用越懂你</div>
+      <div class="mem-theater">
+        <div class="mem-theater-session" id="memHiveS1"><div class="mem-theater-bubble user-b">帮我写个简洁风格的方案</div><div class="mem-theater-bubble bot-b">好的，我来写一份方案...</div></div>
+        <div class="mem-bar"><span style="font-size:12px;color:var(--brand)">M</span><span class="mem-bar-label">记忆库</span><div class="mem-dots"><div class="mem-dot-item" id="memMd1"></div><div class="mem-dot-item" id="memMd2"></div><div class="mem-dot-item" id="memMd3"></div><div class="mem-dot-item" id="memMd4"></div><div class="mem-dot-item" id="memMd5"></div></div></div>
+        <div class="mem-theater-session" id="memHiveS2" style="opacity:0;transform:translateY(20px)"><div class="mem-theater-bubble user-b">继续上次的方案</div><div class="mem-theater-bubble bot-b" style="color:#4ade80;border-color:rgba(74,222,128,.3)">好的，根据你的简洁风格偏好，继续完善...</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── Skills ── -->
-<section id="skills" class="section">
-  <div class="container">
-    <div class="fade-up">
-      <span class="section-label">Skill System</span>
-      <h2 class="section-title">随时可扩展的能力</h2>
-      <p class="section-sub">Skill 就像手机 App——需要什么就安装什么，团队能力无限扩展。</p>
+<!-- 5. SKILLS -->
+<section id="skills" class="page-section section-animate">
+  <div class="sec-label">SKILLS</div>
+  <div class="sec-title">随时可扩展的超能力</div>
+  <div class="skill-flow-canvas">
+    <div class="skill-flow-steps" id="skillFlowSteps">
+      <div class="skill-flow-node" data-step="0"><div class="skill-flow-inner"><div class="skill-flow-icon">U</div><div class="skill-flow-content"><div class="skill-flow-num">// 用户输入</div><div class="skill-flow-text"><span style="display:inline-block;padding:8px 16px;background:var(--brand-dim);border:1px solid rgba(124,106,247,.25);border-radius:10px;font-weight:500">帮我搜一下最新的 AI 新闻</span></div></div></div></div>
+      <div class="skill-connector" data-connector="0"><div class="skill-particle" style="display:none"></div></div>
+      <div class="skill-flow-node" data-step="1"><div class="skill-flow-inner"><div class="skill-flow-icon">A</div><div class="skill-flow-content"><div class="skill-flow-num">// 天音分析</div><div class="skill-flow-text">识别到「搜索」关键词，正在匹配对应 Skill...</div></div></div></div>
+      <div class="skill-connector" data-connector="1"><div class="skill-particle" style="display:none"></div></div>
+      <div class="skill-flow-node" data-step="2"><div class="skill-flow-inner"><div class="skill-flow-icon">S</div><div class="skill-flow-content"><div class="skill-flow-num">// Skill 匹配</div><div class="skill-flow-text"><span class="skill-badge-inline"><span class="skill-badge-dot"></span>web-search</span> — 命中，置信度 98%</div></div></div></div>
+      <div class="skill-connector" data-connector="2"><div class="skill-particle" style="display:none"></div></div>
+      <div class="skill-flow-node" data-step="3"><div class="skill-flow-inner"><div class="skill-flow-icon">-></div><div class="skill-flow-content"><div class="skill-flow-num">// 调用执行</div><div class="skill-flow-text">正在搜索...<div class="skill-progress-wrap"><div class="skill-progress-fill"></div></div></div></div></div></div>
+      <div class="skill-connector" data-connector="3"><div class="skill-particle" style="display:none"></div></div>
+      <div class="skill-flow-node" data-step="4"><div class="skill-flow-inner"><div class="skill-flow-icon">OK</div><div class="skill-flow-content"><div class="skill-flow-num">// 结果返回</div><div class="skill-flow-text">已找到 12 条相关结果<div class="skill-result-card"><div class="skill-result-title">// search_results</div><div style="color:var(--text-dim);line-height:1.8">1. OpenAI GPT-5 预览版发布</div><div style="color:var(--text-dim);line-height:1.8">2. Google Gemini Ultra 2.0 上线</div><div style="color:var(--text-dim);line-height:1.8">3. Anthropic Claude 4 系列，1M上下文</div></div></div></div></div></div>
+      <div class="skill-connector" data-connector="4"><div class="skill-particle" style="display:none"></div></div>
+      <div class="skill-flow-node" data-step="5"><div class="skill-flow-inner"><div class="skill-flow-icon">A</div><div class="skill-flow-content"><div class="skill-flow-num">// 天音整合交付</div><div class="skill-flow-text"><span style="display:inline-block;padding:8px 16px;background:var(--gold-dim);border:1px solid rgba(200,169,110,.3);border-radius:10px;color:var(--gold);font-weight:500">主公，已为您整理最新 AI 动态</span></div></div></div></div>
     </div>
-    <div class="skills-layout fade-up" style="transition-delay:.1s">
-      <div class="skills-store">
-        <div class="skills-store-header">
-          <h4>已安装的 Skill</h4>
-          <p>5 个 / 可用 32 个</p>
-        </div>
-        <div id="skill-list"></div>
-      </div>
-      <div class="skills-detail" id="skill-detail">
-        <div style="color:var(--muted);font-size:13px;padding-top:40px;text-align:center">← 点击左侧 Skill 查看详情</div>
-      </div>
-    </div>
-    <p class="skills-note"><strong>Skill 就像手机 App</strong>——需要什么就安装什么，团队能力随需扩展，无需修改底层配置。</p>
+    <button class="skill-replay-btn" id="skillReplayBtn">重新播放</button>
   </div>
-</section>
-
-<!-- ── 自我迭代 ── -->
-<section id="evolution" class="section">
-  <div class="container">
-    <div class="fade-up">
-      <span class="section-label">Self Evolution</span>
-      <h2 class="section-title">它在不断进化</h2>
-      <p class="section-sub">每次交互都是一次学习，团队规则自动更新，无需人工干预。</p>
+  <div style="margin-top:48px"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--brand);letter-spacing:.12em;margin-bottom:8px">INSTALLED SKILLS</div><div style="font-size:16px;font-weight:600;margin-bottom:24px">已安装的 Skill</div></div>
+  <div class="skill-layout">
+    <div class="skill-grid">
+      <div class="sk-card" data-skill="web-search"><div class="sk-card-top"><div class="sk-ico" style="background:var(--brand-dim)"><svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="14" y2="14"/></svg></div><div class="sk-name">web-search</div></div><div class="sk-desc">实时网络搜索</div><div class="sk-status"><span class="sk-status-dot"></span>已安装</div></div>
+      <div class="sk-card" data-skill="deep-research"><div class="sk-card-top"><div class="sk-ico" style="background:var(--gold-dim)"><svg viewBox="0 0 16 16" fill="none" stroke="#C8A96E" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="2"/><line x1="5" y1="7" x2="11" y2="7"/></svg></div><div class="sk-name">deep-research-pro</div></div><div class="sk-desc">多源深度调研</div><div class="sk-status"><span class="sk-status-dot"></span>已安装</div></div>
+      <div class="sk-card" data-skill="gmail"><div class="sk-card-top"><div class="sk-ico" style="background:rgba(234,88,12,.12)"><svg viewBox="0 0 16 16" fill="none" stroke="#ea580c" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="2"/><polyline points="2,4 8,9 14,4"/></svg></div><div class="sk-name">gmail</div></div><div class="sk-desc">读取与发送邮件</div><div class="sk-status"><span class="sk-status-dot"></span>已安装</div></div>
+      <div class="sk-card" data-skill="calendar"><div class="sk-card-top"><div class="sk-ico" style="background:rgba(56,189,248,.12)"><svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/><line x1="2" y1="7" x2="14" y2="7"/></svg></div><div class="sk-name">calendar</div></div><div class="sk-desc">日历查询</div><div class="sk-status"><span class="sk-status-dot"></span>已安装</div></div>
+      <div class="sk-card" data-skill="coding-agent"><div class="sk-card-top"><div class="sk-ico" style="background:var(--brand-dim)"><svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5"><polyline points="4,5 1,8 4,11"/><polyline points="12,5 15,8 12,11"/></svg></div><div class="sk-name">coding-agent</div></div><div class="sk-desc">代码生成与执行</div><div class="sk-status"><span class="sk-status-dot"></span>已安装</div></div>
+      <div class="sk-card" data-skill="weather"><div class="sk-card-top"><div class="sk-ico" style="background:rgba(56,189,248,.12)"><svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5"><circle cx="8" cy="6" r="3"/></svg></div><div class="sk-name">weather</div></div><div class="sk-desc">天气查询</div><div class="sk-status"><span class="sk-status-dot"></span>已安装</div></div>
     </div>
-    <div class="evo-timeline" id="evo-timeline">
-      <!-- JS 生成 -->
+    <div class="sk-detail" id="skillDetail">
+      <div class="sk-detail-empty" id="skillDetailEmpty">点击左侧 Skill 查看使用案例</div>
+      <div class="sk-detail-content" data-detail="deep-research"><div class="sk-detail-header"><div class="sk-ico" style="background:var(--gold-dim)"><svg viewBox="0 0 16 16" fill="none" stroke="#C8A96E" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="2"/></svg></div><div><div class="sk-detail-name">deep-research-pro</div><div class="sk-detail-tag">多源深度调研</div></div></div><div class="sk-case-title">// 真实使用案例</div><div class="sk-case-step"><div class="sk-case-arrow">></div><div class="sk-case-text"><strong>主公：</strong>帮我调研新能源汽车市场</div></div><div class="sk-case-step"><div class="sk-case-arrow">-></div><div class="sk-case-text">搜索 <strong>17 个来源</strong></div></div><div class="sk-case-step"><div class="sk-case-arrow">-></div><div class="sk-case-text">生成 <strong>2000 字深度报告</strong></div></div><div class="sk-case-time">用时：45 秒</div></div>
+      <div class="sk-detail-content" data-detail="web-search"><div class="sk-detail-header"><div class="sk-ico" style="background:var(--brand-dim)"><svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="14" y2="14"/></svg></div><div><div class="sk-detail-name">web-search</div><div class="sk-detail-tag">实时网络搜索</div></div></div><div class="sk-case-title">// 真实使用案例</div><div class="sk-case-step"><div class="sk-case-arrow">></div><div class="sk-case-text"><strong>主公：</strong>搜索今日 A 股涨幅最大的板块</div></div><div class="sk-case-step"><div class="sk-case-arrow">-></div><div class="sk-case-text">返回 <strong>Top10 涨幅榜</strong></div></div><div class="sk-case-time">用时：3 秒</div></div>
+      <div class="sk-detail-content" data-detail="gmail"><div class="sk-detail-header"><div class="sk-ico" style="background:rgba(234,88,12,.12)"><svg viewBox="0 0 16 16" fill="none" stroke="#ea580c" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="2"/></svg></div><div><div class="sk-detail-name">gmail</div><div class="sk-detail-tag">读取与发送邮件</div></div></div><div class="sk-case-title">// 真实使用案例</div><div class="sk-case-step"><div class="sk-case-arrow">></div><div class="sk-case-text"><strong>主公：</strong>回复王总邮件，说周三可以开会</div></div><div class="sk-case-step"><div class="sk-case-arrow">-></div><div class="sk-case-text">起草回复，确认后<strong>一键发送</strong></div></div><div class="sk-case-time">用时：8 秒</div></div>
+      <div class="sk-detail-content" data-detail="calendar"><div class="sk-detail-header"><div class="sk-ico" style="background:rgba(56,189,248,.12)"><svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/></svg></div><div><div class="sk-detail-name">calendar</div><div class="sk-detail-tag">日历查询</div></div></div><div class="sk-case-title">// 真实使用案例</div><div class="sk-case-step"><div class="sk-case-arrow">></div><div class="sk-case-text"><strong>主公：</strong>下周五有空吗，帮我约个会</div></div><div class="sk-case-step"><div class="sk-case-arrow">-></div><div class="sk-case-text">确认空闲，<strong>创建事件</strong></div></div><div class="sk-case-time">用时：5 秒</div></div>
+      <div class="sk-detail-content" data-detail="coding-agent"><div class="sk-detail-header"><div class="sk-ico" style="background:var(--brand-dim)"><svg viewBox="0 0 16 16" fill="none" stroke="#7C6AF7" stroke-width="1.5"><polyline points="4,5 1,8 4,11"/><polyline points="12,5 15,8 12,11"/></svg></div><div><div class="sk-detail-name">coding-agent</div><div class="sk-detail-tag">代码生成</div></div></div><div class="sk-case-title">// 真实使用案例</div><div class="sk-case-step"><div class="sk-case-arrow">></div><div class="sk-case-text"><strong>主公：</strong>写一个爬取价格的脚本</div></div><div class="sk-case-step"><div class="sk-case-arrow">-></div><div class="sk-case-text">生成代码，<strong>沙盒测试通过</strong></div></div><div class="sk-case-time">用时：20 秒</div></div>
+      <div class="sk-detail-content" data-detail="weather"><div class="sk-detail-header"><div class="sk-ico" style="background:rgba(56,189,248,.12)"><svg viewBox="0 0 16 16" fill="none" stroke="#38bdf8" stroke-width="1.5"><circle cx="8" cy="6" r="3"/></svg></div><div><div class="sk-detail-name">weather</div><div class="sk-detail-tag">天气查询</div></div></div><div class="sk-case-title">// 真实使用案例</div><div class="sk-case-step"><div class="sk-case-arrow">></div><div class="sk-case-text"><strong>主公：</strong>明天上海适合出门吗</div></div><div class="sk-case-step"><div class="sk-case-arrow">-></div><div class="sk-case-text">晴转多云，<strong>适合出行</strong></div></div><div class="sk-case-time">用时：2 秒</div></div>
     </div>
   </div>
-</section>
-
-<!-- ── 起步指南 ── -->
-<section id="guide" class="section">
-  <div class="container">
-    <div class="fade-up">
-      <span class="section-label">Get Started</span>
-      <h2 class="section-title">5分钟开始</h2>
-      <p class="section-sub">三步完成配置，立即开始使用你的专属 AI 团队。</p>
-    </div>
-    <div class="guide-steps fade-up" style="transition-delay:.1s">
-      <div class="guide-step">
-        <div class="step-num">01</div>
-        <h4>添加天音到 Telegram</h4>
-        <p>搜索 @HiveMindTianyin_bot，发送 /start 激活你的专属团队空间。</p>
-      </div>
-      <div class="guide-step">
-        <div class="step-num">02</div>
-        <h4>完成初始化问卷</h4>
-        <p>5 个问题，帮助团队了解你的工作场景和偏好，整个过程不超过 3 分钟。</p>
-      </div>
-      <div class="guide-step">
-        <div class="step-num">03</div>
-        <h4>发送你的第一个任务</h4>
-        <p>用日常语言描述任务，天音会自动拆解、分配和执行，无需任何特殊指令格式。</p>
-      </div>
-    </div>
-    <div class="guide-tabs fade-up" style="transition-delay:.2s">
-      <div class="guide-tab-nav">
-        <button class="guide-tab-btn active" onclick="switchTab(this,'调研')">调研任务</button>
-        <button class="guide-tab-btn" onclick="switchTab(this,'写作')">内容写作</button>
-        <button class="guide-tab-btn" onclick="switchTab(this,'数据')">数据分析</button>
-        <button class="guide-tab-btn" onclick="switchTab(this,'代码')">代码任务</button>
-      </div>
-      <div class="guide-tab-content active" data-tab="调研">
-        <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">复制</button>帮我调研新能源汽车市场的最新趋势，重点关注：
-1. 2024年市场规模和增长率
-2. 主要玩家的市场份额变化
-3. 消费者购买决策的核心因素
-最终给我一份2页的摘要报告</div>
-      </div>
-      <div class="guide-tab-content" data-tab="写作">
-        <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">复制</button>帮我写一封给潜在投资人的商务邮件，介绍我们的 SaaS 产品。
-背景：B 轮融资，ARR 500万，月增长率 15%
-风格：专业但不死板，简洁有力
-长度：300字以内，突出核心数据</div>
-      </div>
-      <div class="guide-tab-content" data-tab="数据">
-        <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">复制</button>帮我分析这份用户留存数据（附表格截图）
-我需要了解：
-- 各渠道的30天留存率对比
-- 留存率下降的可能原因
-- 3个可执行的改进建议
-输出格式：先结论，后详细分析</div>
-      </div>
-      <div class="guide-tab-content" data-tab="代码">
-        <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">复制</button>帮我写一个 React 组件，实现：
-- 展示用户列表，支持搜索过滤
-- 每行显示头像、姓名、邮箱、状态
-- 点击行可以展开显示详情
-- 使用 Tailwind CSS，深色主题
-返回完整可运行代码</div>
-      </div>
+  <div style="margin-top:48px">
+    <div class="skill-extend-grid">
+      <div class="skill-extend-card"><div class="skill-extend-num"><span class="skill-count-up" data-target="30">0</span>+</div><div class="skill-extend-label">现有 Skill</div><div class="skill-extend-desc">开箱即用，覆盖搜索、邮件、日历、代码等高频场景</div></div>
+      <div class="skill-extend-card"><div class="skill-extend-num" style="font-size:14px">CUSTOM</div><div class="skill-extend-label">自定义 Skill</div><div class="skill-extend-desc">用自然语言描述工作流，天音帮你生成专属 Skill</div></div>
+      <div class="skill-extend-card"><div class="skill-extend-num" style="font-size:13px">ClawHub</div><div class="skill-extend-label">社区生态</div><div class="skill-extend-desc">一键安装社区贡献的 Skill，持续扩充能力库</div></div>
     </div>
   </div>
 </section>
 
-<!-- ── FAQ ── -->
-<section id="faq" class="section">
-  <div class="container">
-    <div class="fade-up">
-      <span class="section-label">FAQ</span>
-      <h2 class="section-title">常见问题</h2>
+<!-- 6. EVOLUTION -->
+<section id="evolution" class="page-section section-animate">
+  <div class="sec-label">EVOLUTION</div>
+  <div class="sec-title">它在不断进化，越用越好</div>
+  <div class="evo-concepts">
+    <div class="evo-concept-card"><div class="evo-concept-num">01</div><div class="evo-concept-title">每次交互都是一次学习</div><div class="evo-concept-desc">每一条指令、每一次反馈，都会被记录分析，转化为更精准的行动。</div></div>
+    <div class="evo-concept-card"><div class="evo-concept-num">02</div><div class="evo-concept-title">团队规则自动更新</div><div class="evo-concept-desc">发现更好的工作方式，规则自动写入，整个团队同步进化。</div></div>
+    <div class="evo-concept-card"><div class="evo-concept-num">03</div><div class="evo-concept-title">偏好越来越精准</div><div class="evo-concept-desc">记忆系统持续校准，减少你每次解释背景的时间。</div></div>
+  </div>
+  <div class="evo-main">
+    <div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.12em;margin-bottom:32px;display:flex;align-items:center;gap:10px">EVOLUTION LOG<span style="flex:1;height:1px;background:var(--border2)"></span></div>
+      <div class="evo-timeline" id="evoTimeline">
+        <div class="evo-tl-item" id="evoTl0"><div class="evo-tl-dot"></div><div class="evo-tl-card"><div class="evo-tl-meta">2026-03-17 09:23 [LEARN]</div><div class="evo-tl-body" id="evoBody0"></div><div class="evo-tl-footer"><span class="evo-tl-tag evo-tag-green">已生效</span></div></div></div>
+        <div class="evo-tl-item" id="evoTl1"><div class="evo-tl-dot"></div><div class="evo-tl-card"><div class="evo-tl-meta">2026-03-16 15:40 [FIX]</div><div class="evo-tl-body" id="evoBody1"></div><div class="evo-tl-footer"><span class="evo-tl-tag evo-tag-blue">已修复</span></div></div></div>
+        <div class="evo-tl-item" id="evoTl2"><div class="evo-tl-dot"></div><div class="evo-tl-card"><div class="evo-tl-meta">2026-03-15 11:15 [UPGRADE]</div><div class="evo-tl-body" id="evoBody2"></div><div class="evo-tl-footer"><span class="evo-tl-tag evo-tag-gold">已升级</span></div></div></div>
+        <div class="evo-tl-item" id="evoTl3"><div class="evo-tl-dot"></div><div class="evo-tl-card"><div class="evo-tl-meta">2026-03-14 20:30 [INSTALL]</div><div class="evo-tl-body" id="evoBody3"></div><div class="evo-tl-footer"><span class="evo-tl-tag evo-tag-purple">新增</span></div></div></div>
+        <div class="evo-tl-item" id="evoTl4"><div class="evo-tl-dot"></div><div class="evo-tl-card"><div class="evo-tl-meta">2026-03-13 14:00 [MEMORY]</div><div class="evo-tl-body" id="evoBody4"></div><div class="evo-tl-footer"><span class="evo-tl-tag evo-tag-cyan">记忆更新</span></div></div></div>
+      </div>
     </div>
-    <div class="faq-list fade-up" style="transition-delay:.1s" id="faq-list"></div>
+    <div class="evo-loop-wrap"><div class="evo-loop-label">EVOLUTION LOOP</div><div class="evo-loop-canvas-wrap"><canvas id="evoLoopCanvas"></canvas></div></div>
+  </div>
+  <div class="evo-compare-grid">
+    <div class="evo-compare-card"><div class="evo-compare-day">第 1 天</div><div class="evo-compare-title">初次相识</div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">任务理解准确率</span><span class="evo-metric-val">62%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-brand" data-target="62"></div></div></div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">偏好匹配度</span><span class="evo-metric-val">30%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-gold" data-target="30"></div></div></div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">自动化覆盖率</span><span class="evo-metric-val">45%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-green" data-target="45"></div></div></div><div class="evo-compare-desc">基础能力，需要详细解释背景。</div></div>
+    <div class="evo-compare-card"><div class="evo-compare-day">第 30 天</div><div class="evo-compare-title">逐渐熟悉</div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">任务理解准确率</span><span class="evo-metric-val">84%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-brand" data-target="84"></div></div></div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">偏好匹配度</span><span class="evo-metric-val">71%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-gold" data-target="71"></div></div></div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">自动化覆盖率</span><span class="evo-metric-val">76%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-green" data-target="76"></div></div></div><div class="evo-compare-desc">记住偏好，减少来回确认。</div></div>
+    <div class="evo-compare-card highlight"><div class="evo-compare-day">第 90 天</div><div class="evo-compare-title">深度磨合</div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">任务理解准确率</span><span class="evo-metric-val">97%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-brand" data-target="97"></div></div></div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">偏好匹配度</span><span class="evo-metric-val">93%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-gold" data-target="93"></div></div></div><div class="evo-metric"><div class="evo-metric-row"><span class="evo-metric-name">自动化覆盖率</span><span class="evo-metric-val">91%</span></div><div class="evo-metric-bar"><div class="evo-metric-fill evo-fill-green" data-target="91"></div></div></div><div class="evo-compare-desc">你说半句，它懂全意。</div></div>
   </div>
 </section>
 
-<!-- ── CTA ── -->
-<section id="start">
-  <div class="container">
-    <div class="fade-up">
-      <h2 class="cta-title">准备好了吗？</h2>
-      <p class="cta-sub">5 分钟完成配置，立即拥有一支专属 AI 团队</p>
-      <div class="cta-actions">
-        <a href="#guide" class="btn-primary">立即开始</a>
-        <a href="#workflow" class="btn-outline">了解工作流</a>
-      </div>
-    </div>
+<!-- 7. GET STARTED -->
+<section id="guide" class="page-section section-animate">
+  <div class="sec-label">GET STARTED</div>
+  <div class="sec-title">三步开始</div>
+  <div class="guide-steps">
+    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-title">打开 Telegram，添加天音</div><div class="guide-step-desc">搜索 @HiveMind_bot，点击 Start</div></div>
+    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-title">发送你的第一个任务</div><div class="guide-step-desc">用自然语言描述你想做的事</div></div>
+    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-title">等待结果</div><div class="guide-step-desc">天音会安排最合适的成员处理</div></div>
+  </div>
+  <div style="font-size:16px;font-weight:600;margin-bottom:16px">指令模板</div>
+  <div class="guide-tabs">
+    <button class="guide-tab active" data-tab="research">调研</button>
+    <button class="guide-tab" data-tab="writing">写作</button>
+    <button class="guide-tab" data-tab="analysis">分析</button>
+    <button class="guide-tab" data-tab="code">代码</button>
+  </div>
+  <div class="guide-template active" data-template="research"><div class="guide-template-text">帮我调研[主题]，给我3个关键结论</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
+  <div class="guide-template" data-template="writing"><div class="guide-template-text">写一封给[对象]的邮件，语气[风格]</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
+  <div class="guide-template" data-template="analysis"><div class="guide-template-text">这是数据：[数据]，找出核心趋势</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
+  <div class="guide-template" data-template="code"><div class="guide-template-text">帮我写[功能]的Python脚本</div><button class="guide-copy-btn" onclick="copyTemplate(this)">复制</button></div>
+</section>
+
+<!-- 8. TRUST -->
+<section id="trust" class="page-section section-animate">
+  <div class="sec-label">TRUST</div>
+  <div class="sec-title">安全与信任</div>
+  <div class="trust-grid">
+    <div class="trust-card"><div class="trust-icon">S</div><div class="trust-title">本地部署</div><div class="trust-desc">所有数据存储在你自己的服务器上，不经过第三方云端。记忆、文件、项目信息完全由你掌控。</div></div>
+    <div class="trust-card"><div class="trust-icon">V</div><div class="trust-title">双重审核</div><div class="trust-desc">每一份对外输出都经过质检员审核。AI 出错时你可以随时纠正、叫停、推翻。</div></div>
+    <div class="trust-card"><div class="trust-icon">$</div><div class="trust-title">透明费用</div><div class="trust-desc">不同任务消耗不同。简单回复几乎免费，深度分析有明确计费。随时查看用量，可设上限。</div></div>
   </div>
 </section>
 
-<!-- ── Footer ── -->
-<footer>
-  <div class="container">
-    <div class="footer-inner">
-      <div>
-        <span class="pixel" style="font-size:11px">HiveMind</span>
-        <span style="margin-left:12px;color:var(--muted2)">AI Team OS</span>
-      </div>
-      <div style="color:var(--muted2)">2026 · 专属 AI 团队操作系统</div>
-    </div>
+<!-- 9. FAQ -->
+<section id="faq" class="page-section section-animate">
+  <div class="sec-label">FAQ</div>
+  <div class="sec-title">常见问题</div>
+  <div class="faq-list">
+    <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">为什么回复有时候很快，有时候很慢？<span class="faq-arrow">v</span></button><div class="faq-answer"><div class="faq-answer-inner">简单任务用「快速模式」几秒完成。复杂任务用「深度思考模式」可能需要30秒到几分钟——就像让人写3句话 vs 写报告的区别。</div></div></div>
+    <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">它会不会把我的信息泄露出去？<span class="faq-arrow">v</span></button><div class="faq-answer"><div class="faq-answer-inner">HiveMind 部署在你自己的服务器上，所有记忆、对话记录都存储在本地。我们不收集、不传输你的数据。</div></div></div>
+    <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">这个会产生多少费用？<span class="faq-arrow">v</span></button><div class="faq-answer"><div class="faq-answer-inner">日常对话几乎不计费。深度分析有明确 token 计费标准。你可以随时查看用量，也可以设置预算上限。</div></div></div>
+    <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">万一 AI 说的内容是错的怎么办？<span class="faq-arrow">v</span></button><div class="faq-answer"><div class="faq-answer-inner">所有对外内容经过质检员审核。发现问题直接说「这里不对」，会立即安排修正。你随时可以叫停、推翻判断。</div></div></div>
+    <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">我可以随时中途叫停任务吗？<span class="faq-arrow">v</span></button><div class="faq-answer"><div class="faq-answer-inner">可以。直接说「停一下」或「取消」，正在执行的成员立即停止。已完成的部分保留，不浪费。</div></div></div>
+    <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">它能在手机上用吗？<span class="faq-arrow">v</span></button><div class="faq-answer"><div class="faq-answer-inner">当然。通过 Telegram 交互，手机、平板、电脑都能用。大多数用户直接在手机上发指令，坐等结果。</div></div></div>
   </div>
-</footer>
+</section>
+
+<!-- 10. CTA -->
+<section id="start" class="section-animate">
+  <div class="cta-title">准备好了吗？</div>
+  <a href="#guide" class="cta-btn">马上开始</a>
+</section>
 
 <script>
-/* ─────────────────────────────────────────
-   数据
-───────────────────────────────────────── */
-const MEMBERS = [
-  { code:'TY', name:'天音', role:'总管协调员', desc:'接收任务、拆解需求、分配成员、协调全局执行流程，是整个团队的大脑。' },
-  { code:'XZ', name:'霞柱', role:'战略调研员', desc:'深度搜索、多源信息整合、市场调研报告输出，擅长从海量信息中提炼核心洞察。' },
-  { code:'RN', name:'忍', role:'需求分析师', desc:'将模糊需求转化为清晰的结构化方案，识别隐含需求和潜在风险。' },
-  { code:'YZ', name:'炎柱', role:'内容策划官', desc:'商务写作、文案创作、邮件起草，输出专业且有说服力的文字内容。' },
-  { code:'TJ', name:'炭治郎', role:'后端工程师', desc:'代码生成、API 集成、技术方案实现，擅长快速原型和生产级代码输出。' },
-  { code:'YH', name:'伊黑', role:'数据科学家', desc:'数据清洗、统计分析、可视化方案、数据驱动的决策建议。' },
-  { code:'SM', name:'実弥', role:'自动化专家', desc:'流程自动化、定时任务、系统集成，让重复工作彻底消失。' },
-  { code:'YY', name:'义勇', role:'质检总监', desc:'审核所有输出的准确性和质量，发现问题后打回重做，保障最终交付品质。' },
-  { code:'GM', name:'蜜璃', role:'项目协调员', desc:'跟进任务进度、对外沟通协作、整理会议纪要和项目文档。' },
-];
+// ═══ NAV ═══
+const navH=document.getElementById('navHamburger'),navM=document.getElementById('navMobile');
+navH.addEventListener('click',()=>{navH.classList.toggle('open');navM.classList.toggle('open');});
+function closeNav(){navH.classList.remove('open');navM.classList.remove('open');}
 
-const SKILLS = [
-  { id:'deep-research', name:'deep-research-pro', desc:'多源深度调研与分析', scene:'用户请求调研新能源市场 → 霞柱调用此 Skill，自动检索 Google Scholar、行业报告、新闻源，整合成结构化报告。' },
-  { id:'gmail', name:'gmail', desc:'发送/读取邮件', scene:'炎柱完成邮件草稿后 → 调用此 Skill，直接发送到指定收件人，无需用户手动操作。' },
-  { id:'calendar', name:'calendar', desc:'日历与日程管理', scene:'用户说"帮我安排明天的会议" → 天音调用此 Skill，自动在 Google Calendar 创建事件并发送邀请。' },
-  { id:'coding', name:'coding-agent', desc:'代码生成与执行', scene:'炭治郎生成代码后 → 调用此 Skill 在沙箱环境执行验证，确保代码可运行再交付。' },
-  { id:'web-search', name:'web-search', desc:'实时网络搜索', scene:'任何需要最新信息的任务 → 调用此 Skill 获取实时数据，突破知识截止日期限制。' },
-];
+// ═══ SECTION OBSERVER ═══
+const secObs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');secObs.unobserve(en.target);}});},{threshold:0.1});
+document.querySelectorAll('.section-animate').forEach(el=>secObs.observe(el));
 
-const EVO_ITEMS = [
-  { time:'2026-03-15 10:23', who:'忍', text:'忍发现用户偏好<em>简洁排版</em>，已更新写作规则模板，炎柱和忍后续输出将自动应用。' },
-  { time:'2026-03-14 16:40', who:'义勇', text:'义勇审查发现邮件格式存在冗余段落，<em>炎柱已修正邮件模板</em>，通过率提升至 98%。' },
-  { time:'2026-03-13 09:15', who:'伊黑', text:'主公反馈数据分析太技术性，伊黑已调整输出风格，<em>结论优先、数据其次</em>。' },
-  { time:'2026-03-12 14:55', who:'霞柱', text:'霞柱总结调研效率问题，新增<em>可信度评分机制</em>，过滤低质信息源，准确性提升显著。' },
-  { time:'2026-03-11 11:30', who:'天音', text:'天音优化任务拆解逻辑，对复杂任务自动启用<em>多轮迭代模式</em>，减少来回沟通次数。' },
-];
+// ═══ HERO CHAT ═══
+const hero_scenarios=[[{role:'user',text:'帮我调研新能源汽车市场趋势'},{role:'tianyin',text:'收到，派霞柱调研'},{role:'member',name:'霞柱',text:'调研完成：渗透率已超30%，增速放缓，头部效应显现'}],[{role:'user',text:'写一封给投资人的介绍邮件'},{role:'tianyin',text:'炎柱来写'},{role:'member',name:'炎柱',text:'尊敬的投资人，HiveMind是一套企业级AI团队操作系统...'}],[{role:'user',text:'分析一下这季度的销售数据'},{role:'tianyin',text:'伊黑来分析'},{role:'member',name:'伊黑',text:'核心发现：环比增长18%，华南区异常下滑需关注'}],[{role:'user',text:'帮我做一个产品落地页'},{role:'tianyin',text:'炭治郎+甘露寺出动'},{role:'member',name:'炭治郎',text:'落地页已完成，已部署到 kimetsu.github.io'}]];
+const heroCB=document.getElementById('heroChatBody');let hero_idx=0;
+const _s=ms=>new Promise(r=>setTimeout(r,ms));
+async function hero_type(el,t){el.textContent='';for(let i=0;i<t.length;i++){el.textContent+=t[i];await _s(15);}}
+async function hero_run(){while(true){const sc=hero_scenarios[hero_idx%hero_scenarios.length];heroCB.innerHTML='';for(const m of sc){const d=document.createElement('div');d.className='chat-msg '+(m.role==='user'?'user':'bot');if(m.role==='tianyin'){const n=document.createElement('span');n.className='msg-name tianyin';n.textContent='天音';d.appendChild(n);}else if(m.role==='member'){const n=document.createElement('span');n.className='msg-name member';n.textContent=m.name;d.appendChild(n);}const tx=document.createElement('span');d.appendChild(tx);const cur=document.createElement('span');cur.className='chat-cursor';d.appendChild(cur);heroCB.appendChild(d);await _s(100);d.classList.add('show');await hero_type(tx,m.text);cur.remove();await _s(600);}hero_idx++;await _s(3000);}}
 
-const FAQS = [
-  { q:'HiveMind 和普通 AI 助手有什么区别？', a:'普通 AI 助手是单个角色，你需要给出非常详细的指令。HiveMind 是一支团队——天音理解你的意图，自动拆解任务，分配给最适合的成员执行，义勇把关质量。你只需描述目标，不需要掌握 prompt 技巧。' },
-  { q:'团队成员是固定的吗？可以自定义吗？', a:'默认提供 9 位成员覆盖主要职能。Pro 版本支持自定义成员的专业方向、工作风格、输出格式，以及添加你自己的专属成员。' },
-  { q:'Memory 系统如何保证隐私安全？', a:'所有记忆文件存储在你的专属空间，加密保存，不与其他用户共享。你可以随时查看、编辑或删除任何记忆文件。' },
-  { q:'Skill 需要付费吗？', a:'基础 Skill（网页搜索、日历等）免费包含。高级 Skill（深度调研、代码执行等）在 Pro 版本中解锁。第三方 Skill 遵循各自定价。' },
-  { q:'团队会犯错吗？如何处理错误？', a:'义勇作为质检员会审核所有输出，发现问题会打回重做。对于高风险操作（如发送邮件、执行代码），会先征得你的确认再执行。' },
-  { q:'如何让团队更了解我的业务？', a:'完成初始化问卷是第一步。之后正常使用，团队会持续从对话中学习。你也可以主动告诉天音：「记住，我们公司的目标用户是…」，它会立即写入记忆。' },
-];
+// ═══ WORKFLOW ═══
+const WF_M={START:{name:'用户指令',role:'指令入口',model:'-',duty:'接收指令',trigger:'主公说话',example:'主公的每一句话'},TIANYIN:{name:'天音',role:'团队总管',model:'Claude Sonnet 4.5',duty:'接收指令、判断类型、分派各柱',trigger:'所有任务先经过天音',example:'主公说任何话',color:'#7C6AF7'},JUDGE:{name:'任务判断',role:'分流节点',model:'-',duty:'判断路径',trigger:'每个任务必经',example:'写封邮件→普通'},KASUMI:{name:'霞柱',role:'需求分析师',model:'Claude Opus 4.6',duty:'需求调研',trigger:'帮我查/调研',example:'调研竞品',color:'#e8b4d8'},SHINOBU:{name:'忍',role:'项目协调员',model:'Claude Sonnet 4.5',duty:'任务拆解',trigger:'3+子任务',example:'做一个网站',color:'#9bd4c8'},YORUICHI:{name:'缘一',role:'战略顾问',model:'Claude Opus 4.6',duty:'头脑风暴',trigger:'新项目',example:'新建产品',color:'#ffd700'},RENGOKU:{name:'炎柱',role:'内容策划官',model:'Claude Sonnet 4.5',duty:'写作文案',trigger:'写/做PPT',example:'写邮件',color:'#ff6b35'},TANJIRO:{name:'炭治郎',role:'后端工程师',model:'Codex GPT-5',duty:'后端代码',trigger:'代码任务',example:'做API',color:'#4a9eff'},MITSURI:{name:'甘露寺',role:'前端工程师',model:'Codex GPT-5',duty:'前端UI',trigger:'前端任务',example:'做网页',color:'#ff9eb5'},IGURO:{name:'伊黑',role:'数据科学家',model:'Claude Opus 4.6',duty:'数据分析',trigger:'数据/表格',example:'分析财报',color:'#b8a9ff'},SANEMI:{name:'実弥',role:'自动化专家',model:'Codex GPT-5',duty:'自动化',trigger:'自动/爬取',example:'定时报告',color:'#7fffd4'},GIYU:{name:'义勇',role:'质检员',model:'Claude Opus 4.6',duty:'最终审核',trigger:'发布前',example:'上线审核',color:'#4ecdc4'},DELIVER:{name:'天音交付',role:'交付节点',model:'Claude Sonnet 4.5',duty:'汇总输出',trigger:'质检通过后',example:'整理交付',color:'#7C6AF7'},DONE:{name:'主公验收',role:'终点',model:'-',duty:'验收',trigger:'交付完成',example:'完成'}};
+const WF_VW=1000,WF_VH=920;
+const WF_ND={START:{vx:500,vy:52,vw:148,vh:36,label:'用户指令',shape:'pill'},TIANYIN:{vx:500,vy:148,vw:165,vh:46,label:'天音·总管',shape:'rect'},JUDGE:{vx:500,vy:258,vw:96,vh:96,label:'任务判断',shape:'diamond'},KASUMI:{vx:222,vy:374,vw:148,vh:38,label:'霞柱·调研',shape:'rect'},SHINOBU:{vx:500,vy:374,vw:148,vh:38,label:'忍·拆解',shape:'rect'},YORUICHI:{vx:778,vy:374,vw:158,vh:38,label:'缘一·头脑风暴',shape:'rect',dashed:true},RENGOKU:{vx:200,vy:494,vw:128,vh:46,l1:'炎柱',l2:'写作',shape:'exec'},TANJIRO:{vx:350,vy:494,vw:128,vh:46,l1:'炭治郎',l2:'后端',shape:'exec'},MITSURI:{vx:500,vy:494,vw:128,vh:46,l1:'甘露寺',l2:'前端',shape:'exec'},IGURO:{vx:650,vy:494,vw:128,vh:46,l1:'伊黑',l2:'数据',shape:'exec'},SANEMI:{vx:800,vy:494,vw:128,vh:46,l1:'実弥',l2:'自动化',shape:'exec'},GIYU:{vx:500,vy:598,vw:148,vh:38,label:'义勇·质检',shape:'rect',greenBorder:true},DELIVER:{vx:500,vy:692,vw:165,vh:38,label:'天音·交付',shape:'rect'},DONE:{vx:500,vy:788,vw:148,vh:38,label:'主公验收',shape:'pill',gold:true}};
+const WF_CONN=[['START','TIANYIN'],['TIANYIN','JUDGE'],['JUDGE','KASUMI'],['JUDGE','SHINOBU'],['JUDGE','YORUICHI'],['KASUMI','RENGOKU'],['KASUMI','TANJIRO'],['KASUMI','MITSURI'],['KASUMI','IGURO'],['KASUMI','SANEMI'],['SHINOBU','RENGOKU'],['SHINOBU','TANJIRO'],['SHINOBU','MITSURI'],['SHINOBU','IGURO'],['SHINOBU','SANEMI'],['YORUICHI','RENGOKU'],['YORUICHI','TANJIRO'],['YORUICHI','MITSURI'],['YORUICHI','IGURO'],['YORUICHI','SANEMI'],['RENGOKU','GIYU'],['TANJIRO','GIYU'],['MITSURI','GIYU'],['IGURO','GIYU'],['SANEMI','GIYU'],['GIYU','DELIVER'],['DELIVER','DONE']];
+const WF_TM={normal:{label:'普通任务',steps:[{act:['START'],label:'接收指令',desc:'主公发出指令'},{act:['TIANYIN'],ptcl:[['START','TIANYIN']],label:'天音接收',desc:'分析任务'},{act:['JUDGE'],ptcl:[['TIANYIN','JUDGE']],label:'任务判断',desc:'判断为普通'},{act:['RENGOKU'],ptcl:[['JUDGE','RENGOKU']],judge:'普通任务',label:'单柱执行',desc:'炎柱处理'},{act:['GIYU'],ptcl:[['RENGOKU','GIYU']],label:'质检',desc:'义勇审核'},{act:['DELIVER'],ptcl:[['GIYU','DELIVER']],label:'交付',desc:'整理成果'},{act:['DONE'],ptcl:[['DELIVER','DONE']],label:'验收',desc:'交付'}]},complex:{label:'复杂任务',steps:[{act:['START'],label:'接收指令',desc:'主公发出复杂指令'},{act:['TIANYIN'],ptcl:[['START','TIANYIN']],label:'天音接收',desc:'分析规模'},{act:['JUDGE'],ptcl:[['TIANYIN','JUDGE']],label:'任务判断',desc:'判断为复杂'},{act:['SHINOBU'],ptcl:[['JUDGE','SHINOBU']],judge:'复杂任务',label:'忍拆解',desc:'拆解子任务'},{act:['RENGOKU','TANJIRO','MITSURI','IGURO','SANEMI'],ptcl:[['SHINOBU','RENGOKU'],['SHINOBU','TANJIRO'],['SHINOBU','MITSURI'],['SHINOBU','IGURO'],['SHINOBU','SANEMI']],progress:true,label:'五柱并行',desc:'同步执行'},{act:['GIYU'],ptcl:[['RENGOKU','GIYU'],['TANJIRO','GIYU'],['MITSURI','GIYU'],['IGURO','GIYU'],['SANEMI','GIYU']],label:'汇聚质检',desc:'审核所有输出'},{act:['DELIVER'],ptcl:[['GIYU','DELIVER']],label:'汇总',desc:'整理成果'},{act:['DONE'],ptcl:[['DELIVER','DONE']],label:'验收',desc:'完整交付'}]},new_project:{label:'新项目',steps:[{act:['START'],label:'接收指令',desc:'新项目想法'},{act:['TIANYIN'],ptcl:[['START','TIANYIN']],label:'天音接收',desc:'识别新项目'},{act:['JUDGE'],ptcl:[['TIANYIN','JUDGE']],label:'任务判断',desc:'判断为新项目'},{act:['YORUICHI'],ptcl:[['JUDGE','YORUICHI']],judge:'新项目',label:'缘一战略',desc:'头脑风暴'},{act:['RENGOKU','TANJIRO','MITSURI','IGURO','SANEMI'],ptcl:[['YORUICHI','RENGOKU'],['YORUICHI','TANJIRO'],['YORUICHI','MITSURI'],['YORUICHI','IGURO'],['YORUICHI','SANEMI']],progress:true,label:'全员出动',desc:'并行建设'},{act:['GIYU'],ptcl:[['RENGOKU','GIYU'],['TANJIRO','GIYU'],['MITSURI','GIYU'],['IGURO','GIYU'],['SANEMI','GIYU']],label:'全面质检',desc:'全面审核'},{act:['DELIVER'],ptcl:[['GIYU','DELIVER']],label:'项目交付',desc:'整理完整项目'},{act:['DONE'],ptcl:[['DELIVER','DONE']],label:'验收',desc:'交付'}]}};
 
-/* ─────────────────────────────────────────
-   Telegram 对话动画
-───────────────────────────────────────── */
-const TG_SCENES = [
-  {
-    user: '帮我调研新能源汽车市场',
-    dispatch: '收到，正在派霞柱调研市场数据...',
-    result: '调研报告完成，3个核心结论：\n① 2024年市场规模达到1.2万亿\n② 比亚迪市占率升至35%\n③ 续航焦虑仍是核心痛点',
-    reporter: '霞柱'
-  },
-  {
-    user: '帮我写一封给投资人的邮件',
-    dispatch: '正在召唤炎柱起草商务邮件...',
-    result: '邮件已完成：\n主题：关于 A 轮融资的合作邀请\n正文已包含核心数据和合作亮点，建议发送前确认数字。',
-    reporter: '炎柱'
-  },
-  {
-    user: '帮我分析这份用户数据',
-    dispatch: '数据分析任务交给伊黑处理...',
-    result: '分析完成：\n关键发现：7日留存率低于行业均值12%\n根因：注册后首次使用体验断层\n建议：优化新手引导流程',
-    reporter: '伊黑'
-  },
-  {
-    user: '帮我做一个数据展示网页',
-    dispatch: '炭治郎已接手，正在生成代码...',
-    result: 'React 组件已完成：\n- 响应式数据表格 + 图表\n- 支持筛选和导出\n- 可直接复制部署',
-    reporter: '炭治郎'
-  },
-];
+const wfC=document.getElementById('wfCanvas'),wfX=wfC.getContext('2d'),wfW=document.getElementById('wfCanvasWrap');
+let w_cw=0,w_ch=0,w_dpr=1,w_sc=1,w_nr={},w_p=[],w_mode='complex',w_step=-1,w_st=0,w_sd=1.8,w_an=new Set(),w_dn=new Set(),w_jl='',w_sp=false,w_pv=0,w_pp=0,w_hd=false,w_ht=0,w_ir=false,w_rt=0,w_mv=false,w_lt=null;
 
-let tgScene = 0;
-let tgTimer = null;
+function w_resize(){w_dpr=devicePixelRatio||1;w_cw=wfW.clientWidth;w_ch=wfW.clientHeight;wfC.width=w_cw*w_dpr;wfC.height=w_ch*w_dpr;wfC.style.width=w_cw+'px';wfC.style.height=w_ch+'px';wfX.scale(w_dpr,w_dpr);w_sc=Math.min(w_cw/WF_VW,w_ch/WF_VH);w_cr();}
+function w_vx(x){return(x-WF_VW/2)*w_sc+w_cw/2}function w_vy(y){return y*w_sc+(w_ch-WF_VH*w_sc)/2}function w_vs(v){return v*w_sc}
+function w_cr(){w_nr={};for(const[id,d]of Object.entries(WF_ND))w_nr[id]={x:w_vx(d.vx),y:w_vy(d.vy),w:w_vs(d.vw),h:w_vs(d.vh)};}
+function w_rr(x,y,w,h,r){wfX.beginPath();wfX.moveTo(x+r,y);wfX.lineTo(x+w-r,y);wfX.arcTo(x+w,y,x+w,y+r,r);wfX.lineTo(x+w,y+h-r);wfX.arcTo(x+w,y+h,x+w-r,y+h,r);wfX.lineTo(x+r,y+h);wfX.arcTo(x,y+h,x,y+h-r,r);wfX.lineTo(x,y+r);wfX.arcTo(x,y,x+r,y,r);wfX.closePath();}
+function w_dm(x,y,w,h){wfX.beginPath();wfX.moveTo(x,y-h/2);wfX.lineTo(x+w/2,y);wfX.lineTo(x,y+h/2);wfX.lineTo(x-w/2,y);wfX.closePath();}
+function w_ga(f,t){const a=w_nr[f],b=w_nr[t];return{fx:a.x,fy:a.y+a.h/2,tx:b.x,ty:b.y-b.h/2};}
+function w_db(fx,fy,tx,ty,c,a,lw,da){const cy=(fy+ty)/2;wfX.save();wfX.globalAlpha=a;wfX.strokeStyle=c;wfX.lineWidth=lw;wfX.setLineDash(da?[w_vs(4),w_vs(5)]:[]);wfX.beginPath();wfX.moveTo(fx,fy);wfX.bezierCurveTo(fx,cy,tx,cy,tx,ty);wfX.stroke();wfX.restore();}
+function w_bz(p0x,p0y,p1x,p1y,p2x,p2y,p3x,p3y,t){const u=1-t;return{x:u*u*u*p0x+3*u*u*t*p1x+3*u*t*t*p2x+t*t*t*p3x,y:u*u*u*p0y+3*u*u*t*p1y+3*u*t*t*p2y+t*t*t*p3y};}
+function w_pp2(f,t,tt){const{fx,fy,tx,ty}=w_ga(f,t);const cy=(fy+ty)/2;return w_bz(fx,fy,fx,cy,tx,cy,tx,ty,tt);}
+function w_gc(id){const m=WF_M[id];return m&&m.color?m.color:'#7C6AF7';}
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+class WP{constructor(f,t,d=0){this.from=f;this.to=t;this.t=0;this.delay=d;this.speed=0.7+Math.random()*0.3;this.done=false;this.color=w_gc(t);this.size=w_vs(2.2)+Math.random()*w_vs(1);this.trail=[];}
+update(dt){if(this.delay>0){this.delay-=dt;return;}this.t=Math.min(1,this.t+this.speed*dt);const pt=w_pp2(this.from,this.to,this.t);this.trail.unshift(pt);if(this.trail.length>10)this.trail.pop();if(this.t>=1)this.done=true;}
+draw(){if(this.delay>0)return;const pt=w_pp2(this.from,this.to,this.t);for(let i=0;i<this.trail.length;i++){const a=(1-i/this.trail.length)*0.35;wfX.save();wfX.globalAlpha=a;wfX.fillStyle=this.color;wfX.shadowColor=this.color;wfX.shadowBlur=w_vs(4);wfX.beginPath();wfX.arc(this.trail[i].x,this.trail[i].y,this.size*(1-i/this.trail.length)*0.7,0,Math.PI*2);wfX.fill();wfX.restore();}wfX.save();wfX.fillStyle='#fff';wfX.shadowColor=this.color;wfX.shadowBlur=w_vs(8);wfX.beginPath();wfX.arc(pt.x,pt.y,this.size,0,Math.PI*2);wfX.fill();wfX.restore();}}
 
-function addMsg(container, type, text, label) {
-  const el = document.createElement('div');
-  el.className = `tg-msg ${type}`;
-  if (label) el.innerHTML = `<div class="msg-label">${label}</div>`;
-  el.innerHTML += text.replace(/\n/g, '<br>');
-  container.appendChild(el);
-  container.scrollTop = container.scrollHeight;
-  return el;
-}
+function w_sp2(pairs,stg=0){for(let i=0;i<pairs.length;i++){const[f,t]=pairs[i];for(let k=0;k<3;k++)w_p.push(new WP(f,t,i*stg+k*0.18));}}
+function w_dn2(id,state,jl){const d=WF_ND[id],r=w_nr[id];if(!r)return;const x=r.x,y=r.y,w=r.w,h=r.h;const mc=w_gc(id);let fc='#0f0f1a',bc='#252540',tc='#555',gc=null,bw=1,gs=0;
+if(state==='active'){fc='#13132a';bc=mc;tc='#fff';gc=mc;gs=w_vs(12);bw=1.5;}else if(state==='done'){fc='#111120';bc=mc+'88';tc='#aaa';}
+if(d.greenBorder){bc=state==='idle'?'#1a3a2a':'#4ecdc4';if(state==='active')gc='#4ecdc4';}
+if(d.gold&&state==='active'){bc='#C8A96E';gc='#C8A96E';}
+if(id==='START'&&state==='active'){bc='#C8A96E';gc='#C8A96E';}
+wfX.save();if(gc&&gs>0){wfX.shadowColor=gc;wfX.shadowBlur=gs;}
+if(d.shape==='pill')w_rr(x-w/2,y-h/2,w,h,h/2);else if(d.shape==='diamond')w_dm(x,y,w,h);else w_rr(x-w/2,y-h/2,w,h,w_vs(7));
+wfX.fillStyle=fc;wfX.fill();wfX.strokeStyle=bc;wfX.lineWidth=bw*w_sc;wfX.setLineDash(d.dashed?[w_vs(5),w_vs(4)]:[]);wfX.stroke();wfX.setLineDash([]);wfX.shadowBlur=0;wfX.fillStyle=tc;
+if(d.shape==='diamond'){wfX.font=`${w_vs(11)}px Inter`;wfX.textAlign='center';wfX.textBaseline='middle';wfX.fillText(d.label,x,y-w_vs(2));if(jl){wfX.font=`500 ${w_vs(9.5)}px Inter`;wfX.fillStyle=state==='active'?'#C8A96E':'#555';wfX.fillText(jl,x,y+w_vs(10));}}
+else if(d.shape==='exec'){wfX.font=`500 ${w_vs(12)}px Inter`;wfX.textAlign='center';wfX.textBaseline='middle';wfX.fillText(d.l1,x,y-w_vs(5));wfX.font=`${w_vs(9.5)}px Inter`;wfX.fillStyle=state==='active'?'#C8A96E':(state==='idle'?'#3a3a55':'#888');wfX.fillText(d.l2,x,y+w_vs(7));}
+else{wfX.font=`${w_vs(12)}px Inter`;if(id==='TIANYIN'||id==='DELIVER')wfX.font=`500 ${w_vs(12.5)}px Inter`;wfX.textAlign='center';wfX.textBaseline='middle';wfX.fillText(d.label,x,y);}wfX.restore();}
 
-function addTyping(container) {
-  const el = document.createElement('div');
-  el.className = 'tg-typing';
-  el.innerHTML = '<span></span><span></span><span></span>';
-  container.appendChild(el);
-  container.scrollTop = container.scrollHeight;
-  return el;
-}
+function w_gns(id){if(w_ir)return'idle';if(w_an.has(id))return'active';if(w_dn.has(id))return w_hd?'active':'done';return'idle';}
+function w_bsl(){const st=WF_TM[w_mode].steps;document.getElementById('wfStepList').innerHTML=st.map((s,i)=>`<li class="wf-step-item"><div class="wf-step-dot" id="ws${i}"></div><div><div class="wf-step-label" id="wl${i}">${s.label}</div><div class="wf-step-desc" id="wd${i}">${s.desc}</div></div></li>`).join('');}
+function w_usl(){const st=WF_TM[w_mode].steps;for(let i=0;i<st.length;i++){const dot=document.getElementById('ws'+i),l=document.getElementById('wl'+i),d=document.getElementById('wd'+i);if(!dot)continue;dot.className='wf-step-dot'+(i===w_step?' active':(i<w_step?' done':''));l.className='wf-step-label'+(i===w_step?' active':'');d.className='wf-step-desc'+(i===w_step?' active':'');}}
+function w_adv(){const st=WF_TM[w_mode].steps;for(const n of w_an)w_dn.add(n);w_an.clear();w_step++;if(w_step>=st.length){w_hd=true;w_ht=2.2;return;}const s=st[w_step];for(const n of s.act)w_an.add(n);if(s.judge)w_jl=s.judge;if(s.ptcl)w_sp2(s.ptcl,0.08);if(s.progress){w_sp=true;w_pp=0;w_pv=0;}w_st=w_sd+(s.progress?1.5:0);w_usl();}
+function w_sm(m){w_mode=m;w_step=-1;w_an=new Set();w_dn=new Set();w_jl='';w_sp=false;w_pv=0;w_pp=0;w_hd=false;w_ht=0;w_ir=false;w_rt=0;w_p=[];w_st=0;w_bsl();w_adv();}
+function w_render(ts){if(!w_lt)w_lt=ts;const dt=Math.min((ts-w_lt)/1000,0.1);w_lt=ts;wfX.clearRect(0,0,w_cw,w_ch);
+for(const[f,t]of WF_CONN){const{fx,fy,tx,ty}=w_ga(f,t);const ia=(w_an.has(f)||w_dn.has(f))&&(w_an.has(t)||w_dn.has(t));const id=WF_ND[t]&&WF_ND[t].dashed;if(ia&&!w_ir)w_db(fx,fy,tx,ty,w_gc(t),0.85,w_sc*2.5,id);else w_db(fx,fy,tx,ty,'#4a4a6a',w_ir?0.08:0.35,w_sc*1.2,id);}
+w_p.forEach(p=>p.update(dt));w_p=w_p.filter(p=>!p.done);w_p.forEach(p=>p.draw());
+const jl=(w_an.has('JUDGE')||w_dn.has('JUDGE'))?w_jl:'';for(const id of Object.keys(WF_ND))w_dn2(id,w_gns(id),id==='JUDGE'?jl:null);
+if(w_ir){w_rt-=dt;if(w_rt<=0){w_ir=false;w_an=new Set();w_dn=new Set();w_jl='';w_sp=false;w_pv=0;w_hd=false;w_p=[];w_step=-1;w_bsl();setTimeout(()=>w_adv(),400);}}
+else if(w_hd){w_ht-=dt;if(w_ht<=0){w_ir=true;w_rt=0.6;}}
+else{w_st-=dt;if(w_st<=0)w_adv();if(w_sp){const ph=[30,60,90,100];const pt=ph[Math.min(w_pp,3)];if(w_pv<pt)w_pv=Math.min(pt,w_pv+dt*28);else if(w_pp<3)w_pp++;document.getElementById('wfProgFill').style.width=w_pv+'%';document.getElementById('wfProgLabel').textContent='执行中... '+Math.round(w_pv)+'%';document.getElementById('wfProgWrap').classList.add('show');}else document.getElementById('wfProgWrap').classList.remove('show');}
+requestAnimationFrame(w_render);}
 
-async function typeMsg(container, type, text, label, speed = 25) {
-  const t = addTyping(container);
-  await sleep(700);
-  t.remove();
-  const el = document.createElement('div');
-  el.className = `tg-msg ${type}`;
-  if (label) el.innerHTML = `<div class="msg-label">${label}</div>`;
-  container.appendChild(el);
-  container.scrollTop = container.scrollHeight;
+function w_showMem(id){const m=WF_M[id];if(!m)return;w_mv=true;document.getElementById('wfStepPanel').style.display='none';const mp=document.getElementById('wfMemberPanel');mp.style.display='block';mp.className='wf-member-panel show';const c=m.color||'#7C6AF7';document.getElementById('wfMAvatar').style.background=`linear-gradient(135deg,${c}55,${c}22)`;document.getElementById('wfMName').textContent=m.name;document.getElementById('wfMRole').textContent=m.role;document.getElementById('wfMDuty').textContent=m.duty;document.getElementById('wfMTrigger').textContent=m.trigger;document.getElementById('wfMExample').textContent=m.example;}
+document.getElementById('wfBackBtn').addEventListener('click',()=>{w_mv=false;document.getElementById('wfStepPanel').style.display='';document.getElementById('wfMemberPanel').style.display='none';});
 
-  const lines = text.split('\n');
-  let html = '';
-  for (let i = 0; i < lines.length; i++) {
-    for (const ch of lines[i]) {
-      html += ch;
-      el.innerHTML = (label ? `<div class="msg-label">${label}</div>` : '') + html;
-      container.scrollTop = container.scrollHeight;
-      await sleep(speed);
-    }
-    if (i < lines.length - 1) {
-      html += '<br>';
-      el.innerHTML = (label ? `<div class="msg-label">${label}</div>` : '') + html;
-      await sleep(speed * 2);
-    }
-  }
-  return el;
-}
+function w_cxy(e){const r=wfC.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
+function w_ht2(px,py){for(const[id,d]of Object.entries(WF_ND)){const r=w_nr[id];if(!r)continue;if(d.shape==='diamond'){if(Math.abs(px-r.x)/(r.w/2)+Math.abs(py-r.y)/(r.h/2)<=1)return id;}else{if(px>=r.x-r.w/2&&px<=r.x+r.w/2&&py>=r.y-r.h/2&&py<=r.y+r.h/2)return id;}}return null;}
+wfC.addEventListener('click',e=>{const{x,y}=w_cxy(e);const h=w_ht2(x,y);if(h)w_showMem(h);});
+const wfTT=document.getElementById('wfTooltip');
+wfC.addEventListener('mousemove',e=>{const{x,y}=w_cxy(e);const h=w_ht2(x,y);if(h){wfC.style.cursor='pointer';wfTT.textContent=(WF_M[h]?WF_M[h].name:h)+' · 点击查看';wfTT.style.left=x+'px';wfTT.style.top=y+'px';wfTT.style.opacity='1';}else{wfC.style.cursor='default';wfTT.style.opacity='0';}});
+wfC.addEventListener('mouseleave',()=>wfTT.style.opacity='0');
+wfC.addEventListener('touchstart',e=>{e.preventDefault();const{x,y}=w_cxy(e);const h=w_ht2(x,y);if(h)w_showMem(h);},{passive:false});
+document.querySelectorAll('#workflow .wf-tab').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('#workflow .wf-tab').forEach(t=>t.classList.remove('active'));b.classList.add('active');if(w_mv){w_mv=false;document.getElementById('wfStepPanel').style.display='';document.getElementById('wfMemberPanel').style.display='none';}w_sm(b.dataset.mode);});});
 
-async function runTgScene() {
-  const container = document.getElementById('tg-messages');
-  const scene = TG_SCENES[tgScene % TG_SCENES.length];
+// ═══ MEMORY ═══
+const m_s=ms=>new Promise(r=>setTimeout(r,ms));
+const m_cl=[{role:'user',text:'记住，我们公司偏好简洁风格的方案'},{role:'bot',text:'好的，已记录'},{role:'user',text:'帮我写一份方案'},{role:'bot',text:'（调用记忆中...）会按简洁风格来写...'}];
+async function m_write(){const fc=document.getElementById('memFsContent'),fp=document.getElementById('memFsPrefs'),fb=document.getElementById('memPrefsBadge'),cb=document.getElementById('memChatBubbles');
+while(true){cb.innerHTML='';fc.innerHTML='<span style="color:var(--text-dim);font-size:10px">等待写入...</span>';fp.classList.remove('writing','active');fb.classList.remove('show');
+for(let i=0;i<m_cl.length;i++){const l=m_cl[i];const b=document.createElement('div');b.className='mem-bubble '+l.role;if(l.role==='bot'){const n=document.createElement('div');n.className='mem-bot-name';n.textContent='天音';b.appendChild(n);}const tx=document.createElement('span');b.appendChild(tx);cb.appendChild(b);await m_s(200);b.classList.add('visible');tx.textContent='';for(let c=0;c<l.text.length;c++){tx.textContent+=l.text[c];await m_s(18);}
+if(i===0){await m_s(400);fp.classList.add('writing');await m_s(600);fp.classList.remove('writing');fp.classList.add('active');fc.innerHTML='';const ls=['# <span class="key">用户偏好</span>','- 风格：<span class="val">简洁</span>','<span style="font-size:9px;color:var(--text-dim)">更新：2026-03-17</span>'];for(const ln of ls){const r=document.createElement('div');r.innerHTML=ln;fc.appendChild(r);await m_s(200);}}
+if(i===2){await m_s(300);fb.classList.add('show');}await m_s(i===m_cl.length-1?2000:1600);}await m_s(2000);}}
 
-  // 清空
-  container.innerHTML = '';
-  await sleep(400);
+const m_rc=document.getElementById('memRagCanvas'),m_rx=m_rc.getContext('2d');let m_rp=[];
+function m_rsz(){const r=m_rc.parentElement.getBoundingClientRect();m_rc.width=r.width;m_rc.height=r.height;}
+function m_ar(){m_rp.push({r:0,max:Math.min(m_rc.width,m_rc.height)*.45,alpha:.7});}
+function m_dr(){m_rx.clearRect(0,0,m_rc.width,m_rc.height);const cx=m_rc.width/2,cy=m_rc.height/2;m_rx.beginPath();m_rx.arc(cx,cy,5,0,Math.PI*2);m_rx.fillStyle='#7C6AF7';m_rx.shadowColor='#7C6AF7';m_rx.shadowBlur=10;m_rx.fill();m_rx.shadowBlur=0;m_rp=m_rp.filter(r=>r.alpha>0.01);for(const r of m_rp){m_rx.beginPath();m_rx.arc(cx,cy,r.r,0,Math.PI*2);m_rx.strokeStyle=`rgba(124,106,247,${r.alpha})`;m_rx.lineWidth=1.5;m_rx.stroke();r.r+=1.2;r.alpha*=.97;}requestAnimationFrame(m_dr);}
 
-  // 用户消息
-  addMsg(container, 'user', scene.user);
-  await sleep(800);
+async function m_rag(){m_rsz();m_rp=[];m_dr();const qe=document.getElementById('memRagQuery'),se=document.getElementById('memRagStatus'),ae=document.getElementById('memRagAnswerText');const ds=['memDoc1','memDoc2','memDoc3'],fs=['memFill1','memFill2','memFill3'],ps=[94,87,82];const QT='上次那个项目用什么技术栈来着？',AT='根据项目记录，Deltapex 使用 Next.js + FastAPI，数据库 Supabase，部署在 Vercel + Railway。';
+while(true){qe.textContent='';se.style.opacity='1';se.textContent='向量检索中...';ae.textContent='';m_rp=[];for(const d of ds)document.getElementById(d).classList.remove('show');for(const f of fs)document.getElementById(f).style.width='0%';
+for(let c=0;c<QT.length;c++){qe.textContent=QT.slice(0,c+1);await m_s(20);}await m_s(600);se.textContent='语义向量搜索中...';for(let i=0;i<6;i++){await m_s(180);m_ar();}await m_s(1400);se.textContent='找到 3 条相关记忆';for(let i=0;i<ds.length;i++){document.getElementById(ds[i]).classList.add('show');await m_s(300);document.getElementById(fs[i]).style.width=ps[i]+'%';await m_s(350);}await m_s(800);se.style.opacity='0';for(let c=0;c<AT.length;c++){ae.textContent=AT.slice(0,c+1);await m_s(19);}await m_s(2800);}}
 
-  // 天音回复 dispatch
-  await typeMsg(container, 'bot', scene.dispatch, '天音', 30);
-  await sleep(1000);
+async function m_plain(){const s1=document.getElementById('memPlainS1'),s2=document.getElementById('memPlainS2'),w=document.getElementById('memPlainWarn');while(true){s1.style.opacity='1';s1.style.transform='translateY(0)';s2.style.opacity='0';s2.style.transform='translateY(20px)';w.style.opacity='0';await m_s(2200);s1.style.transition='opacity .8s,transform .8s';s1.style.opacity='0';s1.style.transform='translateY(-16px)';w.style.opacity='1';await m_s(1000);s2.style.transition='opacity .6s,transform .6s';s2.style.opacity='1';s2.style.transform='translateY(0)';await m_s(2400);s2.style.opacity='0';w.style.opacity='0';await m_s(600);s1.style.transition='none';s2.style.transition='none';}}
+async function m_hive(){const s1=document.getElementById('memHiveS1'),s2=document.getElementById('memHiveS2'),dots=[1,2,3,4,5].map(i=>document.getElementById('memMd'+i));while(true){s1.style.opacity='1';s1.style.transform='translateY(0)';s2.style.opacity='0';s2.style.transform='translateY(20px)';dots.forEach(d=>d.classList.remove('lit'));await m_s(2000);s1.style.transition='opacity .7s,transform .7s';s1.style.opacity='0.2';s1.style.transform='translateY(60px) scale(.85)';for(let i=0;i<dots.length;i++){await m_s(160);dots[i].classList.add('lit');}s1.style.opacity='0';await m_s(400);s2.style.transition='opacity .6s,transform .6s';s2.style.opacity='1';s2.style.transform='translateY(0)';await m_s(2600);s2.style.opacity='0';await m_s(600);s1.style.transition='none';s2.style.transition='none';}}
 
-  // 结果
-  await typeMsg(container, 'report', scene.result, scene.reporter, 20);
-  await sleep(3500);
+// ═══ SKILLS ═══
+const sk_DELAY=1700;let sk_step=-1,sk_playing=false,sk_timer=null;
+const sk_nodes=()=>Array.from(document.querySelectorAll('#skills .skill-flow-node'));
+const sk_conns=()=>Array.from(document.querySelectorAll('#skills .skill-connector'));
+function sk_set(i){sk_nodes().forEach((n,idx)=>{n.classList.remove('active','done','visible');if(idx<i)n.classList.add('done','visible');else if(idx===i)n.classList.add('active','visible');});sk_conns().forEach((c,idx)=>{const p=c.querySelector('.skill-particle');if(idx<i){c.classList.add('active');p.style.display='block';}else{c.classList.remove('active');p.style.display='none';}});}
+function sk_next(){if(!sk_playing)return;sk_step++;if(sk_step>sk_nodes().length-1){sk_playing=false;return;}sk_set(sk_step);sk_timer=setTimeout(sk_next,sk_DELAY);}
+function sk_start(){if(sk_timer)clearTimeout(sk_timer);sk_playing=false;sk_step=-1;sk_nodes().forEach(n=>n.classList.remove('active','done','visible'));sk_conns().forEach(c=>{c.classList.remove('active');c.querySelector('.skill-particle').style.display='none';});setTimeout(()=>{sk_playing=true;sk_next();},300);}
+document.getElementById('skillReplayBtn').addEventListener('click',sk_start);
+const sk_obs=new IntersectionObserver(e=>{if(e[0].isIntersecting&&sk_step===-1)setTimeout(sk_start,500);},{threshold:.3});
+sk_obs.observe(document.querySelector('.skill-flow-canvas'));
 
-  tgScene++;
-  runTgScene();
-}
+document.querySelectorAll('#skills .sk-card').forEach(c=>{c.addEventListener('click',()=>{const sk=c.dataset.skill;document.querySelectorAll('#skills .sk-card').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');document.getElementById('skillDetailEmpty').style.display='none';document.querySelectorAll('#skills .sk-detail-content').forEach(d=>{d.dataset.detail===sk?d.classList.add('visible'):d.classList.remove('visible');});const has=Array.from(document.querySelectorAll('#skills .sk-detail-content')).some(d=>d.dataset.detail===sk&&d.classList.contains('visible'));if(!has)document.getElementById('skillDetailEmpty').style.display='';});});
+document.querySelector('[data-skill="deep-research"]').click();
 
-/* ─────────────────────────────────────────
-   工作流 Canvas 动画
-───────────────────────────────────────── */
-function initWorkflowCanvas() {
-  const canvas = document.getElementById('workflow-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+function sk_animCount(el){const t=parseInt(el.dataset.target);let c=0;const s=Math.ceil(t/25);const iv=setInterval(()=>{c=Math.min(c+s,t);el.textContent=c;if(c>=t)clearInterval(iv);},60);}
+const sk_cObs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.querySelectorAll('.skill-count-up').forEach(sk_animCount);sk_cObs.unobserve(en.target);}});},{threshold:.5});
+document.querySelectorAll('.skill-extend-card').forEach(c=>sk_cObs.observe(c));
 
-  const NODE_LABELS = ['用户', '天音', '霞柱', '忍', '炎柱', '炭治郎', '伊黑', '义勇', '交付'];
-  const NODE_COUNT = NODE_LABELS.length;
+// ═══ EVOLUTION ═══
+const evo_html=['忍发现主公偏好简洁排版\n<span class="arrow">→ SOUL.md 写作规则已更新</span>','义勇审查发现邮件格式不一致\n<span class="arrow">→ 炎柱邮件模板已修正</span>','主公反馈数据分析太技术性\n<span class="arrow">→ 伊黑调整为「小白友好」风格</span>','安装新 Skill：deep-research-pro v2.1\n<span class="arrow">→ 调研能力提升 40%</span>','记忆系统扩容：新增 Deltapex 上下文\n<span class="arrow">→ 相关任务准确率提升</span>'];
+const evo_plain=['忍发现主公偏好简洁排版\n→ SOUL.md 写作规则已更新','义勇审查发现邮件格式不一致\n→ 炎柱邮件模板已修正','主公反馈数据分析太技术性\n→ 伊黑调整为「小白友好」风格','安装新 Skill：deep-research-pro v2.1\n→ 调研能力提升 40%','记忆系统扩容：新增 Deltapex 上下文\n→ 相关任务准确率提升'];
+function evo_tw(el,h,p){let i=0;function t(){if(i>=p.length){el.innerHTML=h;return;}el.textContent=p.slice(0,i+1);i++;setTimeout(t,30);}t();}
+let evo_started=false;
+const evo_obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting&&!evo_started){evo_started=true;for(let i=0;i<5;i++)setTimeout(()=>{const it=document.getElementById('evoTl'+i);if(it){it.classList.add('visible');const b=document.getElementById('evoBody'+i);if(b)evo_tw(b,evo_html[i],evo_plain[i]);}},i*2000);}});},{threshold:.15});
+evo_obs.observe(document.getElementById('evoTimeline'));
 
-  function resize() {
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  }
-  resize();
-  window.addEventListener('resize', resize);
+// Evolution loop canvas
+(function(){const cv=document.getElementById('evoLoopCanvas');if(!cv)return;function rsz(){const w=cv.parentElement.clientWidth;cv.width=w;cv.height=w;}rsz();window.addEventListener('resize',rsz);const cx=cv.getContext('2d');const nd=[{l:'执行任务',c:'#7C6AF7'},{l:'收集反馈',c:'#60a5fa'},{l:'总结教训',c:'#22d3ee'},{l:'更新规则',c:'#C8A96E'},{l:'更好执行',c:'#4ade80'}];const N=nd.length;const pt=[];for(let i=0;i<18;i++)pt.push({t:Math.random(),s:.0018+Math.random()*.0012});let an=0,ns=0;
+function gp(i,r){const a=(i/N)*Math.PI*2-Math.PI/2;return{x:cv.width/2+Math.cos(a)*r,y:cv.height/2+Math.sin(a)*r};}
+function gpp(t){const r=cv.width*.34;const sg=t*N;const si=Math.floor(sg)%N;const sf=sg-Math.floor(sg);const f=gp(si,r),to=gp((si+1)%N,r);const mx=(f.x+to.x)/2,my=(f.y+to.y)/2;const ctrl={x:mx+(cv.width/2-mx)*.18,y:my+(cv.height/2-my)*.18};const u=sf;return{x:(1-u)*(1-u)*f.x+2*(1-u)*u*ctrl.x+u*u*to.x,y:(1-u)*(1-u)*f.y+2*(1-u)*u*ctrl.y+u*u*to.y};}
+function draw(){const W=cv.width,H=cv.height;cx.clearRect(0,0,W,H);const R=W*.34;cx.save();cx.beginPath();for(let i=0;i<=N*60;i++){const p=gpp(i/(N*60));i===0?cx.moveTo(p.x,p.y):cx.lineTo(p.x,p.y);}cx.closePath();cx.strokeStyle='rgba(124,106,247,.18)';cx.lineWidth=1.5;cx.stroke();cx.restore();
+pt.forEach(p=>{p.t=(p.t+p.s)%1;const pos=gpp(p.t);const ni=Math.floor(p.t*N)%N;cx.save();cx.beginPath();cx.arc(pos.x,pos.y,3,0,Math.PI*2);cx.fillStyle=nd[ni].c;cx.globalAlpha=.5+.5*Math.sin(p.t*Math.PI*10);cx.shadowColor=nd[ni].c;cx.shadowBlur=8;cx.fill();cx.restore();});
+ns++;if(ns>=110){ns=0;an=(an+1)%N;}
+for(let i=0;i<N;i++){const pos=gp(i,R);const ia=i===an;const c=nd[i].c;const nr=ia?W*.065:W*.055;
+if(ia){const g=cx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,nr*2.2);g.addColorStop(0,c+'33');g.addColorStop(1,'transparent');cx.beginPath();cx.arc(pos.x,pos.y,nr*2.2,0,Math.PI*2);cx.fillStyle=g;cx.fill();}
+cx.beginPath();cx.arc(pos.x,pos.y,nr,0,Math.PI*2);cx.fillStyle=ia?c+'22':'#141414';cx.strokeStyle=ia?c:'rgba(124,106,247,.3)';cx.lineWidth=ia?2:1;cx.fill();cx.stroke();
+cx.save();cx.fillStyle=ia?c:'rgba(239,239,239,.55)';cx.font=`${ia?600:400} ${W*.028}px Inter,sans-serif`;cx.textAlign='center';cx.textBaseline='middle';cx.fillText(nd[i].l,pos.x,pos.y);cx.restore();}
+cx.save();cx.font=`600 ${W*.026}px Inter`;cx.fillStyle='rgba(239,239,239,.25)';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('持续进化',W/2,H/2-10);cx.font=`${W*.021}px Inter`;cx.fillStyle='rgba(139,139,160,.35)';cx.fillText('SELF-LOOP',W/2,H/2+14);cx.restore();requestAnimationFrame(draw);}draw();})();
 
-  const BRAND = '#7C6AF7';
-  const GOLD = '#C8A96E';
-  const MUTED = '#333';
-  const BG = '#141414';
+const evo_cObs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.querySelectorAll('.evo-metric-fill').forEach(b=>b.style.width=b.dataset.target+'%');evo_cObs.unobserve(en.target);}});},{threshold:.3});
+document.querySelectorAll('.evo-compare-card').forEach(c=>evo_cObs.observe(c));
 
-  let progress = 0; // 0..1 across all segments
-  const SPEED = 0.004;
+// ═══ GUIDE ═══
+document.querySelectorAll('#guide .guide-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('#guide .guide-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelectorAll('#guide .guide-template').forEach(x=>x.classList.remove('active'));document.querySelector(`[data-template="${t.dataset.tab}"]`).classList.add('active');});});
+function copyTemplate(b){const t=b.parentElement.querySelector('.guide-template-text').textContent;navigator.clipboard.writeText(t).then(()=>{b.textContent='已复制';setTimeout(()=>b.textContent='复制',1500);});}
+function toggleFaq(b){b.parentElement.classList.toggle('open');}
 
-  function getNodes() {
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    const pad = 40;
-    const spacing = (w - pad * 2) / (NODE_COUNT - 1);
-    return NODE_LABELS.map((lbl, i) => ({
-      x: pad + i * spacing,
-      y: h / 2,
-      label: lbl,
-    }));
-  }
-
-  function draw() {
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    ctx.clearRect(0, 0, w, h);
-
-    const nodes = getNodes();
-    const totalSeg = NODE_COUNT - 1;
-    const activeSeg = Math.floor(progress * totalSeg);
-    const segProgress = (progress * totalSeg) % 1;
-
-    // 连线
-    for (let i = 0; i < totalSeg; i++) {
-      const a = nodes[i], b = nodes[i + 1];
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.strokeStyle = i < activeSeg ? BRAND : MUTED;
-      ctx.lineWidth = i < activeSeg ? 2 : 1;
-      ctx.setLineDash([]);
-      ctx.stroke();
-    }
-
-    // 流动光点
-    if (activeSeg < totalSeg) {
-      const a = nodes[activeSeg], b = nodes[activeSeg + 1];
-      const px = a.x + (b.x - a.x) * segProgress;
-      const py = a.y + (b.y - a.y) * segProgress;
-
-      // 光晕
-      const grad = ctx.createRadialGradient(px, py, 0, px, py, 14);
-      grad.addColorStop(0, 'rgba(124,106,247,.7)');
-      grad.addColorStop(1, 'rgba(124,106,247,0)');
-      ctx.beginPath();
-      ctx.arc(px, py, 14, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(px, py, 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-    }
-
-    // 节点
-    nodes.forEach((n, i) => {
-      const isLast = i === NODE_COUNT - 1;
-      const isActive = i <= activeSeg;
-      const r = 22;
-
-      // 外光圈
-      if (isActive) {
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, r + 5, 0, Math.PI * 2);
-        ctx.fillStyle = isLast ? 'rgba(200,169,110,.15)' : 'rgba(124,106,247,.15)';
-        ctx.fill();
-      }
-
-      // 圆
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = isActive ? (isLast ? GOLD : BRAND) : BG;
-      ctx.strokeStyle = isActive ? (isLast ? GOLD : BRAND) : '#333';
-      ctx.lineWidth = 1.5;
-      ctx.fill();
-      ctx.stroke();
-
-      // 文字标签
-      ctx.fillStyle = isActive ? '#fff' : '#666';
-      ctx.font = `${isActive ? '600' : '400'} 11px Inter, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText(n.label, n.x, n.y + 4);
-
-      // 下方标签
-      ctx.fillStyle = isActive ? (isLast ? GOLD : BRAND) : '#444';
-      ctx.font = '10px Inter, sans-serif';
-      ctx.fillText(i === 0 ? '发起' : i === NODE_COUNT - 1 ? '完成' : '', n.x, n.y + r + 16);
-    });
-
-    // 更新 node chips
-    const chips = document.querySelectorAll('[data-node]');
-    chips.forEach(c => {
-      const idx = parseInt(c.dataset.node);
-      c.classList.toggle('lit', idx <= activeSeg && !c.classList.contains('gold'));
-    });
-
-    progress += SPEED;
-    if (progress >= 1) progress = 0;
-
-    requestAnimationFrame(draw);
-  }
-
-  draw();
-}
-
-/* ─────────────────────────────────────────
-   Memory 文件系统动画
-───────────────────────────────────────── */
-function initMemoryAnimation() {
-  const items = document.querySelectorAll('.fs-item');
-  const log = document.getElementById('memory-log');
-  const files = Array.from(items);
-  let idx = 0;
-
-  function writeNext() {
-    if (idx > 0) {
-      files[idx - 1].classList.remove('writing');
-      files[idx - 1].querySelector('.fs-status').textContent = '已写入';
-      files[idx - 1].querySelector('.fs-status').className = 'fs-status active';
-    }
-    if (idx >= files.length) {
-      idx = 0;
-      setTimeout(() => {
-        files.forEach(f => {
-          f.classList.remove('writing');
-          f.querySelector('.fs-status').textContent = '等待写入';
-          f.querySelector('.fs-status').className = 'fs-status';
-        });
-        log.innerHTML = '<span style="color:var(--brand)">&gt;</span> 等待对话...';
-        setTimeout(writeNext, 800);
-      }, 2000);
-      return;
-    }
-    const file = files[idx];
-    file.classList.add('writing');
-    const name = file.dataset.file;
-    log.innerHTML = `<span style="color:var(--brand)">&gt;</span> 写入 <span style="color:#7C6AF7">${name}</span>...`;
-    idx++;
-    setTimeout(writeNext, 900);
-  }
-
-  setTimeout(writeNext, 1500);
-}
-
-/* ─────────────────────────────────────────
-   团队卡片
-───────────────────────────────────────── */
-function initTeam() {
-  const grid = document.querySelector('.team-grid');
-  if (!grid) return;
-  MEMBERS.forEach(m => {
-    grid.innerHTML += `
-    <div class="member-card">
-      <div class="member-card-inner">
-        <div class="member-front">
-          <div class="member-icon">${m.code}</div>
-          <div class="member-name">${m.name}</div>
-          <div class="member-role">${m.role}</div>
-        </div>
-        <div class="member-back">
-          <h4>${m.name} · ${m.role}</h4>
-          <p>${m.desc}</p>
-        </div>
-      </div>
-    </div>`;
-  });
-}
-
-/* ─────────────────────────────────────────
-   Skills
-───────────────────────────────────────── */
-function initSkills() {
-  const list = document.getElementById('skill-list');
-  const detail = document.getElementById('skill-detail');
-  if (!list || !detail) return;
-
-  SKILLS.forEach((s, i) => {
-    list.innerHTML += `
-    <div class="skill-item ${i===0?'active':''}" data-skill="${s.id}" onclick="selectSkill('${s.id}')">
-      <div class="skill-dot"></div>
-      <div class="skill-info">
-        <h5>${s.name}</h5>
-        <p>${s.desc}</p>
-      </div>
-      <span class="skill-badge installed">已安装</span>
-    </div>`;
-  });
-
-  showSkillDetail(SKILLS[0]);
-}
-
-function selectSkill(id) {
-  document.querySelectorAll('.skill-item').forEach(el => el.classList.remove('active'));
-  document.querySelector(`[data-skill="${id}"]`).classList.add('active');
-  showSkillDetail(SKILLS.find(s => s.id === id));
-}
-
-function showSkillDetail(s) {
-  const detail = document.getElementById('skill-detail');
-  detail.innerHTML = `
-    <h4>${s.name}</h4>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">${s.desc}</p>
-    <div class="detail-label">上次使用场景</div>
-    <div class="detail-scene">${s.scene}</div>
-    <div style="margin-top:20px;display:flex;gap:10px">
-      <span style="font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(76,175,80,.1);color:#4CAF50;border:1px solid rgba(76,175,80,.25)">已安装</span>
-      <span style="font-size:11px;padding:4px 10px;border-radius:6px;background:var(--brand-dim);color:var(--brand);border:1px solid rgba(124,106,247,.3)">v2.1.0</span>
-    </div>`;
-}
-
-/* ─────────────────────────────────────────
-   进化时间线
-───────────────────────────────────────── */
-function initEvolution() {
-  const container = document.getElementById('evo-timeline');
-  if (!container) return;
-  EVO_ITEMS.forEach((item, i) => {
-    container.innerHTML += `
-    <div class="evo-item fade-up" style="transition-delay:${i * 0.12}s">
-      <div class="evo-dot">${item.who[0]}</div>
-      <div class="evo-content">
-        <div class="evo-time">${item.time}</div>
-        <div class="evo-text">${item.text}</div>
-      </div>
-    </div>`;
-  });
-  // 触发进化时间线的入场
-  setTimeout(() => {
-    document.querySelectorAll('.evo-item').forEach(el => {
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) { el.classList.add('visible'); el.classList.add('lit'); } });
-      }, { threshold: .3 });
-      obs.observe(el);
-    });
-  }, 100);
-}
-
-/* ─────────────────────────────────────────
-   FAQ
-───────────────────────────────────────── */
-function initFAQ() {
-  const list = document.getElementById('faq-list');
-  if (!list) return;
-  FAQS.forEach(f => {
-    const item = document.createElement('div');
-    item.className = 'faq-item';
-    item.innerHTML = `
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
-        ${f.q}
-        <span class="faq-arrow">&#9660;</span>
-      </div>
-      <div class="faq-a">${f.a}</div>`;
-    list.appendChild(item);
-  });
-}
-
-/* ─────────────────────────────────────────
-   Tabs
-───────────────────────────────────────── */
-function switchTab(btn, tab) {
-  btn.closest('.guide-tabs').querySelectorAll('.guide-tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  btn.closest('.guide-tabs').querySelectorAll('.guide-tab-content').forEach(c => c.classList.remove('active'));
-  btn.closest('.guide-tabs').querySelector(`[data-tab="${tab}"]`).classList.add('active');
-}
-
-/* ─────────────────────────────────────────
-   Copy
-───────────────────────────────────────── */
-function copyCmd(btn) {
-  const text = btn.parentElement.textContent.replace('复制', '').trim();
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '已复制';
-    setTimeout(() => btn.textContent = '复制', 2000);
-  });
-}
-
-/* ─────────────────────────────────────────
-   进度条
-───────────────────────────────────────── */
-window.addEventListener('scroll', () => {
-  const el = document.getElementById('progress-bar');
-  const p = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-  el.style.width = (p * 100) + '%';
-});
-
-/* ─────────────────────────────────────────
-   IntersectionObserver 入场
-───────────────────────────────────────── */
-function initFadeUps() {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
-}
-
-/* ─────────────────────────────────────────
-   Nav 高亮
-───────────────────────────────────────── */
-function initNavHighlight() {
-  const sections = document.querySelectorAll('section[id]');
-  const links = document.querySelectorAll('.nav-links a[href^="#"]');
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const id = e.target.id;
-        links.forEach(l => {
-          l.classList.toggle('active', l.getAttribute('href') === `#${id}`);
-        });
-      }
-    });
-  }, { rootMargin: '-40% 0px -50% 0px' });
-  sections.forEach(s => obs.observe(s));
-}
-
-/* ─────────────────────────────────────────
-   Mobile Nav
-───────────────────────────────────────── */
-let mobileNavOpen = false;
-function toggleMobileNav() {
-  mobileNavOpen = !mobileNavOpen;
-  const nav = document.getElementById('mobile-nav');
-  nav.style.display = mobileNavOpen ? 'flex' : 'none';
-}
-
-/* ─────────────────────────────────────────
-   初始化
-───────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  initTeam();
-  initSkills();
-  initFAQ();
-  initEvolution();
-  initFadeUps();
-  initNavHighlight();
-
-  // 延迟启动动画，等元素渲染完毕
-  setTimeout(() => {
-    initWorkflowCanvas();
-    initMemoryAnimation();
-    runTgScene();
-  }, 300);
-});
+// ═══ INIT ═══
+window.addEventListener('load',()=>{w_resize();window.addEventListener('resize',w_resize);w_bsl();setTimeout(w_adv,600);requestAnimationFrame(w_render);m_rsz();window.addEventListener('resize',m_rsz);m_write();m_rag();m_plain();m_hive();hero_run();});
 </script>
 </body>
 </html>
